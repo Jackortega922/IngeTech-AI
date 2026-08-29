@@ -18,11 +18,13 @@ Sprints de 2 semanas. Al cierre de cada uno: qué se completó, qué quedó, qu�
 
 | Historia | Dueño | Estado |
 |---|---|---|
-| Estructura del repo + docs + CI esqueleto | Jack | ✅ |
-| Repo en GitHub + colaboradores + protección de `main` | Jack | ☐ |
-| A1 Scaffold Laravel + Breeze + PostgreSQL | Jack | ☐ |
-| A2 docker-compose + Dockerfile | Jack | ☐ |
-| Cada miembro: onboarding hecho, `docker compose up` funciona | todos | ☐ |
+| Estructura del repo + docs + CI | Jack | ✅ |
+| Repo en GitHub + protección de `main` | Jack | ✅ |
+| Agregar a Marco y Diego como colaboradores | Jack | ☐ |
+| A1 Scaffold React Starter Kit + PostgreSQL | Jack | ✅ |
+| A6 CI real (laravel + ml-engine + frontend) | Jack | ✅ |
+| A2 docker-compose (`app`) + Dockerfile | Jack | ☐ |
+| Cada miembro: onboarding hecho, proyecto corriendo en local | todos | ☐ |
 | C1 Plantilla de ficha de laptop | Diego | ☐ |
 
 **Retro:** _(llenar al cierre)_

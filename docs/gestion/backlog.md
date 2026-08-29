@@ -9,12 +9,12 @@ priorización. Actualízalo cuando cambie el alcance.
 
 | # | Historia | Prio | Dueño | Estado |
 |---|---|---|---|---|
-| A1 | Scaffold Laravel + Breeze (Inertia/React) + PostgreSQL | M | Jack | ☐ |
-| A2 | docker-compose + Dockerfile (PHP + Python) | M | Jack | ☐ |
+| A1 | Scaffold — React Starter Kit (Laravel 12 + Inertia/React/TS) + PostgreSQL | M | Jack | ✅ |
+| A6 | CI (jobs laravel + ml-engine + frontend) | M | Jack | ✅ |
+| A2 | docker-compose (contenedor `app`) + Dockerfile (PHP + Python) | M | Jack | ☐ |
 | A3 | Migraciones y modelos base | M | Jack | ☐ |
 | A4 | `GET /api/health` | M | Jack | ☐ |
 | A5 | `POST /api/recomendaciones` con motor MOCK | M | Jack | ☐ |
-| A6 | CI (jobs laravel + ml-engine + frontend) | M | Jack | ☐ |
 | A7 | Motor: portar lógica de PC_EXPERT a `ml-engine/recommender/` | M | Jack | ☐ |
 | A8 | Motor: scoring por perfil + explicación de factores | M | Jack | ☐ |
 | A9 | Conectar API real al motor (quitar mock) | M | Jack | ☐ |

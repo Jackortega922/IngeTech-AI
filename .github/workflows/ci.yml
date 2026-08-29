@@ -6,43 +6,87 @@ on:
   pull_request:
     branches: [main]
 
-# Cancela ejecuciones viejas de la misma rama
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # ── Módulo A: backend Laravel ────────────────────────────────
+  # ── Backend Laravel (Módulo A) ──────────────────────────────
   laravel:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: ingetech
+          POSTGRES_USER: ingetech
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql, pgsql, mbstring, bcmath
+          tools: composer:v2
+
+      - name: Instalar dependencias PHP
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Preparar entorno
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Estilo (Pint)
+        run: ./vendor/bin/pint --test
+
+      - name: Pruebas (SQLite en memoria)
+        run: php artisan test
+
+      - name: Migraciones contra PostgreSQL
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: ingetech
+          DB_USERNAME: ingetech
+          DB_PASSWORD: secret
+        run: php artisan migrate --force
+
+  # ── Frontend (Módulo B) ─────────────────────────────────────
+  frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
 
-      - name: ¿Existe el proyecto Laravel?
-        id: check
-        run: |
-          if [ -f composer.json ]; then echo "exists=true" >> "$GITHUB_OUTPUT"; \
-          else echo "exists=false" >> "$GITHUB_OUTPUT"; echo "Laravel aún no scaffoldeado — se omite."; fi
-
-      - uses: shivammathur/setup-php@v2
-        if: steps.check.outputs.exists == 'true'
+      - uses: actions/setup-node@v4
         with:
-          php-version: '8.3'
-          tools: composer, pint
+          node-version: '20'
+          cache: npm
 
       - name: Instalar dependencias
-        if: steps.check.outputs.exists == 'true'
-        run: composer install --no-interaction --prefer-dist
+        run: npm ci
 
-      - name: Estilo (Pint)
-        if: steps.check.outputs.exists == 'true'
-        run: ./vendor/bin/pint --test
+      - name: Formato (Prettier)
+        run: npm run format:check
 
-      - name: Pruebas
-        if: steps.check.outputs.exists == 'true'
-        run: php artisan test
+      - name: Lint (ESLint)
+        run: npx eslint .
 
-  # ── Módulo A: motor de recomendación (Python) ────────────────
+      - name: Tipos (TypeScript)
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+  # ── Motor de recomendación (Módulo A) ───────────────────────
   ml-engine:
     runs-on: ubuntu-latest
     steps:
@@ -73,27 +117,3 @@ jobs:
         if: steps.check.outputs.exists == 'true'
         working-directory: ml-engine
         run: pytest -q
-
-  # ── Módulo B: frontend ──────────────────────────────────────
-  frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: ¿Existe package.json?
-        id: check
-        run: |
-          if [ -f package.json ]; then echo "exists=true" >> "$GITHUB_OUTPUT"; \
-          else echo "exists=false" >> "$GITHUB_OUTPUT"; echo "Frontend aún no scaffoldeado — se omite."; fi
-
-      - uses: actions/setup-node@v4
-        if: steps.check.outputs.exists == 'true'
-        with:
-          node-version: '20'
-          cache: npm
-
-      - name: Instalar y construir
-        if: steps.check.outputs.exists == 'true'
-        run: |
-          npm ci
-          npm run build --if-present

@@ -25,14 +25,14 @@ ml-engine/data/actividades.json      # lista cerrada de actividades del perfil
 ml-engine/data/software.json         # lista cerrada de software del perfil
 database/seeders/CatalogoSeeder.php  # carga esos JSON a la BD
 database/migrations/xxxx_catalogo_*  # tablas de catálogo (con ayuda de Jack)
-resources/js/Pages/Admin/Catalogo/   # pantalla CRUD (copiando el ejemplo de Jack)
+resources/js/pages/admin/catalogo/   # pantalla CRUD (copiando el ejemplo de Jack)
 docs/manuales/                       # manual de usuario, guion de UAT, resultados
 ```
 
 ## Qué NO tocas
 
 - `app/` (salvo el controlador del catálogo, que armas con Jack), `ml-engine/recommender/`,
-  `resources/js/Pages/{Perfil,Resultado,Personalizar}/`.
+  `resources/js/pages/{perfil,resultado,personalizar}/`.
 - Si algo de eso te bloquea, escríbelo en el grupo.
 
 ## De qué dependes

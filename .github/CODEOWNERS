@@ -17,12 +17,12 @@
 /Dockerfile                         @Jackortega922
 
 # ── Módulo B: Frontend del flujo de usuario (Marco) ──
-/resources/js/Pages/Perfil/         @MARCO-GITHUB @Jackortega922
-/resources/js/Pages/Resultado/      @MARCO-GITHUB @Jackortega922
-/resources/js/Pages/Personalizar/   @MARCO-GITHUB @Jackortega922
+/resources/js/pages/perfil/         @MARCO-GITHUB @Jackortega922
+/resources/js/pages/resultado/      @MARCO-GITHUB @Jackortega922
+/resources/js/pages/personalizar/   @MARCO-GITHUB @Jackortega922
 
 # ── Módulo C: Catálogo · datos · manuales (Diego) ──
-/resources/js/Pages/Admin/Catalogo/ @DIEGO-GITHUB @Jackortega922
+/resources/js/pages/admin/catalogo/ @DIEGO-GITHUB @Jackortega922
 /database/seeders/                  @DIEGO-GITHUB @Jackortega922
 /docs/manuales/                     @DIEGO-GITHUB @Jackortega922
 /ml-engine/data/                    @DIEGO-GITHUB @Jackortega922

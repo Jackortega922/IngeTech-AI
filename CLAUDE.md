@@ -14,14 +14,18 @@ que aplican a cualquier asistente de IA. Este archivo solo añade lo específico
 ## Comandos
 
 ```bash
-docker compose up --build                              # levanta todo
-docker compose exec app php artisan migrate --seed     # BD
-docker compose exec app php artisan test               # tests Laravel
-docker compose exec app ./vendor/bin/pint              # estilo PHP
-docker compose exec ml-engine pytest                   # tests motor
-docker compose exec ml-engine ruff check .             # lint Python
-npm run dev / npm run build                            # frontend (dentro de app)
+docker compose up -d db ml-engine     # base de datos + motor
+composer run dev                      # servidor Laravel + colas + Vite
+php artisan migrate                   # BD
+php artisan test                      # pruebas Laravel (Pest)
+./vendor/bin/pint                     # estilo PHP
+npm run lint && npx tsc --noEmit      # lint + tipos frontend
+npm run format                        # Prettier frontend
+docker compose exec ml-engine pytest  # pruebas motor
+docker compose exec ml-engine ruff check .   # lint Python
 ```
+
+> El contenedor `app` (Laravel en Docker) llega en la tarea A2. Hasta entonces, la app corre nativa.
 
 ## Flujo de trabajo
 

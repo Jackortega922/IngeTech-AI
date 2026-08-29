@@ -24,8 +24,8 @@ accesorios, kits).
 
 | Capa | Tecnología |
 |---|---|
-| App + API | Laravel 11 (PHP 8.2+) |
-| Frontend | Inertia + React + Tailwind CSS |
+| App + API | Laravel 12 (PHP 8.3+) |
+| Frontend | Inertia 2 + React 19 + TypeScript + Tailwind CSS 4 + shadcn/ui (React Starter Kit oficial) |
 | Motor de recomendación | Python · FastAPI · pandas · scikit-learn |
 | Base de datos | PostgreSQL 16 |
 | Infra | Docker Compose · GitHub Actions · Render |
@@ -43,10 +43,19 @@ accesorios, kits).
 ```bash
 git clone https://github.com/Jackortega922/IngeTech-AI.git
 cd IngeTech-AI
-docker compose up --build
+
+# Base de datos y motor de recomendación en Docker
+docker compose up -d db ml-engine
+
+# App Laravel (requiere PHP 8.3, Composer y Node en el sistema)
+cp .env.example .env
+composer install && npm install
+php artisan key:generate && php artisan migrate
+composer run dev        # levanta servidor + queue + vite
 ```
 
 - App: http://localhost:8000
 - Motor de recomendación (Swagger): http://localhost:5001/docs
 
-Detalle completo en [ONBOARDING.md](ONBOARDING.md).
+> El contenedor `app` (para correr Laravel sin instalar nada) llega en la tarea A2.
+> Detalle completo en [ONBOARDING.md](ONBOARDING.md).

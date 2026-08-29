@@ -11,11 +11,15 @@ antes de proponer cambios.
 
 ## Stack
 
-- **App + API:** Laravel 11, PHP 8.2+. Frontend con **Inertia + React** (no Blade salvo el layout raíz), Tailwind CSS.
+- **App + API:** Laravel 12, PHP 8.3+. Base: React Starter Kit oficial de Laravel.
+- **Frontend:** Inertia 2 + React 19 + **TypeScript** (`.tsx`) + Tailwind CSS 4 + **shadcn/ui**
+  (componentes en `resources/js/components/ui/`). Páginas en `resources/js/pages/` (minúscula,
+  archivos kebab-case). Nada de Blade salvo el layout raíz.
 - **Motor de recomendación:** `ml-engine/`, Python + FastAPI. En local corre como servidor
   (uvicorn); en producción Laravel lo invoca como **subproceso CLI** (`ml-engine/cli_entry.py`).
   El mismo código sirve ambos modos.
 - **BD:** PostgreSQL. Migraciones con Eloquent. Nunca escribir SQL de esquema a mano.
+- **Pruebas:** Pest (PHP). Frontend aún sin runner JS.
 - **Contrato entre Laravel y el motor:** JSON documentado en `docs/arquitectura/contrato-motor.md`.
 
 ## Límites por módulo
@@ -35,6 +39,7 @@ trabajar. Si un cambio necesita tocar otro módulo, decláralo en la respuesta e
 
 - No agregar dependencias sin justificar el porqué en el PR.
 - No introducir jQuery, Alpine, Vue, ni librerías de UI pesadas: la línea es React + shadcn/ui.
+- No cambiar a JavaScript plano ni quitar TypeScript. Tipos flojos al inicio está bien; quitarlos no.
 - No romper el contrato JSON del motor sin actualizar `docs/arquitectura/contrato-motor.md` y avisar.
 - No commitear `.env`, credenciales, ni datos de usuarios reales.
 - No “arreglar de paso” archivos de otro módulo.
