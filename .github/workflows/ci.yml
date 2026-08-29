@@ -66,6 +66,15 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Ziggy (rutas para el frontend) vive en vendor/; tsc y el build lo necesitan.
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+
+      - name: Instalar Ziggy (composer)
+        run: composer install --no-interaction --no-progress --no-scripts --no-dev
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
