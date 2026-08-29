@@ -1,0 +1,145 @@
+[
+  {
+    "categoria": "placa madre",
+    "nombre": "Gigabyte B560M DS3H",
+    "socket": "LGA1200",
+    "chipset": "B560",
+    "tipo_ram": "DDR4",
+    "max_ram_mhz": 3200,
+    "pcie_version": "4.0",
+    "vrm": "Normal",
+    "precio": 480
+  },
+
+  {
+    "categoria": "placa madre",
+    "nombre": "ASUS PRIME H510M-K",
+    "socket": "LGA1200",
+    "chipset": "H510",
+    "tipo_ram": "DDR4",
+    "max_ram_mhz": 2933,
+    "pcie_version": "3.0",
+    "vrm": "Básico",
+    "precio": 350
+  },
+
+  {
+    "categoria": "placa madre",
+    "nombre": "Gigabyte H610M H DDR4",
+    "socket": "LGA1700",
+    "chipset": "H610",
+    "tipo_ram": "DDR4",
+    "max_ram_mhz": 3200,
+    "pcie_version": "4.0",
+    "vrm": "Básico",
+    "precio": 390
+  },
+
+  {
+    "categoria": "placa madre",
+    "nombre": "Gigabyte B660M DS3H DDR4",
+    "socket": "LGA1700",
+    "chipset": "B660",
+    "tipo_ram": "DDR4",
+    "max_ram_mhz": 3600,
+    "pcie_version": "4.0",
+    "vrm": "Normal",
+    "precio": 520
+  },
+
+  {
+    "categoria": "placa madre",
+    "nombre": "MSI B450M PRO-VDH MAX",
+    "socket": "AM4",
+    "chipset": "B450",
+    "tipo_ram": "DDR4",
+    "max_ram_mhz": 3466,
+    "pcie_version": "3.0",
+    "vrm": "Normal",
+    "precio": 360
+  },
+
+  {
+    "categoria": "placa madre",
+    "nombre": "ASUS PRIME B550M-A",
+    "socket": "AM4",
+    "chipset": "B550",
+    "tipo_ram": "DDR4",
+    "max_ram_mhz": 4400,
+    "pcie_version": "4.0",
+    "vrm": "Bueno",
+    "precio": 520
+  },
+
+  {
+    "categoria": "placa madre",
+    "nombre": "MSI B550-A PRO",
+    "socket": "AM4",
+    "chipset": "B550",
+    "tipo_ram": "DDR4",
+    "max_ram_mhz": 4400,
+    "pcie_version": "4.0",
+    "vrm": "Bueno",
+    "precio": 590
+  },
+
+  {
+    "categoria": "placa madre",
+    "nombre": "ASUS PRIME A320M-K",
+    "socket": "AM4",
+    "chipset": "A320",
+    "tipo_ram": "DDR4",
+    "max_ram_mhz": 3200,
+    "pcie_version": "3.0",
+    "vrm": "Básico",
+    "precio": 280
+  },
+
+  {
+    "categoria": "placa madre",
+    "nombre": "Gigabyte X570 AORUS ELITE",
+    "socket": "AM4",
+    "chipset": "X570",
+    "tipo_ram": "DDR4",
+    "max_ram_mhz": 4400,
+    "pcie_version": "4.0",
+    "vrm": "Alto",
+    "precio": 820
+  },
+
+  {
+    "categoria": "placa madre",
+    "nombre": "ASUS PRIME B660M-A DDR5",
+    "socket": "LGA1700",
+    "chipset": "B660",
+    "tipo_ram": "DDR5",
+    "max_ram_mhz": 6000,
+    "pcie_version": "4.0",
+    "vrm": "Normal",
+    "precio": 520
+  },
+
+  {
+    "categoria": "placa madre",
+    "nombre": "Gigabyte B760M DS3H AX DDR5",
+    "socket": "LGA1700",
+    "chipset": "B760",
+    "tipo_ram": "DDR5",
+    "max_ram_mhz": 6400,
+    "pcie_version": "4.0",
+    "vrm": "Bueno",
+    "precio": 590
+  },
+
+  {
+    "categoria": "placa madre",
+    "nombre": "ASUS PRIME Z790-P DDR5",
+    "socket": "LGA1700",
+    "chipset": "Z790",
+    "tipo_ram": "DDR5",
+    "max_ram_mhz": 7200,
+    "pcie_version": "5.0",
+    "vrm": "Alto",
+    "precio": 980
+  }
+]

@@ -1,0 +1,444 @@
+[
+  {
+    "categoria": "gpu",
+    "nombre": "GTX 1050 Ti 4GB",
+    "precio": 620,
+    "min_fuente": 300,
+    "rendimiento": 1800,
+    "largo_mm": 229,
+    "tdp": 120,
+    "consumo_real": 132,
+    "pcie": "PCIe 3.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "GTX 1650 4GB",
+    "precio": 760,
+    "min_fuente": 300,
+    "rendimiento": 2200,
+    "largo_mm": 230,
+    "tdp": 120,
+    "consumo_real": 132,
+    "pcie": "PCIe 3.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "GTX 1650 Super 4GB",
+    "precio": 880,
+    "min_fuente": 350,
+    "rendimiento": 2800,
+    "largo_mm": 235,
+    "tdp": 125,
+    "consumo_real": 140,
+    "pcie": "PCIe 3.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "GTX 1660 6GB",
+    "precio": 1050,
+    "min_fuente": 450,
+    "rendimiento": 3800,
+    "largo_mm": 245,
+    "tdp": 130,
+    "consumo_real": 150,
+    "pcie": "PCIe 3.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "GTX 1660 Super 6GB",
+    "precio": 1150,
+    "min_fuente": 450,
+    "rendimiento": 4200,
+    "largo_mm": 245,
+    "tdp": 140,
+    "consumo_real": 160,
+    "pcie": "PCIe 3.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "GTX 1660 Ti 6GB",
+    "precio": 1250,
+    "min_fuente": 450,
+    "rendimiento": 4600,
+    "largo_mm": 245,
+    "tdp": 150,
+    "consumo_real": 165,
+    "pcie": "PCIe 3.0 x16"
+  },
+
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 2060 6GB",
+    "precio": 1350,
+    "min_fuente": 500,
+    "rendimiento": 5200,
+    "largo_mm": 250,
+    "tdp": 160,
+    "consumo_real": 190,
+    "pcie": "PCIe 3.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 2060 Super 8GB",
+    "precio": 1500,
+    "min_fuente": 550,
+    "rendimiento": 6000,
+    "largo_mm": 267,
+    "tdp": 175,
+    "consumo_real": 205,
+    "pcie": "PCIe 3.0 x16"
+  },
+
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 2070 Super 8GB",
+    "precio": 1850,
+    "min_fuente": 650,
+    "rendimiento": 7500,
+    "largo_mm": 267,
+    "tdp": 215,
+    "consumo_real": 240,
+    "pcie": "PCIe 3.0 x16"
+  },
+
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 3050 8GB",
+    "precio": 1050,
+    "min_fuente": 450,
+    "rendimiento": 4200,
+    "largo_mm": 250,
+    "tdp": 130,
+    "consumo_real": 150,
+    "pcie": "PCIe 4.0 x8"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 3060 12GB",
+    "precio": 1650,
+    "min_fuente": 550,
+    "rendimiento": 7200,
+    "largo_mm": 242,
+    "tdp": 170,
+    "consumo_real": 200,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 3060 Ti 8GB",
+    "precio": 1900,
+    "min_fuente": 600,
+    "rendimiento": 9000,
+    "largo_mm": 242,
+    "tdp": 200,
+    "consumo_real": 230,
+    "pcie": "PCIe 4.0 x16"
+  },
+
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 3070 8GB",
+    "precio": 2400,
+    "min_fuente": 650,
+    "rendimiento": 10500,
+    "largo_mm": 267,
+    "tdp": 220,
+    "consumo_real": 250,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 3070 Ti 8GB",
+    "precio": 2700,
+    "min_fuente": 700,
+    "rendimiento": 11500,
+    "largo_mm": 267,
+    "tdp": 290,
+    "consumo_real": 320,
+    "pcie": "PCIe 4.0 x16"
+  },
+
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 3080 10GB",
+    "precio": 3200,
+    "min_fuente": 750,
+    "rendimiento": 13500,
+    "largo_mm": 285,
+    "tdp": 320,
+    "consumo_real": 350,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 3080 Ti 12GB",
+    "precio": 3850,
+    "min_fuente": 850,
+    "rendimiento": 15000,
+    "largo_mm": 285,
+    "tdp": 350,
+    "consumo_real": 380,
+    "pcie": "PCIe 4.0 x16"
+  },
+
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 4070 12GB",
+    "precio": 2800,
+    "min_fuente": 650,
+    "rendimiento": 14000,
+    "largo_mm": 240,
+    "tdp": 200,
+    "consumo_real": 220,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 4070 Super 12GB",
+    "precio": 3100,
+    "min_fuente": 650,
+    "rendimiento": 15500,
+    "largo_mm": 240,
+    "tdp": 220,
+    "consumo_real": 250,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 4070 Ti Super 16GB",
+    "precio": 3900,
+    "min_fuente": 750,
+    "rendimiento": 18500,
+    "largo_mm": 260,
+    "tdp": 285,
+    "consumo_real": 315,
+    "pcie": "PCIe 4.0 x16"
+  },
+
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 4080 Super 16GB",
+    "precio": 5200,
+    "min_fuente": 850,
+    "rendimiento": 23500,
+    "largo_mm": 304,
+    "tdp": 320,
+    "consumo_real": 350,
+    "pcie": "PCIe 4.0 x16"
+  },
+
+  {
+    "categoria": "gpu",
+    "nombre": "RTX 4090 24GB",
+    "precio": 7800,
+    "min_fuente": 1000,
+    "rendimiento": 30000,
+    "largo_mm": 336,
+    "tdp": 450,
+    "consumo_real": 500,
+    "pcie": "PCIe 4.0 x16"
+  },
+
+  {
+    "categoria": "gpu",
+    "nombre": "RX 580 8GB",
+    "precio": 750,
+    "min_fuente": 500,
+    "rendimiento": 3500,
+    "largo_mm": 267,
+    "tdp": 185,
+    "consumo_real": 200,
+    "pcie": "PCIe 3.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RX 5500 XT 8GB",
+    "precio": 900,
+    "min_fuente": 450,
+    "rendimiento": 4100,
+    "largo_mm": 230,
+    "tdp": 130,
+    "consumo_real": 150,
+    "pcie": "PCIe 4.0 x8"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RX 5600 XT 8GB",
+    "precio": 1300,
+    "min_fuente": 550,
+    "rendimiento": 6500,
+    "largo_mm": 270,
+    "tdp": 160,
+    "consumo_real": 180,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RX 5700 XT 8GB",
+    "precio": 1600,
+    "min_fuente": 600,
+    "rendimiento": 9000,
+    "largo_mm": 270,
+    "tdp": 225,
+    "consumo_real": 250,
+    "pcie": "PCIe 4.0 x16"
+  },
+
+  {
+    "categoria": "gpu",
+    "nombre": "RX 6600 8GB",
+    "precio": 1150,
+    "min_fuente": 500,
+    "rendimiento": 7500,
+    "largo_mm": 240,
+    "tdp": 132,
+    "consumo_real": 150,
+    "pcie": "PCIe 4.0 x8"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RX 6600 XT 8GB",
+    "precio": 1350,
+    "min_fuente": 550,
+    "rendimiento": 8500,
+    "largo_mm": 240,
+    "tdp": 160,
+    "consumo_real": 180,
+    "pcie": "PCIe 4.0 x8"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RX 6700 10GB",
+    "precio": 1600,
+    "min_fuente": 600,
+    "rendimiento": 10500,
+    "largo_mm": 280,
+    "tdp": 175,
+    "consumo_real": 200,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RX 6700 XT 12GB",
+    "precio": 1850,
+    "min_fuente": 650,
+    "rendimiento": 12000,
+    "largo_mm": 280,
+    "tdp": 230,
+    "consumo_real": 260,
+    "pcie": "PCIe 4.0 x16"
+  },
+
+  {
+    "categoria": "gpu",
+    "nombre": "RX 6800 16GB",
+    "precio": 2400,
+    "min_fuente": 750,
+    "rendimiento": 15000,
+    "largo_mm": 267,
+    "tdp": 250,
+    "consumo_real": 275,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RX 6800 XT 16GB",
+    "precio": 2900,
+    "min_fuente": 850,
+    "rendimiento": 17000,
+    "largo_mm": 267,
+    "tdp": 300,
+    "consumo_real": 330,
+    "pcie": "PCIe 4.0 x16"
+  },
+
+  {
+    "categoria": "gpu",
+    "nombre": "RX 7900 GRE 16GB",
+    "precio": 2600,
+    "min_fuente": 750,
+    "rendimiento": 18500,
+    "largo_mm": 287,
+    "tdp": 260,
+    "consumo_real": 300,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RX 7900 XT 20GB",
+    "precio": 3600,
+    "min_fuente": 850,
+    "rendimiento": 23000,
+    "largo_mm": 287,
+    "tdp": 300,
+    "consumo_real": 330,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "RX 7900 XTX 24GB",
+    "precio": 4200,
+    "min_fuente": 1000,
+    "rendimiento": 26000,
+    "largo_mm": 287,
+    "tdp": 355,
+    "consumo_real": 390,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "MSI RTX 3050 Gaming X 6G",
+    "precio": 959,
+    "min_fuente": 300,
+    "rendimiento": 9000,
+    "largo_mm": 205,
+    "tdp": 70,
+    "consumo_real": 95,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "ASUS RTX 3050 Dual 6G",
+    "precio": 780,
+    "min_fuente": 450,
+    "rendimiento": 9000,
+    "largo_mm": 200,
+    "tdp": 130,
+    "consumo_real": 120,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "ASUS RTX 3050 Dual 8G",
+    "precio": 917,
+    "min_fuente": 450,
+    "rendimiento": 9500,
+    "largo_mm": 200,
+    "tdp": 130,
+    "consumo_real": 120,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "Gigabyte RTX 3050 Eagle OC 8G",
+    "precio": 1024.34,
+    "min_fuente": 450,
+    "rendimiento": 9200,
+    "largo_mm": 213,
+    "tdp": 130,
+    "consumo_real": 115,
+    "pcie": "PCIe 4.0 x16"
+  },
+  {
+    "categoria": "gpu",
+    "nombre": "Zotac RTX 3050 Twin Edge 8G",
+    "precio": 1759.5,
+    "min_fuente": 450,
+    "rendimiento": 9000,
+    "largo_mm": 224,
+    "tdp": 1350.5,
+    "consumo_real": 120,
+    "pcie": "PCIe 4.0 x16"
+  }
+
+]

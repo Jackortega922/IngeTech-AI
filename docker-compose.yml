@@ -1,0 +1,53 @@
+# Entorno de desarrollo local.
+#
+# Estado: PostgreSQL y ml-engine funcionan. El servicio `app` (Laravel) se activa en la tarea A2
+# (scaffold), cuando exista el Dockerfile de PHP. Hasta entonces está comentado.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-ingetech}
+      POSTGRES_USER: ${DB_USERNAME:-ingetech}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-ingetech}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  ml-engine:
+    build: ./ml-engine
+    environment:
+      RECOMMENDER_MODE: http
+    volumes:
+      - ./ml-engine:/app
+    ports:
+      - "5001:5001"
+    command: uvicorn app:app --host 0.0.0.0 --port 5001 --reload
+
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #     ml-engine:
+  #       condition: service_started
+  #   env_file: .env
+  #   environment:
+  #     RECOMMENDER_MODE: http
+  #     RECOMMENDER_URL: http://ml-engine:5001
+  #   volumes:
+  #     - .:/var/www/html
+  #   ports:
+  #     - "8000:8000"
+  #   command: php artisan serve --host 0.0.0.0 --port 8000
+
+volumes:
+  db-data:

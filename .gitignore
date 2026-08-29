@@ -1,0 +1,49 @@
+# ── Laravel / PHP ─────────────────────────────
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/bootstrap/cache/*.php
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+.phpunit.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+
+# ── Node / Vite ───────────────────────────────
+node_modules/
+dist/
+.vite/
+*.local
+
+# ── Python / ml-engine ────────────────────────
+ml-engine/venv/
+ml-engine/.venv/
+**/__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+ml-engine/.pytest_cache/
+ml-engine/*.egg-info/
+
+# ── Editores / SO ─────────────────────────────
+/.idea
+/.vscode/*
+!/.vscode/extensions.json
+!/.devcontainer
+.DS_Store
+Thumbs.db
+*.swp
+
+# ── Datos y artefactos locales ────────────────
+/storage/logs/*.log
+*.sqlite
+/coverage
+docker-compose.override.yml

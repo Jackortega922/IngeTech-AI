@@ -1,0 +1,152 @@
+[
+  {
+    "categoria": "ram",
+    "nombre": "Kingston Fury Beast 8GB DDR4 2666",
+    "precio": 85,
+    "tipo": "DDR4",
+    "frecuencia": 2666,
+    "latencia": "CL16",
+    "voltaje": 1.20,
+    "dual_channel": false,
+    "rendimiento": 50,
+    "recomendado_para": "Intel 6th–13th Gen, Ryzen 1st Gen"
+  },
+  {
+    "categoria": "ram",
+    "nombre": "Kingston Fury Beast 8GB DDR4 3200",
+    "precio": 95,
+    "tipo": "DDR4",
+    "frecuencia": 3200,
+    "latencia": "CL16",
+    "voltaje": 1.35,
+    "dual_channel": false,
+    "rendimiento": 60,
+    "recomendado_para": "Intel 8th–13th Gen, Ryzen 3rd–5th Gen"
+  },
+  {
+    "categoria": "ram",
+    "nombre": "ADATA XPG 8GB DDR4 3200",
+    "precio": 90,
+    "tipo": "DDR4",
+    "frecuencia": 3200,
+    "latencia": "CL16",
+    "voltaje": 1.35,
+    "dual_channel": false,
+    "rendimiento": 58,
+    "recomendado_para": "Intel 10th–13th, Ryzen 3000–5000"
+  },
+  {
+    "categoria": "ram",
+    "nombre": "Corsair Vengeance LPX 8GB DDR4 3600",
+    "precio": 110,
+    "tipo": "DDR4",
+    "frecuencia": 3600,
+    "latencia": "CL18",
+    "voltaje": 1.35,
+    "dual_channel": false,
+    "rendimiento": 68,
+    "recomendado_para": "Ryzen 3000–5000 (ideal)"
+  },
+
+  {
+    "categoria": "ram",
+    "nombre": "Kingston Fury Beast 2x8GB DDR4 3200",
+    "precio": 170,
+    "tipo": "DDR4",
+    "frecuencia": 3200,
+    "latencia": "CL16",
+    "voltaje": 1.35,
+    "dual_channel": true,
+    "rendimiento": 95,
+    "recomendado_para": "Intel y Ryzen gama media"
+  },
+  {
+    "categoria": "ram",
+    "nombre": "Corsair Vengeance 2x8GB DDR4 3600",
+    "precio": 200,
+    "tipo": "DDR4",
+    "frecuencia": 3600,
+    "latencia": "CL18",
+    "voltaje": 1.35,
+    "dual_channel": true,
+    "rendimiento": 110,
+    "recomendado_para": "Ryzen 5000 (mejor rendimiento)"
+  },
+
+  {
+    "categoria": "ram",
+    "nombre": "TeamGroup Vulcan Z 16GB DDR4 3200",
+    "precio": 150,
+    "tipo": "DDR4",
+    "frecuencia": 3200,
+    "latencia": "CL16",
+    "voltaje": 1.35,
+    "dual_channel": false,
+    "rendimiento": 80,
+    "recomendado_para": "Ryzen 3000/5000, Intel 10/11/12"
+  },
+
+  {
+    "categoria": "ram",
+    "nombre": "Crucial Pro 16GB DDR4 3200",
+    "precio": 145,
+    "tipo": "DDR4",
+    "frecuencia": 3200,
+    "latencia": "CL16",
+    "voltaje": 1.35,
+    "dual_channel": false,
+    "rendimiento": 75,
+    "recomendado_para": "Intel 8–13 Gen, Ryzen 2000–5000"
+  },
+
+  {
+    "categoria": "ram",
+    "nombre": "Kingston Fury Beast 16GB DDR5 5200",
+    "precio": 260,
+    "tipo": "DDR5",
+    "frecuencia": 5200,
+    "latencia": "CL40",
+    "voltaje": 1.25,
+    "dual_channel": false,
+    "rendimiento": 140,
+    "recomendado_para": "Ryzen 7000, Intel 12/13/14 Gen"
+  },
+  {
+    "categoria": "ram",
+    "nombre": "Kingston Fury Beast 2x8GB DDR5 5200",
+    "precio": 300,
+    "tipo": "DDR5",
+    "frecuencia": 5200,
+    "latencia": "CL40",
+    "voltaje": 1.25,
+    "dual_channel": true,
+    "rendimiento": 160,
+    "recomendado_para": "AM5 + Intel LGA1700 (gama alta)"
+  },
+
+  {
+    "categoria": "ram",
+    "nombre": "Corsair Vengeance 16GB DDR5 5600",
+    "precio": 280,
+    "tipo": "DDR5",
+    "frecuencia": 5600,
+    "latencia": "CL40",
+    "voltaje": 1.25,
+    "dual_channel": false,
+    "rendimiento": 150,
+    "recomendado_para": "Ryzen 7000 + Intel 13/14 Gen"
+  },
+
+  {
+    "categoria": "ram",
+    "nombre": "Corsair Vengeance 2x16GB DDR5 6000",
+    "precio": 520,
+    "tipo": "DDR5",
+    "frecuencia": 6000,
+    "latencia": "CL36",
+    "voltaje": 1.35,
+    "dual_channel": true,
+    "rendimiento": 210,
+    "recomendado_para": "Ryzen 7000 (Sweet Spot 6000 MHz)"
+  }
+]

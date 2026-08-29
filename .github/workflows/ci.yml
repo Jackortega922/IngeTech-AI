@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancela ejecuciones viejas de la misma rama
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Módulo A: backend Laravel ────────────────────────────────
+  laravel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ¿Existe el proyecto Laravel?
+        id: check
+        run: |
+          if [ -f composer.json ]; then echo "exists=true" >> "$GITHUB_OUTPUT"; \
+          else echo "exists=false" >> "$GITHUB_OUTPUT"; echo "Laravel aún no scaffoldeado — se omite."; fi
+
+      - uses: shivammathur/setup-php@v2
+        if: steps.check.outputs.exists == 'true'
+        with:
+          php-version: '8.3'
+          tools: composer, pint
+
+      - name: Instalar dependencias
+        if: steps.check.outputs.exists == 'true'
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Estilo (Pint)
+        if: steps.check.outputs.exists == 'true'
+        run: ./vendor/bin/pint --test
+
+      - name: Pruebas
+        if: steps.check.outputs.exists == 'true'
+        run: php artisan test
+
+  # ── Módulo A: motor de recomendación (Python) ────────────────
+  ml-engine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ¿Existe el ml-engine?
+        id: check
+        run: |
+          if [ -f ml-engine/requirements.txt ]; then echo "exists=true" >> "$GITHUB_OUTPUT"; \
+          else echo "exists=false" >> "$GITHUB_OUTPUT"; echo "ml-engine aún sin requirements — se omite."; fi
+
+      - uses: actions/setup-python@v5
+        if: steps.check.outputs.exists == 'true'
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        if: steps.check.outputs.exists == 'true'
+        working-directory: ml-engine
+        run: |
+          pip install -r requirements.txt
+          pip install ruff pytest
+
+      - name: Lint (ruff)
+        if: steps.check.outputs.exists == 'true'
+        working-directory: ml-engine
+        run: ruff check .
+
+      - name: Pruebas
+        if: steps.check.outputs.exists == 'true'
+        working-directory: ml-engine
+        run: pytest -q
+
+  # ── Módulo B: frontend ──────────────────────────────────────
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ¿Existe package.json?
+        id: check
+        run: |
+          if [ -f package.json ]; then echo "exists=true" >> "$GITHUB_OUTPUT"; \
+          else echo "exists=false" >> "$GITHUB_OUTPUT"; echo "Frontend aún no scaffoldeado — se omite."; fi
+
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.exists == 'true'
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Instalar y construir
+        if: steps.check.outputs.exists == 'true'
+        run: |
+          npm ci
+          npm run build --if-present

@@ -1,0 +1,122 @@
+[
+  {
+    "categoria": "case",
+    "nombre": "Halion Volcano HX300",
+    "precio": 110,
+    "form_factor": "ATX/mATX",
+    "airflow": "Bajo",
+    "gpu_max_mm": 290,
+    "ventiladores_incluidos": 1,
+    "ventiladores_soportados": 4,
+    "radiador_max_mm": 120,
+    "largo_psu_mm": 160
+  },
+  {
+    "categoria": "case",
+    "nombre": "Antryx GX2000 Frost",
+    "precio": 160,
+    "form_factor": "ATX/mATX",
+    "airflow": "Medio",
+    "gpu_max_mm": 310,
+    "ventiladores_incluidos": 3,
+    "ventiladores_soportados": 6,
+    "radiador_max_mm": 240,
+    "largo_psu_mm": 180
+  },
+  {
+    "categoria": "case",
+    "nombre": "Cooler Master MasterBox Q300L",
+    "precio": 180,
+    "form_factor": "mATX",
+    "airflow": "Medio",
+    "gpu_max_mm": 360,
+    "ventiladores_incluidos": 0,
+    "ventiladores_soportados": 6,
+    "radiador_max_mm": 240,
+    "largo_psu_mm": 160
+  },
+  {
+    "categoria": "case",
+    "nombre": "Thermaltake V200 TG RGB",
+    "precio": 210,
+    "form_factor": "ATX/mATX",
+    "airflow": "Medio",
+    "gpu_max_mm": 320,
+    "ventiladores_incluidos": 3,
+    "ventiladores_soportados": 6,
+    "radiador_max_mm": 280,
+    "largo_psu_mm": 180
+  },
+  {
+    "categoria": "case",
+    "nombre": "Corsair 4000D Airflow",
+    "precio": 330,
+    "form_factor": "ATX/mATX",
+    "airflow": "Alto",
+    "gpu_max_mm": 360,
+    "ventiladores_incluidos": 2,
+    "ventiladores_soportados": 6,
+    "radiador_max_mm": 360,
+    "largo_psu_mm": 180
+  },
+  {
+    "categoria": "case",
+    "nombre": "NZXT H510 Flow",
+    "precio": 350,
+    "form_factor": "ATX/mATX",
+    "airflow": "Alto",
+    "gpu_max_mm": 360,
+    "ventiladores_incluidos": 2,
+    "ventiladores_soportados": 5,
+    "radiador_max_mm": 280,
+    "largo_psu_mm": 180
+  },
+  {
+    "categoria": "case",
+    "nombre": "Lian Li Lancool 215",
+    "precio": 380,
+    "form_factor": "ATX/mATX",
+    "airflow": "Excelente",
+    "gpu_max_mm": 370,
+    "ventiladores_incluidos": 3,
+    "ventiladores_soportados": 7,
+    "radiador_max_mm": 360,
+    "largo_psu_mm": 200
+  },
+  {
+    "categoria": "case",
+    "nombre": "Phanteks P400A Digital",
+    "precio": 420,
+    "form_factor": "ATX/mATX",
+    "airflow": "Excelente",
+    "gpu_max_mm": 360,
+    "ventiladores_incluidos": 3,
+    "ventiladores_soportados": 6,
+    "radiador_max_mm": 360,
+    "largo_psu_mm": 190
+  },
+  {
+    "categoria": "case",
+    "nombre": "Lian Li O11 Dynamic",
+    "precio": 550,
+    "form_factor": "ATX/mATX",
+    "airflow": "Alto (dependiente de ventiladores)",
+    "gpu_max_mm": 420,
+    "ventiladores_incluidos": 0,
+    "ventiladores_soportados": 9,
+    "radiador_max_mm": 360,
+    "largo_psu_mm": 200
+  },
+  {
+    "categoria": "case",
+    "nombre": "Fractal Design Torrent",
+    "precio": 780,
+    "form_factor": "ATX/mATX",
+    "airflow": "Extremo (mejor del mundo)",
+    "gpu_max_mm": 420,
+    "ventiladores_incluidos": 5,
+    "ventiladores_soportados": 7,
+    "radiador_max_mm": 420,
+    "largo_psu_mm": 230
+  }
+]

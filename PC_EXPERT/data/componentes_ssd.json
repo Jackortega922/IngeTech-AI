@@ -1,0 +1,204 @@
+[
+  {
+    "categoria": "ssd",
+    "nombre": "Kingston A400 240GB",
+    "precio": 75,
+    "tipo": "SATA",
+    "interfaz": "SATA III",
+    "pcie": "No aplica",
+    "lectura": 500,
+    "escritura": 350,
+    "dram": false,
+    "tbw": 80,
+    "consumo": 2
+  },
+  {
+    "categoria": "ssd",
+    "nombre": "Kingston A400 480GB",
+    "precio": 95,
+    "tipo": "SATA",
+    "interfaz": "SATA III",
+    "pcie": "No aplica",
+    "lectura": 500,
+    "escritura": 450,
+    "dram": false,
+    "tbw": 120,
+    "consumo": 2
+  },
+
+  {
+    "categoria": "ssd",
+    "nombre": "Kingston NV2 250GB",
+    "precio": 85,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 4.0 x4",
+    "lectura": 3000,
+    "escritura": 1300,
+    "dram": false,
+    "tbw": 80,
+    "consumo": 3
+  },
+  {
+    "categoria": "ssd",
+    "nombre": "Kingston NV2 500GB",
+    "precio": 120,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 4.0 x4",
+    "lectura": 3500,
+    "escritura": 2100,
+    "dram": false,
+    "tbw": 160,
+    "consumo": 3
+  },
+  {
+    "categoria": "ssd",
+    "nombre": "Kingston NV2 1TB",
+    "precio": 210,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 4.0 x4",
+    "lectura": 3500,
+    "escritura": 2800,
+    "dram": false,
+    "tbw": 320,
+    "consumo": 3
+  },
+
+  {
+    "categoria": "ssd",
+    "nombre": "Crucial P3 500GB",
+    "precio": 135,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 3.0 x4",
+    "lectura": 3500,
+    "escritura": 3000,
+    "dram": false,
+    "tbw": 110,
+    "consumo": 3
+  },
+  {
+    "categoria": "ssd",
+    "nombre": "Crucial P3 1TB",
+    "precio": 220,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 3.0 x4",
+    "lectura": 3500,
+    "escritura": 3000,
+    "dram": false,
+    "tbw": 220,
+    "consumo": 3
+  },
+
+  {
+    "categoria": "ssd",
+    "nombre": "Crucial P5 Plus 500GB",
+    "precio": 180,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 4.0 x4",
+    "lectura": 6600,
+    "escritura": 5000,
+    "dram": true,
+    "tbw": 150,
+    "consumo": 4
+  },
+  {
+    "categoria": "ssd",
+    "nombre": "Crucial P5 Plus 1TB",
+    "precio": 280,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 4.0 x4",
+    "lectura": 6600,
+    "escritura": 5000,
+    "dram": true,
+    "tbw": 300,
+    "consumo": 4
+  },
+
+  {
+    "categoria": "ssd",
+    "nombre": "Samsung 970 EVO Plus 500GB",
+    "precio": 220,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 3.0 x4",
+    "lectura": 3500,
+    "escritura": 3300,
+    "dram": true,
+    "tbw": 150,
+    "consumo": 5
+  },
+  {
+    "categoria": "ssd",
+    "nombre": "Samsung 970 EVO Plus 1TB",
+    "precio": 320,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 3.0 x4",
+    "lectura": 3500,
+    "escritura": 3300,
+    "dram": true,
+    "tbw": 300,
+    "consumo": 5
+  },
+
+  {
+    "categoria": "ssd",
+    "nombre": "Samsung 980 PRO 500GB",
+    "precio": 260,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 4.0 x4",
+    "lectura": 7000,
+    "escritura": 5000,
+    "dram": true,
+    "tbw": 300,
+    "consumo": 5
+  },
+  {
+    "categoria": "ssd",
+    "nombre": "Samsung 980 PRO 1TB",
+    "precio": 380,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 4.0 x4",
+    "lectura": 7000,
+    "escritura": 5000,
+    "dram": true,
+    "tbw": 600,
+    "consumo": 5
+  },
+
+  {
+    "categoria": "ssd",
+    "nombre": "ADATA LEGEND 850 1TB",
+    "precio": 290,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 4.0 x4",
+    "lectura": 5000,
+    "escritura": 4500,
+    "dram": false,
+    "tbw": 600,
+    "consumo": 4
+  },
+
+  {
+    "categoria": "ssd",
+    "nombre": "Crucial T700 1TB",
+    "precio": 520,
+    "tipo": "NVMe",
+    "interfaz": "M.2 2280",
+    "pcie": "PCIe 5.0 x4",
+    "lectura": 11500,
+    "escritura": 8500,
+    "dram": true,
+    "tbw": 600,
+    "consumo": 8
+  }
+]

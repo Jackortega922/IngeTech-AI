@@ -1,0 +1,143 @@
+[
+  {
+    "categoria": "fuente",
+    "nombre": "Halion 550W HP",
+    "precio": 75,
+    "watts": 300,
+    "certificacion": "Sin certificación",
+    "tier": "F",
+    "protecciones": ["N/A"],
+    "recomendada_hasta": "GTX 1050 Ti",
+    "eficiencia": 70
+  },
+  {
+    "categoria": "fuente",
+    "nombre": "Micronics 600W ATX",
+    "precio": 90,
+    "watts": 350,
+    "certificacion": "Sin certificación",
+    "tier": "F",
+    "protecciones": ["SCP"],
+    "recomendada_hasta": "GTX 1650",
+    "eficiencia": 72
+  },
+
+  {
+    "categoria": "fuente",
+    "nombre": "EVGA 450 BR",
+    "precio": 180,
+    "watts": 430,
+    "certificacion": "80+ Bronze",
+    "tier": "C",
+    "protecciones": ["OVP", "SCP"],
+    "recomendada_hasta": "GTX 1650 Super",
+    "eficiencia": 83
+  },
+  {
+    "categoria": "fuente",
+    "nombre": "EVGA 500 BR",
+    "precio": 220,
+    "watts": 480,
+    "certificacion": "80+ Bronze",
+    "tier": "C",
+    "protecciones": ["OVP", "SCP", "UVP"],
+    "recomendada_hasta": "GTX 1660 Super",
+    "eficiencia": 85
+  },
+
+  {
+    "categoria": "fuente",
+    "nombre": "Thermaltake Smart 600W",
+    "precio": 240,
+    "watts": 550,
+    "certificacion": "80+ White",
+    "tier": "C",
+    "protecciones": ["OVP", "SCP"],
+    "recomendada_hasta": "RTX 2060",
+    "eficiencia": 80
+  },
+
+  {
+    "categoria": "fuente",
+    "nombre": "Cougar XTC 650W",
+    "precio": 260,
+    "watts": 600,
+    "certificacion": "80+ White",
+    "tier": "C",
+    "protecciones": ["OVP", "UVP", "SCP"],
+    "recomendada_hasta": "RTX 3060",
+    "eficiencia": 82
+  },
+
+  {
+    "categoria": "fuente",
+    "nombre": "Corsair CV650",
+    "precio": 280,
+    "watts": 630,
+    "certificacion": "80+ Bronze",
+    "tier": "B",
+    "protecciones": ["OVP", "UVP", "SCP"],
+    "recomendada_hasta": "RTX 3060 Ti",
+    "eficiencia": 84
+  },
+
+  {
+    "categoria": "fuente",
+    "nombre": "EVGA 650 GT",
+    "precio": 360,
+    "watts": 650,
+    "certificacion": "80+ Gold",
+    "tier": "A",
+    "protecciones": ["OCP", "OVP", "UVP", "OTP", "SCP"],
+    "recomendada_hasta": "RTX 3070",
+    "eficiencia": 90
+  },
+
+  {
+    "categoria": "fuente",
+    "nombre": "Corsair RM650",
+    "precio": 420,
+    "watts": 650,
+    "certificacion": "80+ Gold",
+    "tier": "A",
+    "protecciones": ["OCP", "OVP", "UVP", "OTP", "SCP"],
+    "recomendada_hasta": "RTX 3080",
+    "eficiencia": 92
+  },
+
+  {
+    "categoria": "fuente",
+    "nombre": "EVGA SuperNOVA 750 G5",
+    "precio": 520,
+    "watts": 750,
+    "certificacion": "80+ Gold",
+    "tier": "A",
+    "protecciones": ["OCP", "OVP", "UVP", "OTP", "SCP"],
+    "recomendada_hasta": "RTX 4080",
+    "eficiencia": 92
+  },
+
+  {
+    "categoria": "fuente",
+    "nombre": "Corsair RM850x",
+    "precio": 620,
+    "watts": 850,
+    "certificacion": "80+ Gold",
+    "tier": "S",
+    "protecciones": ["OCP", "OVP", "UVP", "OTP", "SCP"],
+    "recomendada_hasta": "RTX 4090",
+    "eficiencia": 93
+  },
+
+  {
+    "categoria": "fuente",
+    "nombre": "Seasonic PRIME TX-1000",
+    "precio": 1250,
+    "watts": 1000,
+    "certificacion": "80+ Titanium",
+    "tier": "S",
+    "protecciones": ["OCP", "OVP", "UVP", "OTP", "SCP"],
+    "recomendada_hasta": "RTX 4090 OC / RX 7900 XTX OC",
+    "eficiencia": 96
+  }
+]

@@ -1,0 +1,14 @@
+{
+    "nombre": "profesional",
+    "fondo": "#FFFFFF",
+    "fondo_panel": "#F5F5F5",
+    "texto": "#1A1A1A",
+    "texto_secundario": "#5A5A5A",
+    "boton_fondo": "#0066CC",
+    "boton_texto": "#FFFFFF",
+    "borde": "#CCCCCC",
+    "seleccion": "#AED4FF",
+    "error": "#CC0000",
+    "advertencia": "#FF9900",
+    "exito": "#008800"
+}

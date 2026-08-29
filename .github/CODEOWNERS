@@ -1,0 +1,32 @@
+# CODEOWNERS — quién revisa qué.
+# GitHub pide automáticamente review al dueño cuando un PR toca sus archivos.
+#
+# TODO: reemplazar @MARCO-GITHUB y @DIEGO-GITHUB por los usuarios reales de GitHub
+#       cuando Jack los agregue como colaboradores.
+
+# Por defecto, todo lo revisa Jack (integrador)
+*                                   @Jackortega922
+
+# ── Módulo A: Núcleo Laravel · API · Motor IA · Infra (Jack) ──
+/app/                               @Jackortega922
+/routes/                            @Jackortega922
+/config/                            @Jackortega922
+/ml-engine/                         @Jackortega922
+/.github/                           @Jackortega922
+/docker-compose.yml                 @Jackortega922
+/Dockerfile                         @Jackortega922
+
+# ── Módulo B: Frontend del flujo de usuario (Marco) ──
+/resources/js/Pages/Perfil/         @MARCO-GITHUB @Jackortega922
+/resources/js/Pages/Resultado/      @MARCO-GITHUB @Jackortega922
+/resources/js/Pages/Personalizar/   @MARCO-GITHUB @Jackortega922
+
+# ── Módulo C: Catálogo · datos · manuales (Diego) ──
+/resources/js/Pages/Admin/Catalogo/ @DIEGO-GITHUB @Jackortega922
+/database/seeders/                  @DIEGO-GITHUB @Jackortega922
+/docs/manuales/                     @DIEGO-GITHUB @Jackortega922
+/ml-engine/data/                    @DIEGO-GITHUB @Jackortega922
+
+# ── Documentación compartida: la revisa Jack ──
+/docs/arquitectura/                 @Jackortega922
+/docs/adr/                          @Jackortega922

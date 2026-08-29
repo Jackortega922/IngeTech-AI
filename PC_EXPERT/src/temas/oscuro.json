@@ -1,0 +1,14 @@
+{
+    "nombre": "oscuro",
+    "fondo": "#1E1E1E",
+    "fondo_panel": "#2A2A2A",
+    "texto": "#E6E6E6",
+    "texto_secundario": "#B3B3B3",
+    "boton_fondo": "#3C7DFF",
+    "boton_texto": "#FFFFFF",
+    "borde": "#444444",
+    "seleccion": "#3C7DFF",
+    "error": "#FF4C4C",
+    "advertencia": "#E6B800",
+    "exito": "#4CE68A"
+}

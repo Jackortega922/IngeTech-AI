@@ -1,0 +1,60 @@
+
+---
+
+## 🚀 Características Principales
+
+### ✔ Recomendador Inteligente
+Ingresa un presupuesto y el sistema te arma la mejor PC posible dentro del rango.
+
+### ✔ Motor de Compatibilidad
+Valida:
+- CPU ↔ Placa madre  
+- Placa ↔ RAM  
+- GPU ↔ Fuente  
+- Wattaje mínimo recomendado  
+- Chipset y estándares
+
+### ✔ Buscador Avanzado
+Busca por:
+- Nombre  
+- Categoría  
+- Rango de precios  
+- Palabras clave  
+
+### ✔ Armado Paso a Paso
+Flujo estilo PCPartPicker:
+1. CPU  
+2. Placa  
+3. RAM  
+4. GPU  
+5. Fuente  
+6. Case  
+7. Precio total calculado  
+8. Exportación a PDF o TXT  
+
+### ✔ Exportación Profesional
+- PDF con formato  
+- TXT simple  
+- Plantillas editables
+
+### ✔ Sistema de Aprendizaje
+El programa registra preferencias del usuario y mejora las recomendaciones.
+
+### ✔ Temas visuales
+- Oscuro  
+- Gamer  
+- Profesional  
+
+### ✔ Instalador
+- Se puede compilar en **EXE**
+- Soporta **ico**
+- Preparado para MSI
+
+---
+
+## 🔧 Instalación
+
+### 1. Instalar dependencias
+
+```bash
+pip install -r requirements.txt

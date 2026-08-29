@@ -1,0 +1,303 @@
+[
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i3-10100F",
+    "precio": 330,
+    "socket": "LGA1200",
+    "tdp": 65,
+    "rendimiento": 1500,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "2666-3200 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i3-10105F",
+    "precio": 350,
+    "socket": "LGA1200",
+    "tdp": 65,
+    "rendimiento": 1600,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "2666-3200 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i3-12100F",
+    "precio": 430,
+    "socket": "LGA1700",
+    "tdp": 60,
+    "rendimiento": 2200,
+    "consumo_real": 78,
+    "frecuencia_ram_recomendada": "2666-3200 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i5-10400F",
+    "precio": 480,
+    "socket": "LGA1200",
+    "tdp": 65,
+    "rendimiento": 2600,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "2666-3200 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i5-10600KF",
+    "precio": 650,
+    "socket": "LGA1200",
+    "tdp": 125,
+    "rendimiento": 3400,
+    "consumo_real": 163,
+    "frecuencia_ram_recomendada": "2666-3200 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i5-11400F",
+    "precio": 540,
+    "socket": "LGA1200",
+    "tdp": 65,
+    "rendimiento": 2800,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "2666-3200 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i5-12400F",
+    "precio": 580,
+    "socket": "LGA1700",
+    "tdp": 65,
+    "rendimiento": 3400,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "2666-3200 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i5-13400F",
+    "precio": 750,
+    "socket": "LGA1700",
+    "tdp": 65,
+    "rendimiento": 4200,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "2666-3200 MHz DDR4"
+  },
+  
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i7-10700",
+    "precio": 958.50,
+    "socket": "LGA1200",
+    "tdp": 65,
+    "rendimiento": 4800,
+    "consumo_real": 90,
+    "frecuencia_ram_recomendada": "2666-2933 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i7-10700E",
+    "precio": 965,
+    "socket": "LGA1200",
+    "tdp": 65,
+    "rendimiento": 4700,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "2666-2933 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i7-10700TE",
+    "precio": 990,
+    "socket": "LGA1200",
+    "tdp": 35,
+    "rendimiento": 4300,
+    "consumo_real": 55,
+    "frecuencia_ram_recomendada": "2666 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i7-10700F",
+    "precio": 910,
+    "socket": "LGA1200",
+    "tdp": 65,
+    "rendimiento": 4600,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "2666-2933 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i7-10700KF",
+    "precio": 1047,
+    "socket": "LGA1200",
+    "tdp": 125,
+    "rendimiento": 5100,
+    "consumo_real": 150,
+    "frecuencia_ram_recomendada": "2933 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i7-10700T",
+    "precio": 1054,
+    "socket": "LGA1200",
+    "tdp": 35,
+    "rendimiento": 4200,
+    "consumo_real": 55,
+    "frecuencia_ram_recomendada": "2666 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i7-10700K",
+    "precio": 1350,
+    "socket": "LGA1200",
+    "tdp": 125,
+    "rendimiento": 5200,
+    "consumo_real": 165,
+    "frecuencia_ram_recomendada": "2933 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i9-10900F",
+    "precio": 1500,
+    "socket": "LGA1200",
+    "tdp": 65,
+    "rendimiento": 7000,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "2666-3200 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i9-11900KF",
+    "precio": 1900,
+    "socket": "LGA1200",
+    "tdp": 125,
+    "rendimiento": 7800,
+    "consumo_real": 163,
+    "frecuencia_ram_recomendada": "2666-3200 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i9-12900KF",
+    "precio": 2300,
+    "socket": "LGA1700",
+    "tdp": 125,
+    "rendimiento": 9800,
+    "consumo_real": 163,
+    "frecuencia_ram_recomendada": "2666-3200 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i9-13900KF",
+    "precio": 2800,
+    "socket": "LGA1700",
+    "tdp": 125,
+    "rendimiento": 12000,
+    "consumo_real": 163,
+    "frecuencia_ram_recomendada": "2666-3200 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "AMD Ryzen 5 3600",
+    "precio": 480,
+    "socket": "AM4",
+    "tdp": 65,
+    "rendimiento": 3100,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "3200-3600 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "AMD Ryzen 7 3700X",
+    "precio": 780,
+    "socket": "AM4",
+    "tdp": 65,
+    "rendimiento": 4800,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "3200-3600 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "AMD Ryzen 5 5600",
+    "precio": 500,
+    "socket": "AM4",
+    "tdp": 65,
+    "rendimiento": 3500,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "3200-3600 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "AMD Ryzen 7 5800X",
+    "precio": 850,
+    "socket": "AM4",
+    "tdp": 105,
+    "rendimiento": 5400,
+    "consumo_real": 137,
+    "frecuencia_ram_recomendada": "3200-3600 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "AMD Ryzen 9 5900X",
+    "precio": 1299,
+    "socket": "AM4",
+    "tdp": 105,
+    "rendimiento": 7200,
+    "consumo_real": 137,
+    "frecuencia_ram_recomendada": "3200-3600 MHz DDR4"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "AMD Ryzen 5 7600",
+    "precio": 850,
+    "socket": "AM5",
+    "tdp": 65,
+    "rendimiento": 5000,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "5200-6000 MHz DDR5"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "AMD Ryzen 7 7700",
+    "precio": 1200,
+    "socket": "AM5",
+    "tdp": 65,
+    "rendimiento": 6500,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "5200-6000 MHz DDR5"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "AMD Ryzen 7 7800X3D",
+    "precio": 1900,
+    "socket": "AM5",
+    "tdp": 120,
+    "rendimiento": 9000,
+    "consumo_real": 156,
+    "frecuencia_ram_recomendada": "5200-6000 MHz DDR5"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "AMD Ryzen 9 7900",
+    "precio": 1800,
+    "socket": "AM5",
+    "tdp": 65,
+    "rendimiento": 9500,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "5200-6000 MHz DDR5"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "AMD Ryzen 9 7950X",
+    "precio": 2600,
+    "socket": "AM5",
+    "tdp": 170,
+    "rendimiento": 13000,
+    "consumo_real": 221,
+    "frecuencia_ram_recomendada": "5200-6000 MHz DDR5"
+  },
+  {
+    "categoria": "cpu",
+    "nombre": "Intel Core i3-9100F",
+    "precio": 280,
+    "socket": "LGA1151",
+    "tdp": 65,
+    "rendimiento": 1200,
+    "consumo_real": 85,
+    "frecuencia_ram_recomendada": "2666-2933 MHz DDR4"
+  }
+]

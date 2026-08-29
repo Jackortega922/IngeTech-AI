@@ -1,0 +1,14 @@
+{
+    "nombre": "gamer",
+    "fondo": "#0A0F0D",
+    "fondo_panel": "#111819",
+    "texto": "#00FF9A",
+    "texto_secundario": "#7AFFC3",
+    "boton_fondo": "#00B56A",
+    "boton_texto": "#000000",
+    "borde": "#00FF9A",
+    "seleccion": "#14FFB9",
+    "error": "#FF0066",
+    "advertencia": "#FFB300",
+    "exito": "#00FF7F"
+}
