@@ -15,6 +15,7 @@ accesorios, kits).
 |---|---|
 | [ONBOARDING.md](ONBOARDING.md) | Instalar y correr el proyecto en tu PC (empieza aquí) |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Cómo trabajar en equipo: ramas, commits, Pull Requests |
+| [docs/contexto-proyecto.md](docs/contexto-proyecto.md) | Qué es el proyecto y por qué (problema, objetivo, disciplinas, contexto académico) |
 | [docs/arquitectura/vision-general.md](docs/arquitectura/vision-general.md) | Cómo está armado el sistema |
 | [docs/modulos/](docs/modulos/) | Qué hace cada módulo y quién lo mantiene |
 | [docs/gestion/](docs/gestion/) | Backlog y sprints |
