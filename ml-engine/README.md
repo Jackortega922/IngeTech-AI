@@ -1,6 +1,6 @@
 # ml-engine — Motor de recomendación
 
-**Módulo A · Dueño: Jack.** El contenido de `data/` lo llena el Módulo C (Diego).
+**Módulo A · Dueño: Jack.** El contenido de `data/` lo llena el Módulo C (Marco).
 
 Recibe un perfil de usuario y devuelve las laptops más compatibles, con un porcentaje y una
 explicación. Ver el formato exacto en [../docs/arquitectura/contrato-motor.md](../docs/arquitectura/contrato-motor.md).

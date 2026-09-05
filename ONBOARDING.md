@@ -1,7 +1,7 @@
 # Onboarding — cómo dejar el proyecto corriendo
 
 Guía pensada para quien **nunca configuró un proyecto así**. Si algo falla, avisa en el grupo
-antes de seguir. No hace falta instalar PHP, Python ni Node en tu PC: todo corre dentro de Docker.
+antes de seguir.
 
 ---
 
@@ -11,8 +11,15 @@ antes de seguir. No hace falta instalar PHP, Python ni Node en tu PC: todo corre
 |---|---|---|
 | **Git** | Bajar y subir el código | https://git-scm.com/download/win |
 | **Visual Studio Code** | Editor de código | https://code.visualstudio.com |
-| **Docker Desktop** | Levanta la base de datos y los servicios | https://www.docker.com/products/docker-desktop |
+| **Docker Desktop** | Levanta la base de datos y el motor de recomendación | https://www.docker.com/products/docker-desktop |
+| **Laragon** (Windows) | Trae PHP 8.3, Composer y Node juntos | https://laragon.org |
 | **Cuenta de GitHub** | Para que te agreguen al repositorio | https://github.com |
+
+> Cuando exista el contenedor `app` (tarea A2), Laragon dejará de ser necesario y todo correrá en
+> Docker. Por ahora la app Laravel se ejecuta en tu sistema.
+
+Después de instalar Docker Desktop: ábrelo una vez y espera a que diga **"Engine running"**.
+En Windows te puede pedir activar WSL2 — acepta y reinicia si lo pide.
 
 Después de instalar Docker Desktop: ábrelo una vez y espera a que diga **"Engine running"**.
 En Windows te puede pedir activar WSL2 — acepta y reinicia si lo pide.
@@ -45,14 +52,26 @@ code .                    # abre el proyecto en VS Code
 
 ## 4. Levantar el proyecto
 
-Con Docker Desktop abierto, en la terminal del proyecto:
+Mientras no exista el contenedor `app` (tarea A2), la base de datos y el motor corren en Docker y
+la app Laravel corre en tu sistema. Necesitas además: **PHP 8.3**, **Composer** y **Node 20+**
+(en Windows, Laragon los trae).
 
 ```bash
-cp .env.example .env      # crea tu archivo de configuración local
-docker compose up --build
+# 1. Base de datos + motor de recomendación (Docker Desktop abierto)
+docker compose up -d db ml-engine
+
+# 2. App Laravel
+cp .env.example .env
+composer install
+npm install
+php artisan key:generate
+php artisan migrate
+
+# 3. Arrancar (servidor + colas + Vite, todo junto)
+composer run dev
 ```
 
-La primera vez tarda varios minutos (descarga imágenes). Cuando veas los logs quietos, abre:
+Cuando esté corriendo, abre:
 
 | Servicio | URL |
 |---|---|
@@ -60,19 +79,19 @@ La primera vez tarda varios minutos (descarga imágenes). Cuando veas los logs q
 | Motor de recomendación (documentación de la API) | http://localhost:5001/docs |
 | Base de datos PostgreSQL | localhost:5432 (usuario/clave en `.env`) |
 
-Para **detenerlo**: `Ctrl + C` en esa terminal, y luego `docker compose down`.
+Para **detener**: `Ctrl + C` en la terminal de `composer run dev`, y `docker compose down`.
 
-### Comandos útiles dentro del contenedor
+### Comandos útiles
 
 ```bash
-docker compose exec app php artisan migrate        # aplica cambios de base de datos
-docker compose exec app php artisan migrate:fresh --seed   # reinicia la BD con datos de ejemplo
-docker compose exec app php artisan test           # corre las pruebas de Laravel
-docker compose exec ml-engine pytest               # corre las pruebas del motor Python
+php artisan migrate:fresh --seed    # reinicia la BD con datos de ejemplo
+php artisan test                    # pruebas de Laravel (Pest)
+./vendor/bin/pint                   # formatea el PHP
+npm run lint                        # ESLint del frontend
+npx tsc --noEmit                    # revisa los tipos de TypeScript
+npm run format                      # Prettier del frontend
+docker compose exec ml-engine pytest   # pruebas del motor Python
 ```
-
-> ⚠️ El archivo `docker-compose.yml` y el `Dockerfile` todavía son un esqueleto. Jack los completa
-> en la fase de scaffold; hasta entonces este paso 4 puede no funcionar aún.
 
 ---
 

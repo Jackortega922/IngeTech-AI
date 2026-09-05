@@ -1,25 +1,28 @@
 # ── Laravel / PHP ─────────────────────────────
 /vendor
-/node_modules
+/bootstrap/ssr
+/storage/*.key
+/storage/pail
 /public/build
 /public/hot
 /public/storage
-/storage/*.key
-/storage/pail
-/bootstrap/cache/*.php
 .env
 .env.backup
 .env.production
 .phpunit.result.cache
 .phpunit.cache
+/.phpunit.cache
+.phpactor.json
+auth.json
 Homestead.json
 Homestead.yaml
-auth.json
 npm-debug.log
 yarn-error.log
 
-# ── Node / Vite ───────────────────────────────
+# ── Node / Vite / frontend ────────────────────
+/node_modules
 node_modules/
+/public/build
 dist/
 .vite/
 *.local
@@ -31,10 +34,15 @@ ml-engine/.venv/
 *.py[cod]
 .ipynb_checkpoints/
 ml-engine/.pytest_cache/
+ml-engine/.ruff_cache/
 ml-engine/*.egg-info/
 
 # ── Editores / SO ─────────────────────────────
 /.idea
+/.fleet
+/.nova
+/.zed
+/.phpstorm.meta.php
 /.vscode/*
 !/.vscode/extensions.json
 !/.devcontainer
