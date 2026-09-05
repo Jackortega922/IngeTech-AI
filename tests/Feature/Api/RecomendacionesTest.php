@@ -47,6 +47,19 @@ class RecomendacionesTest extends TestCase
             ->assertJsonValidationErrors('perfil.actividades');
     }
 
+    public function test_responde_en_json_aunque_el_cliente_no_pida_json_explicitamente()
+    {
+        // Simula un cliente (ej. curl o un fetch() sin "Accept") que no pide JSON: sin el
+        // middleware ForceJsonResponse, Laravel trataría esto como un formulario web y
+        // redirigiría en vez de devolver el 422 con los errores de validación.
+        $payload = $this->perfilValido;
+        $payload['perfil']['actividades'] = [];
+
+        $this->post('/api/recomendaciones', $payload, ['Accept' => 'text/html'])
+            ->assertUnprocessable()
+            ->assertHeader('Content-Type', 'application/json');
+    }
+
     public function test_propaga_el_error_del_motor_como_422()
     {
         $this->app->instance(RecommenderClient::class, new class implements RecommenderClient
