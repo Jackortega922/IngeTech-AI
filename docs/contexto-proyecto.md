@@ -57,17 +57,77 @@ Existe una gran variedad de laptops con distintos procesadores, RAM, SSD, GPU, p
 
 ## 4. Contexto académico
 
-### 4.1. Proyecto Inter y Transdisciplinario (código 5201, VIII ciclo)
-Continuación de Proyecto I. Producto académico: implementación real del proyecto interdisciplinario con resultados finales, análisis de impacto y lecciones aprendidas. 4 unidades (25% c/u): implementación técnica (CI/CD, arquitectura), gestión de equipos (ágil), evaluación de impacto (KPIs), presentación/sustentación final.
+Fuente: sílabos oficiales UNHEVAL 2026-II de ambos cursos (17 semanas, mismo docente:
+Abimael Adam Francisco Paredes, quien autorizó presentar un solo proyecto para los dos).
+El calendario de sprints que cruza ambos cursos vive en
+[docs/gestion/sprints.md](gestion/sprints.md#calendario-académico-compartido-sílabo-sprints).
 
-### 4.2. Inteligencia Artificial (código 4206, VIII ciclo)
-Producto académico: propuesta de aplicación basada en IA con estrategias de personalización, análisis de datos y automatización. 4 unidades (25% c/u):
-1. **Fundamentos de IA** — agentes inteligentes, búsqueda no informada/informada.
-2. **Introducción al Aprendizaje Automático** — preprocesamiento, algoritmos supervisados/no supervisados.
-3. **Técnicas de ML para Análisis Predictivo** — reducción de dimensionalidad, redes neuronales, APIs REST, hiperparámetros.
-4. **Sistemas Inteligentes** — aplicaciones web avanzadas, personalización, NLP/RAG, ética y gobernanza (EU AI Act, XAI).
+### 4.1. Proyecto Inter y Transdisciplinario (código 5201, 102h: 34T+68P)
+Continuación de Proyecto I. Producto académico: implementación real del proyecto
+interdisciplinario con resultados finales, análisis de impacto y lecciones aprendidas.
+4 unidades (25% c/u):
 
-Ambos cursos son dictados por el mismo docente (Abimael Adam Francisco Paredes), quien autorizó presentar un solo proyecto para ambos cursos.
+1. **Implementación de proyectos — estrategias y buenas prácticas** (sesiones 1–8):
+   pipeline CI/CD, arquitecturas modernas (microservicios/serverless), MVP (Sprint 1),
+   QA (SonarQube, ISO 25010), testing automatizado, despliegue en staging (Docker/Terraform).
+   *Evidencia:* informe de arquitectura + repositorio desplegado en staging con pruebas
+   automatizadas.
+2. **Gestión de equipos multidisciplinarios — liderazgo y coordinación** (sesiones 9–17):
+   backlog MoSCoW y Kanban/Scrum a escala (Jira/Trello), liderazgo adaptativo y resolución
+   de conflictos, ética/GDPR/protección de datos, UAT con usuarios finales.
+   **Examen Parcial en la sesión 17** (semana 8): sustentación del prototipo funcional y
+   avance de gestión. *Evidencia:* panel de gestión (Jira/Trello), acta de gobernanza del
+   equipo y reporte de avance del MVP evaluado en el parcial.
+3. **Evaluación de resultados e impacto** (sesiones 18–25): diseño de KPIs/OKRs,
+   metodologías de evaluación de impacto (SROI, Teoría del Cambio), analítica y monitoreo,
+   análisis costo-beneficio, huella de carbono/Green IT, encuestas de usabilidad (SUS).
+   *Evidencia:* informe analítico de impacto social, económico y técnico con dashboards
+   (Power BI/Grafana).
+4. **Presentación de proyectos** (sesiones 26–34): memoria técnica y artículo científico
+   (formato IEEE), póster, elevator pitch, ensayo de live demo, análisis de licencias
+   (Open Source vs. propietario), publicación final del repositorio.
+   **Examen Final en la sesión 33** (semana 16): sustentación pública del proyecto + Live
+   Demo; sesión 34 (semana 17) cierra el curso y consolida actas. *Evidencia:* proyecto
+   interdisciplinario implementado (Software + Memoria Técnica + Artículo/Póster +
+   Sustentación Pública).
+
+Rúbrica final (5 criterios): Implementación Técnica y Funcionalidad · Evaluación e Impacto
+Socio-Tecnológico · Gestión de Proyecto y Trabajo en Equipo · Comunicación y Sustentación
+Oral · Calidad de la Documentación Científico-Técnica.
+
+### 4.2. Inteligencia Artificial (código 4206, 68h: 34T+34P)
+Producto académico: propuesta de aplicación basada en IA con estrategias de
+personalización, análisis de datos y automatización. 4 unidades (25% c/u):
+
+1. **Fundamentos de IA** (sesiones 1–8): agentes inteligentes, búsqueda no informada
+   (BFS/DFS) e informada (A*, Greedy Best-First), búsqueda adversaria (Minimax/Poda
+   Alfa-Beta), representación del conocimiento (redes semánticas, ontologías).
+   *Evidencia:* informe técnico + código de un **agente de búsqueda heurística** en Python
+   con análisis de eficiencia — es un entregable independiente del curso, no forma parte
+   del código de IngeTech AI.
+2. **Introducción al Aprendizaje Automático** (sesiones 9–17): preprocesamiento y EDA,
+   regresión lineal/logística, métricas de clasificación (matriz de confusión, precisión,
+   recall, F1, ROC-AUC), árboles de decisión, ensembles (Random Forest, XGBoost),
+   K-Means/DBSCAN. **Examen Parcial en la sesión 16** (semana 8). *Evidencia:* examen
+   parcial + script/pipeline documentado de preprocesamiento y entrenamiento de un modelo
+   supervisado.
+3. **Técnicas de ML para Análisis Predictivo** (sesiones 18–25): reducción de
+   dimensionalidad (PCA/t-SNE), series temporales (ARIMA, Prophet), ajuste de
+   hiperparámetros (Grid/Random Search, Optuna), redes neuronales (MLP/backpropagation),
+   MLOps (validación cruzada, data drift), empaquetado de modelos con FastAPI.
+   *Evidencia:* **API REST que expone un modelo predictivo entrenado, optimizado y
+   serializado** — mapea directo a `ml-engine/`.
+4. **Sistemas Inteligentes** (sesiones 26–34): arquitectura end-to-end (frontend + API +
+   motor de IA), **filtros colaborativos y basados en contenido**, NLP (tokenización,
+   embeddings, LLMs), RAG con LangChain/LlamaIndex, interfaces con Streamlit/Gradio, ética
+   en IA (XAI con SHAP/LIME, privacidad GDPR/LPDP), gobernanza (EU AI Act).
+   **Examen Final en la sesión 33** (semana 16): sustentación + demo en vivo. *Evidencia:*
+   documento técnico final + repositorio con la aplicación web (personalización, análisis
+   predictivo, automatización) + defensa oral.
+
+Rúbrica final (4 criterios): Arquitectura de Software y Código · Técnicas de IA y Análisis
+Predictivo · Estrategias de Personalización, Automatización y Ética/Gobernanza ·
+Sustentación y Documentación Técnica.
 
 ### 4.3. Cómo convergen los dos cursos en un solo proyecto
 | Proyecto Inter y Transdisciplinario | Inteligencia Artificial |
@@ -80,6 +140,10 @@ Ambos cursos son dictados por el mismo docente (Abimael Adam Francisco Paredes),
 | Despliegue | API |
 | Evaluación mediante indicadores | Aplicación inteligente |
 | Impacto | LLM + RAG + asistente inteligente (si el curso lo requiere) |
+
+Ambos cursos comparten las 17 semanas y, casi, las mismas sesiones de examen: el parcial de
+PIT (sesión 17) cae una sesión después del de IA (sesión 16), y el final de ambos coincide
+en la sesión 33 — el mismo MVP y la misma sustentación sirven para los dos cursos.
 
 ## 5. Las 6 disciplinas del proyecto
 

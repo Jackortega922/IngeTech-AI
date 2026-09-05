@@ -29,7 +29,7 @@ flowchart TD
 | API + lógica de negocio | Laravel 12 | `app/` | A (Jack) |
 | Motor de recomendación | Python + FastAPI | `ml-engine/` | A (Jack) |
 | Base de datos | PostgreSQL 16 | `database/migrations/` | A + C |
-| Catálogo (datos + admin) | Laravel + React | `database/seeders/`, `resources/js/pages/admin/catalogo/` | C (Diego) |
+| Catálogo (datos + admin) | Laravel + React | `database/seeders/`, `resources/js/pages/admin/catalogo/` | C (Marco) |
 | Analítica e impacto | eventos en BD + dashboard | `app/`, `analitica/` | A (Jack) |
 
 ## Cómo se comunican Laravel y el motor

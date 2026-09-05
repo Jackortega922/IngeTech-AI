@@ -37,7 +37,9 @@ accesorios, kits).
 |---|---|---|
 | Núcleo Laravel · API · Motor IA · Infra | `app/`, `ml-engine/`, `.github/` | Jack |
 | Frontend del flujo de usuario | `resources/js/Pages/{Perfil,Resultado,Personalizar}/` | Marco |
-| Catálogo · datos reales · manuales | `resources/js/Pages/Admin/Catalogo/`, `database/`, `docs/manuales/` | Diego |
+| Catálogo · datos reales · manuales | `resources/js/Pages/Admin/Catalogo/`, `database/`, `docs/manuales/` | Marco |
+
+Diego colabora de forma ocasional en tareas puntuales (a definir) — no tiene módulo fijo por ahora.
 
 ## Arranque rápido
 

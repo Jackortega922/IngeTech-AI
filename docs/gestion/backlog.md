@@ -37,17 +37,20 @@ priorización. Actualízalo cuando cambie el alcance.
 
 ## Épica 3 — Catálogo, datos y documentación (Módulo C) — *Bloques I, III, IV*
 
+Dueño: Marco (además del Módulo B). Diego colabora de forma ocasional — cuando tome una
+historia puntual de aquí, se reasigna esa fila y se avisa en el grupo.
+
 | # | Historia | Prio | Dueño | Estado |
 |---|---|---|---|---|
-| C1 | Plantilla de ficha de laptop | M | Diego | ☐ |
-| C2 | 15+ laptops reales verificadas (`laptops.json`) | M | Diego | ☐ |
-| C3 | `actividades.json` y `software.json` (acordado con Marco) | M | Diego | ☐ |
-| C4 | `CatalogoSeeder` — carga JSON → BD | M | Diego | ☐ |
-| C5 | Pantalla admin — listado de laptops | S | Diego | ☐ |
-| C6 | Admin — crear/editar laptop | S | Diego | ☐ |
-| C7 | Admin — accesorios y kits | C | Diego | ☐ |
-| C8 | Manual de usuario | S | Diego | ☐ |
-| C9 | Guion de UAT + formulario de feedback | S | Diego | ☐ |
+| C1 | Plantilla de ficha de laptop | M | Marco | ☐ |
+| C2 | 15+ laptops reales verificadas (`laptops.json`) | M | Marco | ☐ |
+| C3 | `actividades.json` y `software.json` (deben calzar con el formulario de Perfil) | M | Marco | ☐ |
+| C4 | `CatalogoSeeder` — carga JSON → BD | M | Marco | ☐ |
+| C5 | Pantalla admin — listado de laptops | S | Marco | ☐ |
+| C6 | Admin — crear/editar laptop | S | Marco | ☐ |
+| C7 | Admin — accesorios y kits | C | Marco | ☐ |
+| C8 | Manual de usuario | S | Marco | ☐ |
+| C9 | Guion de UAT + formulario de feedback | S | Marco | ☐ |
 
 ## Épica 4 — Impacto y presentación — *Bloques III y IV*
 
@@ -59,6 +62,10 @@ priorización. Actualízalo cuando cambie el alcance.
 | D4 | Memoria Técnica | M | equipo | ☐ |
 | D5 | Póster / artículo | S | equipo | ☐ |
 | D6 | Ensayo de la sustentación (live demo) | M | equipo | ☐ |
+| D7 | Panel Jira/Trello + acta de gobernanza del equipo (evidencia Unidad II de PIT, Examen Parcial sesión 17) | M | equipo | ☐ |
+| D8 | Encuesta de usabilidad (SUS) sobre el flujo de usuario | S | equipo | ☐ |
+| D9 | Artículo científico en formato IEEE | S | equipo | ☐ |
+| D10 | Análisis de licencias (Open Source vs. propietario) del stack usado | C | Jack | ☐ |
 
 ## Won't (por ahora)
 

@@ -1,6 +1,9 @@
 # Módulo C — Catálogo · datos reales · manuales · QA
 
-**Dueño:** Diego · **IA:** Claude o DeepSeek (con revisión cercana de Jack en cada PR)
+**Dueño:** Marco (además del Módulo B) · **IA:** DeepSeek (con revisión cercana de Jack en cada PR)
+
+> Diego colabora de forma ocasional en tareas puntuales de este módulo (a definir más adelante).
+> Mientras no tenga una tarea asignada, Marco es quien responde por todo lo de aquí.
 
 Este módulo alimenta a todo el sistema: sin catálogo no hay qué recomendar. Es la mejor forma de
 aprender el proyecto porque toca un poco de todo (datos → base de datos → una pantalla), en pasos
@@ -31,8 +34,10 @@ docs/manuales/                       # manual de usuario, guion de UAT, resultad
 
 ## Qué NO tocas
 
-- `app/` (salvo el controlador del catálogo, que armas con Jack), `ml-engine/recommender/`,
-  `resources/js/pages/{perfil,resultado,personalizar}/`.
+- `app/` (salvo el controlador del catálogo, que armas con Jack) y `ml-engine/recommender/` —
+  son del Módulo A. Sí puedes tocar `resources/js/pages/{perfil,resultado,personalizar}/`
+  porque también es tuyo (Módulo B), pero no mezcles ambos módulos en el mismo PR — mantenlos
+  en commits/PRs separados para que sea fácil de revisar.
 - Si algo de eso te bloquea, escríbelo en el grupo.
 
 ## De qué dependes
@@ -48,7 +53,8 @@ docs/manuales/                       # manual de usuario, guion de UAT, resultad
 1. `docs: plantilla de ficha de laptop` — define qué datos recolectar (marca, modelo, CPU, RAM,
    RAM ampliable, SSD, GPU, pantalla, precio S/, tienda, link).
 2. `docs: 15 laptops reales` — llena `ml-engine/data/laptops.json` con datos verificados.
-3. `docs: actividades.json y software.json` — listas cerradas, acordadas con Marco (él las usa en los selectores).
+3. `docs: actividades.json y software.json` — listas cerradas; como también eres dueño del
+   Módulo B, defínelas pensando ya en cómo se ven en los selectores del formulario de Perfil.
 4. `feat: CatalogoSeeder` — carga los JSON a la BD (Jack te muestra cómo).
 5. `feat: pantalla Admin/Catalogo — listado de laptops` (copiando el ejemplo de Jack).
 6. `feat: Admin/Catalogo — crear y editar una laptop`.

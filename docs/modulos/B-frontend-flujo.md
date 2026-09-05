@@ -1,6 +1,6 @@
 # Módulo B — Frontend del flujo de usuario
 
-**Dueño:** Marco · **IA:** DeepSeek
+**Dueño:** Marco (también dueño del Módulo C) · **IA:** DeepSeek
 
 Las pantallas que usa la persona de principio a fin: llenar su perfil, ver la laptop recomendada
 con su % de compatibilidad, y personalizar la configuración.
