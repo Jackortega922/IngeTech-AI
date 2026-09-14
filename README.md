@@ -15,6 +15,7 @@ accesorios, kits).
 |---|---|
 | [ONBOARDING.md](ONBOARDING.md) | Instalar y correr el proyecto en tu PC (empieza aquí) |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Cómo trabajar en equipo: ramas, commits, Pull Requests |
+| [docs/contexto-proyecto.md](docs/contexto-proyecto.md) | Qué es el proyecto y por qué (problema, objetivo, disciplinas, contexto académico) |
 | [docs/arquitectura/vision-general.md](docs/arquitectura/vision-general.md) | Cómo está armado el sistema |
 | [docs/modulos/](docs/modulos/) | Qué hace cada módulo y quién lo mantiene |
 | [docs/gestion/](docs/gestion/) | Backlog y sprints |
@@ -24,8 +25,8 @@ accesorios, kits).
 
 | Capa | Tecnología |
 |---|---|
-| App + API | Laravel 11 (PHP 8.2+) |
-| Frontend | Inertia + React + Tailwind CSS |
+| App + API | Laravel 12 (PHP 8.3+) |
+| Frontend | Inertia 2 + React 19 + TypeScript + Tailwind CSS 4 + shadcn/ui (React Starter Kit oficial) |
 | Motor de recomendación | Python · FastAPI · pandas · scikit-learn |
 | Base de datos | PostgreSQL 16 |
 | Infra | Docker Compose · GitHub Actions · Render |
@@ -36,17 +37,28 @@ accesorios, kits).
 |---|---|---|
 | Núcleo Laravel · API · Motor IA · Infra | `app/`, `ml-engine/`, `.github/` | Jack |
 | Frontend del flujo de usuario | `resources/js/Pages/{Perfil,Resultado,Personalizar}/` | Marco |
-| Catálogo · datos reales · manuales | `resources/js/Pages/Admin/Catalogo/`, `database/`, `docs/manuales/` | Diego |
+| Catálogo · datos reales · manuales | `resources/js/Pages/Admin/Catalogo/`, `database/`, `docs/manuales/` | Marco |
+
+Diego colabora de forma ocasional en tareas puntuales (a definir) — no tiene módulo fijo por ahora.
 
 ## Arranque rápido
 
 ```bash
 git clone https://github.com/Jackortega922/IngeTech-AI.git
 cd IngeTech-AI
-docker compose up --build
+
+# Base de datos y motor de recomendación en Docker
+docker compose up -d db ml-engine
+
+# App Laravel (requiere PHP 8.3, Composer y Node en el sistema)
+cp .env.example .env
+composer install && npm install
+php artisan key:generate && php artisan migrate
+composer run dev        # levanta servidor + queue + vite
 ```
 
 - App: http://localhost:8000
 - Motor de recomendación (Swagger): http://localhost:5001/docs
 
-Detalle completo en [ONBOARDING.md](ONBOARDING.md).
+> El contenedor `app` (para correr Laravel sin instalar nada) llega en la tarea A2.
+> Detalle completo en [ONBOARDING.md](ONBOARDING.md).

@@ -1,6 +1,6 @@
 # Datos del catálogo
 
-**Los mantiene el Módulo C (Diego).** El motor y el seeder de Laravel leen estos archivos.
+**Los mantiene el Módulo C (Marco).** El motor y el seeder de Laravel leen estos archivos.
 
 Reglas:
 - JSON válido (usa un validador; cuidado con la coma final de más).
@@ -46,8 +46,8 @@ Reglas:
 |---|---|
 | `accesorios.json` | mochila, mouse, cooler, hub… `{id, nombre, tipo, precio_soles, ...}` |
 | `kits.json` | combos con descuento `{id, nombre, incluye: [ids], precio_soles}` |
-| `actividades.json` | lista cerrada de actividades del perfil — **acordar con Marco** (él las pone en el formulario) |
-| `software.json` | lista cerrada de software del perfil — **acordar con Marco** |
+| `actividades.json` | lista cerrada de actividades del perfil — debe calzar con las opciones del formulario de Perfil (Módulo B) |
+| `software.json` | lista cerrada de software del perfil — igual, debe calzar con el formulario de Perfil |
 
 Ejemplo `actividades.json`:
 ```json
