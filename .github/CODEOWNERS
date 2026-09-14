@@ -4,9 +4,15 @@
 # Equipo activo: Jack (Módulo A) + Marco (Módulos B y C). Diego colabora de forma
 # ocasional en tareas puntuales (a definir) — se agrega como reviewer archivo por archivo
 # cuando tenga una tarea asignada, no tiene módulo fijo por ahora.
+#
+# Jack y Marco son dueños por defecto de TODO el repo (línea de abajo), además de sus
+# módulos específicos más abajo. Esto es a propósito: GitHub nunca deja auto-aprobar tu
+# propio PR, así que en un equipo de 2 cada uno necesita poder respaldar al otro — si no,
+# un PR de Jack en su propio módulo (todo lo que no está en la lista de Marco) queda sin
+# nadie que lo pueda aprobar.
 
-# Por defecto, todo lo revisa Jack (integrador)
-*                                   @Jackortega922
+# Por defecto, cualquiera de los dos puede revisar (se respaldan mutuamente)
+*                                   @Jackortega922 @marco123zz
 
 # ── Módulo A: Núcleo Laravel · API · Motor IA · Infra (Jack) ──
 /app/                               @Jackortega922
