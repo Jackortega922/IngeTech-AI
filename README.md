@@ -43,6 +43,19 @@ Diego colabora de forma ocasional en tareas puntuales (a definir) — no tiene m
 
 ## Arranque rápido
 
+**Opción A — todo en Docker (nada que instalar):**
+
+```bash
+git clone https://github.com/Jackortega922/IngeTech-AI.git
+cd IngeTech-AI
+cp .env.example .env
+docker compose up -d --build
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+```
+
+**Opción B — nativo (más rápido para desarrollar día a día):**
+
 ```bash
 git clone https://github.com/Jackortega922/IngeTech-AI.git
 cd IngeTech-AI
@@ -59,6 +72,4 @@ composer run dev        # levanta servidor + queue + vite
 
 - App: http://localhost:8000
 - Motor de recomendación (Swagger): http://localhost:5001/docs
-
-> El contenedor `app` (para correr Laravel sin instalar nada) llega en la tarea A2.
 > Detalle completo en [ONBOARDING.md](ONBOARDING.md).

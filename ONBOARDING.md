@@ -15,8 +15,10 @@ antes de seguir.
 | **Laragon** (Windows) | Trae PHP 8.3, Composer y Node juntos | https://laragon.org |
 | **Cuenta de GitHub** | Para que te agreguen al repositorio | https://github.com |
 
-> Cuando exista el contenedor `app` (tarea A2), Laragon dejará de ser necesario y todo correrá en
-> Docker. Por ahora la app Laravel se ejecuta en tu sistema.
+> Ya existe el contenedor `app` (tarea A2) si prefieres no instalar nada de PHP/Node — con
+> `docker compose up -d --build` corre todo en Docker. Pero para programar día a día sigue
+> siendo más rápido lo de abajo (nativo con Laragon): cada cambio se ve al instante, sin
+> reconstruir la imagen.
 
 Después de instalar Docker Desktop: ábrelo una vez y espera a que diga **"Engine running"**.
 En Windows te puede pedir activar WSL2 — acepta y reinicia si lo pide.
@@ -52,9 +54,9 @@ code .                    # abre el proyecto en VS Code
 
 ## 4. Levantar el proyecto
 
-Mientras no exista el contenedor `app` (tarea A2), la base de datos y el motor corren en Docker y
-la app Laravel corre en tu sistema. Necesitas además: **PHP 8.3**, **Composer** y **Node 20+**
-(en Windows, Laragon los trae).
+Para desarrollar día a día: la base de datos y el motor corren en Docker, y la app Laravel corre
+en tu sistema (así ves cada cambio al instante). Necesitas además: **PHP 8.3**, **Composer** y
+**Node 20+** (en Windows, Laragon los trae).
 
 ```bash
 # 1. Base de datos + motor de recomendación (Docker Desktop abierto)
