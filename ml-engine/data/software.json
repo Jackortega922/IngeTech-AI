@@ -1,0 +1,10 @@
+[
+  { "clave": "vscode", "etiqueta": "Visual Studio Code" },
+  { "clave": "docker", "etiqueta": "Docker" },
+  { "clave": "photoshop", "etiqueta": "Adobe Photoshop" },
+  { "clave": "blender", "etiqueta": "Blender" },
+  { "clave": "office", "etiqueta": "Microsoft Office" },
+  { "clave": "premiere", "etiqueta": "Adobe Premiere" },
+  { "clave": "android_studio", "etiqueta": "Android Studio" },
+  { "clave": "jupyter", "etiqueta": "Jupyter / Anaconda" }
+]

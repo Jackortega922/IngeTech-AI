@@ -12,15 +12,16 @@ priorización. Actualízalo cuando cambie el alcance.
 | A1 | Scaffold — React Starter Kit (Laravel 12 + Inertia/React/TS) + PostgreSQL | M | Jack | ✅ |
 | A6 | CI (jobs laravel + ml-engine + frontend) | M | Jack | ✅ |
 | A2 | docker-compose (contenedor `app`) + Dockerfile (PHP + Python) | M | Jack | ☐ |
-| A3 | Migraciones y modelos base | M | Jack | ☐ |
-| A4 | `GET /api/health` | M | Jack | ☐ |
-| A5 | `POST /api/recomendaciones` con motor MOCK | M | Jack | ☐ |
-| A7 | Motor: portar lógica de PC_EXPERT a `ml-engine/recommender/` | M | Jack | ☐ |
-| A8 | Motor: scoring por perfil + explicación de factores | M | Jack | ☐ |
-| A9 | Conectar API real al motor (quitar mock) | M | Jack | ☐ |
+| A3 | Migraciones y modelos base | M | Jack | ✅ |
+| A4 | `GET /api/health` | M | Jack | ✅ |
+| A5 | `POST /api/recomendaciones` con motor MOCK | M | Jack | ✅ |
+| A7 | ~~Motor: portar lógica de PC_EXPERT~~ — se fusionó con A8 (PC_EXPERT no era portable: reglas de piezas sueltas sin ML, dominio distinto) | M | Jack | ✅ |
+| A8 | Motor: scoring real (clasificación supervisada + similitud coseno) + explicación de factores | M | Jack | ✅ |
+| A9 | Conectar API real al motor (quitar mock) — resuelto gratis: `app.py`/`cli_entry.py` ya delegaban en `recomendar()`, solo cambió su interior | M | Jack | ✅ |
 | A10 | Despliegue a Render + staging | M | Jack | ☐ |
 | A11 | Registro de eventos + endpoint de KPIs | S | Jack | ☐ |
 | A12 | Swagger/OpenAPI publicado | S | Jack | ☐ |
+| A13 | Asistente conversacional complementario (LLM vía API, ej. DeepSeek) — **no reemplaza el motor de scoring**, es una función aparte (ver [ADR 0005](../adr/0005-llm-complementario-no-motor.md)) | C | Jack | ☐ |
 
 ## Épica 2 — Flujo de usuario (Módulo B) — *Bloque I / UX*
 

@@ -1,0 +1,8 @@
+[
+  { "clave": "programacion_web", "etiqueta": "Desarrollo web", "peso_ram": 1, "peso_cpu": 2, "peso_gpu": 0 },
+  { "clave": "maquinas_virtuales", "etiqueta": "Máquinas virtuales", "peso_ram": 3, "peso_cpu": 2, "peso_gpu": 0 },
+  { "clave": "ia_ml", "etiqueta": "IA / Machine Learning", "peso_ram": 2, "peso_cpu": 2, "peso_gpu": 3 },
+  { "clave": "diseno_3d", "etiqueta": "Diseño y 3D", "peso_ram": 2, "peso_cpu": 2, "peso_gpu": 3 },
+  { "clave": "ofimatica", "etiqueta": "Ofimática / uso básico", "peso_ram": 1, "peso_cpu": 1, "peso_gpu": 0 },
+  { "clave": "edicion_video", "etiqueta": "Edición de video/fotos", "peso_ram": 3, "peso_cpu": 3, "peso_gpu": 2 }
+]
