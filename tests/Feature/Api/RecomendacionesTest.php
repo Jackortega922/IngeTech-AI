@@ -27,6 +27,19 @@ class RecomendacionesTest extends TestCase
         ];
     }
 
+    private function fakeMotor(array $respuesta): void
+    {
+        $this->app->instance(RecommenderClient::class, new class($respuesta) implements RecommenderClient
+        {
+            public function __construct(private array $respuesta) {}
+
+            public function recomendar(array $payload): array
+            {
+                return $this->respuesta;
+            }
+        });
+    }
+
     public function test_devuelve_la_respuesta_del_motor_cuando_el_perfil_es_valido()
     {
         $laptop = Laptop::create([
@@ -35,26 +48,85 @@ class RecomendacionesTest extends TestCase
             'gpu' => 'integrada', 'gpu_dedicada' => false, 'precio_soles' => 2399, 'rendimiento_score' => 55,
         ]);
 
-        $this->app->instance(RecommenderClient::class, new class($laptop->id) implements RecommenderClient
-        {
-            public function __construct(private int $laptopId) {}
-
-            public function recomendar(array $payload): array
-            {
-                return [
-                    'version' => 'v1',
-                    'necesidad' => ['ram_gb' => 8, 'cpu_score' => 30, 'gpu_dedicada' => false, 'nivel' => 'min'],
-                    'tarjetas' => [
-                        ['laptop_id' => $this->laptopId, 'badges' => ['Mejor Opción Económica']],
-                    ],
-                ];
-            }
-        });
+        // El motor (real o mock) solo habla el contrato v0: recomendaciones[] con
+        // compatibilidad_pct/explicacion, nunca "tarjetas" ni "necesidad" — eso lo
+        // arma el controlador para el frontend.
+        $this->fakeMotor([
+            'version' => 'v0',
+            'recomendaciones' => [
+                [
+                    'laptop_id' => $laptop->id,
+                    'compatibilidad_pct' => 87,
+                    'precio_soles' => 2399,
+                    'sobrante_soles' => 1601,
+                    'explicacion' => ['factores' => [], 'advertencias' => []],
+                ],
+            ],
+        ]);
 
         $this->postJson('/api/recomendaciones', $this->perfilValido())
             ->assertOk()
+            ->assertJsonPath('version', 'v1')
             ->assertJsonPath('tarjetas.0.laptop_id', $laptop->id)
-            ->assertJsonPath('tarjetas.0.laptop.id', $laptop->id);
+            ->assertJsonPath('tarjetas.0.laptop.id', $laptop->id)
+            ->assertJsonPath('tarjetas.0.compatibilidad_pct', 87)
+            ->assertJsonStructure(['necesidad' => ['ram_gb', 'cpu_score', 'gpu_dedicada', 'nivel']]);
+
+        $this->assertDatabaseHas('recomendaciones', ['laptop_id' => $laptop->id, 'compatibilidad_pct' => 87]);
+        $this->assertDatabaseHas('perfiles_usuario', ['carrera' => 'Ingeniería de Sistemas']);
+    }
+
+    public function test_asigna_badges_comparando_las_recomendaciones_entre_si()
+    {
+        $barata = Laptop::create([
+            'marca' => 'Acer', 'modelo' => 'Aspire 3', 'tipo' => 'laptop', 'cpu' => 'i3',
+            'ram_gb' => 8, 'almacenamiento_gb' => 256, 'almacenamiento_tipo' => 'SSD',
+            'gpu' => 'integrada', 'gpu_dedicada' => false, 'precio_soles' => 1800, 'rendimiento_score' => 40,
+        ]);
+        $potente = Laptop::create([
+            'marca' => 'Lenovo', 'modelo' => 'Legion 5', 'tipo' => 'laptop', 'cpu' => 'Ryzen 7',
+            'ram_gb' => 32, 'almacenamiento_gb' => 1024, 'almacenamiento_tipo' => 'SSD',
+            'gpu' => 'RTX 4060', 'gpu_dedicada' => true, 'precio_soles' => 3900, 'rendimiento_score' => 90,
+        ]);
+
+        $this->fakeMotor([
+            'version' => 'v0',
+            'recomendaciones' => [
+                ['laptop_id' => $barata->id, 'compatibilidad_pct' => 70, 'precio_soles' => 1800, 'sobrante_soles' => 2200, 'explicacion' => ['factores' => [], 'advertencias' => []]],
+                ['laptop_id' => $potente->id, 'compatibilidad_pct' => 98, 'precio_soles' => 3900, 'sobrante_soles' => 100, 'explicacion' => ['factores' => [], 'advertencias' => []]],
+            ],
+        ]);
+
+        $respuesta = $this->postJson('/api/recomendaciones', $this->perfilValido())->assertOk()->json();
+
+        $tarjetaBarata = collect($respuesta['tarjetas'])->firstWhere('laptop_id', $barata->id);
+        $tarjetaPotente = collect($respuesta['tarjetas'])->firstWhere('laptop_id', $potente->id);
+
+        $this->assertContains('Mejor Opción Económica', $tarjetaBarata['badges']);
+        $this->assertContains('Mejor Rendimiento', $tarjetaPotente['badges']);
+    }
+
+    public function test_filtra_recomendaciones_que_no_calzan_con_la_portabilidad_elegida()
+    {
+        $escritorio = Laptop::create([
+            'marca' => 'HP', 'modelo' => 'Pavilion Desktop', 'tipo' => 'escritorio', 'cpu' => 'i5',
+            'ram_gb' => 16, 'almacenamiento_gb' => 512, 'almacenamiento_tipo' => 'SSD',
+            'gpu' => 'integrada', 'gpu_dedicada' => false, 'precio_soles' => 2200, 'rendimiento_score' => 55,
+        ]);
+
+        $this->fakeMotor([
+            'version' => 'v0',
+            'recomendaciones' => [
+                ['laptop_id' => $escritorio->id, 'compatibilidad_pct' => 90, 'precio_soles' => 2200, 'sobrante_soles' => 1800, 'explicacion' => ['factores' => [], 'advertencias' => []]],
+            ],
+        ]);
+
+        $payload = $this->perfilValido();
+        $payload['perfil']['portabilidad'] = 'laptop';
+
+        $this->postJson('/api/recomendaciones', $payload)
+            ->assertStatus(422)
+            ->assertJsonPath('error', 'sin_resultados');
     }
 
     public function test_rechaza_un_perfil_sin_carrera()
@@ -82,22 +154,16 @@ class RecomendacionesTest extends TestCase
 
     public function test_propaga_el_error_del_motor_como_422()
     {
-        $this->app->instance(RecommenderClient::class, new class implements RecommenderClient
-        {
-            public function recomendar(array $payload): array
-            {
-                return [
-                    'version' => 'v1',
-                    'error' => 'sin_resultados',
-                    'mensaje' => 'No hay equipos dentro del presupuesto.',
-                    'necesidad' => ['ram_gb' => 8, 'cpu_score' => 30, 'gpu_dedicada' => false, 'nivel' => 'min'],
-                    'cercanas' => [],
-                ];
-            }
-        });
+        $this->fakeMotor([
+            'version' => 'v0',
+            'error' => 'sin_resultados',
+            'mensaje' => 'No hay equipos dentro del presupuesto.',
+        ]);
 
         $this->postJson('/api/recomendaciones', $this->perfilValido())
             ->assertStatus(422)
-            ->assertJsonPath('error', 'sin_resultados');
+            ->assertJsonPath('version', 'v1')
+            ->assertJsonPath('error', 'sin_resultados')
+            ->assertJsonStructure(['necesidad', 'cercanas']);
     }
 }

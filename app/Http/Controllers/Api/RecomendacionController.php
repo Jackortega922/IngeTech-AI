@@ -10,18 +10,38 @@ use App\Models\EventoAnalitica;
 use App\Models\Laptop;
 use App\Models\PerfilUsuario;
 use App\Models\Recomendacion;
+use App\Services\Recommender\NecesidadCalculator;
 use App\Services\Recommender\RecommenderClient;
 use App\Services\Recommender\RecommenderException;
+use Illuminate\Support\Collection;
 
 class RecomendacionController extends Controller
 {
     public function store(RecomendarRequest $request, RecommenderClient $recommender)
     {
         $datos = $request->validated();
+        $perfil = $datos['perfil'];
         $usuarioId = $request->user()?->id;
 
+        // Ya validado por RecomendarRequest (Rule::exists), así que siempre existe.
+        $carrera = Carrera::with('software')->where('clave', $perfil['carrera_clave'])->firstOrFail();
+        $actividades = Actividad::whereIn('clave', $perfil['actividades'] ?? [])->get();
+        $necesidad = NecesidadCalculator::calcular($carrera->software, $actividades, $perfil['nivel_experiencia']);
+
         try {
-            $respuesta = $recommender->recomendar($datos);
+            // El motor (real o mock) solo conoce el contrato v0 documentado en
+            // docs/arquitectura/contrato-motor.md — carrera_clave/portabilidad son
+            // conceptos de esta capa de Laravel, no cruzan hacia el motor.
+            $respuesta = $recommender->recomendar([
+                'perfil' => [
+                    'carrera' => $carrera->nombre,
+                    'nivel_experiencia' => $perfil['nivel_experiencia'],
+                    'actividades' => $actividades->pluck('clave')->all(),
+                    'software' => $carrera->software->pluck('clave')->all(),
+                    'presupuesto_soles' => $perfil['presupuesto_soles'],
+                ],
+                'opciones' => $datos['opciones'] ?? [],
+            ]);
         } catch (RecommenderException $e) {
             return response()->json([
                 'version' => 'v1',
@@ -30,56 +50,70 @@ class RecomendacionController extends Controller
             ], 502);
         }
 
-        if (isset($respuesta['error']) && $respuesta['error'] === 'perfil_invalido') {
-            return response()->json($respuesta, 422);
+        $perfilUsuario = $this->guardarPerfil($perfil, $carrera, $usuarioId, $actividades);
+
+        $recomendaciones = collect($respuesta['recomendaciones'] ?? []);
+        if ($perfil['portabilidad'] !== 'cualquiera') {
+            $recomendaciones = $this->filtrarPorTipo($recomendaciones, $perfil['portabilidad']);
         }
 
-        $carrera = Carrera::where('clave', $datos['perfil']['carrera_clave'])->first();
-        $perfilUsuario = $this->guardarPerfil($datos['perfil'], $carrera, $usuarioId);
+        if (isset($respuesta['error']) || $recomendaciones->isEmpty()) {
+            $codigo = $respuesta['error'] ?? 'sin_resultados';
+            $mensaje = $respuesta['mensaje'] ?? 'Ningún equipo cumple con la portabilidad elegida dentro de tu presupuesto.';
+            $this->registrarEvento(null, $perfil, $codigo);
 
-        if (isset($respuesta['error'])) {
-            $respuesta['cercanas'] = $this->enriquecer($respuesta['cercanas'] ?? []);
-            $this->registrarEvento(null, $datos['perfil'], 'sin_resultados');
-
-            return response()->json($respuesta, 422);
+            return response()->json([
+                'version' => 'v1',
+                'error' => $codigo,
+                'mensaje' => $mensaje,
+                'necesidad' => $necesidad,
+                'cercanas' => $this->buscarCercanas((float) $perfil['presupuesto_soles'], $perfil['portabilidad']),
+            ], 422);
         }
 
+        $badges = $this->asignarBadges($recomendaciones);
+        $laptops = Laptop::whereIn('id', $recomendaciones->pluck('laptop_id'))->get()->keyBy('id');
         $primeraRecomendacionId = null;
-        foreach ($respuesta['tarjetas'] as &$tarjeta) {
-            $laptop = Laptop::find($tarjeta['laptop_id']);
-            $pct = $laptop ? $this->compatibilidad($laptop, $respuesta['necesidad']) : 0;
+
+        $tarjetas = $recomendaciones->map(function (array $item) use ($perfilUsuario, $laptops, $badges, &$primeraRecomendacionId) {
+            $badgesLaptop = $badges[$item['laptop_id']] ?? [];
 
             $recomendacion = Recomendacion::create([
                 'perfil_usuario_id' => $perfilUsuario->id,
-                'laptop_id' => $tarjeta['laptop_id'],
-                'compatibilidad_pct' => $pct,
-                'explicacion' => ['badges' => $tarjeta['badges'], 'necesidad' => $respuesta['necesidad']],
+                'laptop_id' => $item['laptop_id'],
+                'compatibilidad_pct' => $item['compatibilidad_pct'],
+                'explicacion' => array_merge($item['explicacion'] ?? [], ['badges' => $badgesLaptop]),
             ]);
             $primeraRecomendacionId ??= $recomendacion->id;
 
-            $tarjeta['laptop'] = $laptop;
-            $tarjeta['compatibilidad_pct'] = $pct;
-            $tarjeta['recomendacion_id'] = $recomendacion->id;
-        }
-        unset($tarjeta);
+            return [
+                'laptop_id' => $item['laptop_id'],
+                'badges' => $badgesLaptop,
+                'laptop' => $laptops->get($item['laptop_id']),
+                'compatibilidad_pct' => $item['compatibilidad_pct'],
+                'recomendacion_id' => $recomendacion->id,
+            ];
+        })->values()->all();
 
-        $this->registrarEvento($primeraRecomendacionId, $datos['perfil'], 'ok');
+        $this->registrarEvento($primeraRecomendacionId, $perfil, 'ok');
 
-        return response()->json($respuesta);
+        return response()->json([
+            'version' => 'v1',
+            'necesidad' => $necesidad,
+            'tarjetas' => $tarjetas,
+        ]);
     }
 
-    private function guardarPerfil(array $perfil, ?Carrera $carrera, ?int $usuarioId): PerfilUsuario
+    private function guardarPerfil(array $perfil, Carrera $carrera, ?int $usuarioId, Collection $actividades): PerfilUsuario
     {
-        $nombresActividades = Actividad::whereIn('clave', $perfil['actividades'] ?? [])->pluck('nombre')->all();
-
         return PerfilUsuario::create([
             'user_id' => $usuarioId,
-            'carrera_id' => $carrera?->id,
-            'carrera' => $carrera?->nombre,
+            'carrera_id' => $carrera->id,
+            'carrera' => $carrera->nombre,
             'portabilidad' => $perfil['portabilidad'],
             'nivel_experiencia' => $perfil['nivel_experiencia'],
-            'actividades' => $nombresActividades,
-            'software' => $carrera?->software->pluck('clave')->all() ?? [],
+            'actividades' => $actividades->pluck('nombre')->all(),
+            'software' => $carrera->software->pluck('clave')->all(),
             'presupuesto_soles' => $perfil['presupuesto_soles'],
         ]);
     }
@@ -98,18 +132,47 @@ class RecomendacionController extends Controller
         ]);
     }
 
-    private function compatibilidad(Laptop $laptop, array $nec): int
+    private function filtrarPorTipo(Collection $recomendaciones, string $tipo): Collection
     {
-        $pctRam = min($laptop->ram_gb / max($nec['ram_gb'], 1), 1.5) / 1.5 * 100;
-        $pctCpu = min(((int) $laptop->rendimiento_score) / max($nec['cpu_score'], 1), 1.5) / 1.5 * 100;
+        $idsCompatibles = Laptop::whereIn('id', $recomendaciones->pluck('laptop_id'))
+            ->where('tipo', $tipo)
+            ->pluck('id');
 
-        return (int) round(min(100, ($pctRam + $pctCpu) / 2));
+        return $recomendaciones->whereIn('laptop_id', $idsCompatibles)->values();
     }
 
-    private function enriquecer(array $laptopIds): array
+    /**
+     * Clasifica en badges de UI las recomendaciones que ya devolvió el motor,
+     * comparándolas entre sí (más barata, mejor compatibilidad, mejor relación
+     * compatibilidad/precio). No depende de qué motor respondió — el mismo
+     * criterio aplica igual al motor real que al mock.
+     *
+     * @return array<int, string[]>
+     */
+    private function asignarBadges(Collection $recomendaciones): array
     {
-        $laptops = Laptop::whereIn('id', $laptopIds)->get()->keyBy('id');
+        $economica = $recomendaciones->sortBy('precio_soles')->first();
+        $rendimiento = $recomendaciones->sortByDesc('compatibilidad_pct')->first();
+        $equilibrada = $recomendaciones->sortByDesc(
+            fn (array $r) => $r['compatibilidad_pct'] / max((float) $r['precio_soles'], 1)
+        )->first();
 
-        return collect($laptopIds)->map(fn ($id) => $laptops->get($id))->filter()->values()->all();
+        $badges = [];
+        $badges[$economica['laptop_id']][] = 'Mejor Opción Económica';
+        $badges[$equilibrada['laptop_id']][] = 'Opción Equilibrada';
+        $badges[$rendimiento['laptop_id']][] = 'Mejor Rendimiento';
+
+        return $badges;
+    }
+
+    private function buscarCercanas(float $presupuesto, string $portabilidad): array
+    {
+        $query = Laptop::query()->orderByRaw('ABS(precio_soles - ?)', [$presupuesto]);
+
+        if ($portabilidad !== 'cualquiera') {
+            $query->where('tipo', $portabilidad);
+        }
+
+        return $query->take(3)->get()->all();
     }
 }
