@@ -1,0 +1,13 @@
+.git
+.gitignore
+node_modules
+vendor
+public/build
+.env
+.env.*
+!.env.example
+PC_EXPERT
+ml-engine/notebooks
+ml-engine/tests
+tests
+.phpunit.result.cache

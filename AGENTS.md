@@ -46,8 +46,8 @@ trabajar. Si un cambio necesita tocar otro módulo, decláralo en la respuesta e
 
 ## Reutilización
 
-`PC_EXPERT/` es un prototipo previo (desktop, Tkinter). Su lógica de recomendación y compatibilidad
-(`PC_EXPERT/src/recomendador_pro.py`, `PC_EXPERT/src/compatibilidad.py`) y su catálogo JSON
-(`PC_EXPERT/data/`) sirven como punto de partida para `ml-engine/`, pero hay que adaptarlos:
-PC_EXPERT arma PCs de piezas y recomienda solo por presupuesto; IngeTech AI recomienda laptops
-completas y por perfil.
+`PC_EXPERT/` es un prototipo previo (desktop, Tkinter) — **evaluado y descartado como base del
+motor** (tarea A7): es lógica 100% Python puro sin scikit-learn, para armar PCs de escritorio
+por piezas sueltas (socket de CPU, watts de fuente...), un dominio distinto a recomendar laptops
+completas por perfil. El motor real (`ml-engine/recommender/`) se construyó desde cero con
+clasificación supervisada + similitud coseno; no lo uses como fuente de código a portar.

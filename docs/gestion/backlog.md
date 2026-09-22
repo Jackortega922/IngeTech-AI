@@ -11,7 +11,7 @@ priorización. Actualízalo cuando cambie el alcance.
 |---|---|---|---|---|
 | A1 | Scaffold — React Starter Kit (Laravel 12 + Inertia/React/TS) + PostgreSQL | M | Jack | ✅ |
 | A6 | CI (jobs laravel + ml-engine + frontend) | M | Jack | ✅ |
-| A2 | docker-compose (contenedor `app`) + Dockerfile (PHP + Python) | M | Jack | ☐ |
+| A2 | docker-compose (contenedor `app`) + Dockerfile (PHP + Python) | M | Jack | ✅ |
 | A3 | Migraciones y modelos base | M | Jack | ✅ |
 | A4 | `GET /api/health` | M | Jack | ✅ |
 | A5 | `POST /api/recomendaciones` con motor MOCK | M | Jack | ✅ |
