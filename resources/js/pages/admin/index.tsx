@@ -549,7 +549,7 @@ function TablaHardware({ equipos, onCambio, avisar }: { equipos: Laptop[]; onCam
                                             <div className="space-y-1">
                                                 <input
                                                     className="campo bg-background w-40 rounded-lg border px-2 py-2"
-                                                    value={f.gpu}
+                                                   value={f.gpu ?? ''}
                                                     onChange={(e) => set(i, 'gpu', e.target.value)}
                                                 />
 
