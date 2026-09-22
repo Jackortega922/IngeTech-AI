@@ -7,6 +7,8 @@ return [
     |--------------------------------------------------------------------------
     | http -> Laravel llama por HTTP al servicio ml-engine (desarrollo con Docker)
     | cli  -> Laravel ejecuta python cli_entry.py como subproceso (producción)
+    | mock -> motor local en PHP (MockRecommenderClient), sin Docker ni Python.
+    |         Útil para levantar el frontend sin depender del Módulo A.
     */
     'mode' => env('RECOMMENDER_MODE', 'http'),
 

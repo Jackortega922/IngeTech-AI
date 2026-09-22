@@ -1,41 +1,54 @@
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { type NavItem, type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
+import {
+    CircleHelp,
+    Clock,
+    GraduationCap,
+    LayoutDashboard,
+    LayoutGrid,
+    LayoutList,
+    Monitor,
+    Scale,
+    Sparkles,
+    Users,
+} from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        url: '/dashboard',
-        icon: LayoutGrid,
-    },
+const navEstudiante: NavItem[] = [
+    { title: 'Inicio', url: '/dashboard', icon: LayoutGrid },
+    { title: 'Nueva recomendación', url: '/perfil', icon: Sparkles },
+    { title: 'Mis recomendaciones', url: '/historial', icon: Clock },
+    { title: 'Catálogo de software', url: '/software', icon: LayoutList },
+    { title: 'Catálogo de hardware', url: '/hardware', icon: Monitor },
+    { title: 'Comparador', url: '/comparador', icon: Scale },
+    { title: 'Preguntas frecuentes', url: '/preguntas', icon: CircleHelp },
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        url: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        url: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
-    },
+// Cuando entras como administrador, el menú solo muestra lo que le
+// corresponde al admin — el flujo de recomendación es para estudiantes.
+const navAdmin: NavItem[] = [
+    { title: 'Dashboard', url: '/admin?tab=dashboard', icon: LayoutDashboard },
+    { title: 'Clientes', url: '/admin?tab=clientes', icon: Users },
+    { title: 'Equipos', url: '/admin?tab=hardware', icon: Monitor },
+    { title: 'Software', url: '/admin?tab=software', icon: LayoutList },
+    { title: 'Carreras', url: '/admin?tab=carreras', icon: GraduationCap },
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<SharedData>().props;
+    const mainNavItems = auth.user.is_admin ? navAdmin : navEstudiante;
+    const inicio = auth.user.is_admin ? '/admin' : '/dashboard';
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
+                            <Link href={inicio} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -48,7 +61,6 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

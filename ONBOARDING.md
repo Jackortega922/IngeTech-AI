@@ -5,6 +5,37 @@ antes de seguir.
 
 ---
 
+## 0. Arranque rápido sin Docker (para ver el frontend YA)
+
+Si solo quieres levantar la app y probar el flujo Perfil → Resultado → Personalizar, sin instalar
+Docker ni el motor Python, puedes usar SQLite y el motor mock incluido:
+
+```bash
+composer install
+npm install
+cp .env.example .env      # ya viene con DB_CONNECTION=sqlite y RECOMMENDER_MODE=mock
+touch database/database.sqlite
+php artisan key:generate
+php artisan migrate --seed   # crea la BD, siembra carreras/software/14 equipos, y 2 cuentas de prueba
+composer run dev
+```
+
+Abre http://localhost:8000 e inicia sesión con una de las cuentas sembradas:
+
+| Rol | Email | Password |
+|---|---|---|
+| Administrador | `admin@ingetech.test` | `password` |
+| Estudiante | `estudiante@ingetech.test` | `password` |
+
+Solo la cuenta de administrador ve la sección "Administración" en el menú (CRUD de carreras,
+software y hardware + métricas). Con la de estudiante entra a **"Nueva recomendación"**.
+El `MockRecommenderClient` (`app/Services/Recommender/MockRecommenderClient.php`) calcula
+compatibilidad en PHP puro contra los laptops sembrados — perfecto para desarrollar el frontend
+sin depender de que el Módulo A tenga el motor Python corriendo. Cuando quieras usar el motor
+real, cambia `RECOMMENDER_MODE=http` (o `cli`) en tu `.env`.
+
+---
+
 ## 1. Instalar lo básico (una sola vez)
 
 | Programa | Para qué | Descarga |
@@ -15,10 +46,8 @@ antes de seguir.
 | **Laragon** (Windows) | Trae PHP 8.3, Composer y Node juntos | https://laragon.org |
 | **Cuenta de GitHub** | Para que te agreguen al repositorio | https://github.com |
 
-> Ya existe el contenedor `app` (tarea A2) si prefieres no instalar nada de PHP/Node — con
-> `docker compose up -d --build` corre todo en Docker. Pero para programar día a día sigue
-> siendo más rápido lo de abajo (nativo con Laragon): cada cambio se ve al instante, sin
-> reconstruir la imagen.
+> Cuando exista el contenedor `app` (tarea A2), Laragon dejará de ser necesario y todo correrá en
+> Docker. Por ahora la app Laravel se ejecuta en tu sistema.
 
 Después de instalar Docker Desktop: ábrelo una vez y espera a que diga **"Engine running"**.
 En Windows te puede pedir activar WSL2 — acepta y reinicia si lo pide.
@@ -54,9 +83,9 @@ code .                    # abre el proyecto en VS Code
 
 ## 4. Levantar el proyecto
 
-Para desarrollar día a día: la base de datos y el motor corren en Docker, y la app Laravel corre
-en tu sistema (así ves cada cambio al instante). Necesitas además: **PHP 8.3**, **Composer** y
-**Node 20+** (en Windows, Laragon los trae).
+Mientras no exista el contenedor `app` (tarea A2), la base de datos y el motor corren en Docker y
+la app Laravel corre en tu sistema. Necesitas además: **PHP 8.3**, **Composer** y **Node 20+**
+(en Windows, Laragon los trae).
 
 ```bash
 # 1. Base de datos + motor de recomendación (Docker Desktop abierto)

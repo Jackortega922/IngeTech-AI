@@ -1,33 +1,55 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { ArrowRight, Cpu, Sparkles, Wand2 } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Inicio',
         href: '/dashboard',
     },
 ];
 
+const pasos = [
+    { icon: Sparkles, titulo: 'Cuéntanos de ti', texto: 'Tu carrera, actividades y software que usas.' },
+    { icon: Cpu, titulo: 'Recibe tu recomendación', texto: 'Laptops con % de compatibilidad y por qué te sirven.' },
+    { icon: Wand2, titulo: 'Personalízala', texto: 'Ajusta RAM, almacenamiento, kits y accesorios.' },
+];
+
 export default function Dashboard() {
+    const { auth } = usePage<SharedData>().props;
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
+            <Head title="Inicio" />
+
+            <div className="flex flex-1 flex-col gap-6 p-4">
+                <div className="overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent p-8">
+                    <p className="text-sm text-muted-foreground">Hola, {auth.user.name} 👋</p>
+                    <h1 className="mt-1 text-2xl font-bold sm:text-3xl">¿Buscamos tu próxima laptop?</h1>
+                    <p className="mt-2 max-w-xl text-muted-foreground">
+                        Responde unas preguntas sobre tu carrera y lo que necesitas hacer, y te recomendamos la mejor opción para tu
+                        presupuesto.
+                    </p>
+                    <Link
+                        href="/perfil"
+                        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-6 py-3 font-bold text-white transition hover:bg-cyan-600"
+                    >
+                        Nueva recomendación <ArrowRight className="h-4 w-4" />
+                    </Link>
                 </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 rounded-xl border md:min-h-min">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+
+                <div className="grid gap-4 sm:grid-cols-3">
+                    {pasos.map((paso, i) => (
+                        <div key={paso.titulo} className="rounded-xl border p-5">
+                            <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400">
+                                <paso.icon className="h-5 w-5" />
+                                <span className="text-xs font-bold">Paso {i + 1}</span>
+                            </div>
+                            <h3 className="mt-3 font-semibold">{paso.titulo}</h3>
+                            <p className="mt-1 text-sm text-muted-foreground">{paso.texto}</p>
+                        </div>
+                    ))}
                 </div>
             </div>
         </AppLayout>

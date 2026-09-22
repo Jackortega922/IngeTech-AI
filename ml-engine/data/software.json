@@ -1,10 +1,12 @@
 [
-  { "clave": "vscode", "etiqueta": "Visual Studio Code" },
-  { "clave": "docker", "etiqueta": "Docker" },
-  { "clave": "photoshop", "etiqueta": "Adobe Photoshop" },
-  { "clave": "blender", "etiqueta": "Blender" },
-  { "clave": "office", "etiqueta": "Microsoft Office" },
-  { "clave": "premiere", "etiqueta": "Adobe Premiere" },
-  { "clave": "android_studio", "etiqueta": "Android Studio" },
-  { "clave": "jupyter", "etiqueta": "Jupyter / Anaconda" }
+  { "clave": "office", "etiqueta": "Microsoft Office / Google Workspace" },
+  { "clave": "vscode", "etiqueta": "VS Code / IDEs de programación" },
+  { "clave": "docker", "etiqueta": "Docker / contenedores" },
+  { "clave": "photoshop", "etiqueta": "Photoshop / Illustrator" },
+  { "clave": "autocad", "etiqueta": "AutoCAD / SolidWorks" },
+  { "clave": "premiere", "etiqueta": "Premiere / DaVinci Resolve" },
+  { "clave": "blender", "etiqueta": "Blender / 3ds Max" },
+  { "clave": "matlab", "etiqueta": "MATLAB / Octave" },
+  { "clave": "python_ds", "etiqueta": "Python (Jupyter, pandas, PyTorch)" },
+  { "clave": "maquinas_virtuales_sw", "etiqueta": "VirtualBox / VMware" }
 ]

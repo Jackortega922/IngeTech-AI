@@ -2,12 +2,6 @@
 
 **Los mantiene el Módulo C (Marco).** El motor y el seeder de Laravel leen estos archivos.
 
-> ⚠️ **`laptops.json`, `actividades.json` y `software.json` hoy traen datos SEMILLA** (8
-> laptops de referencia y listas cortas de ejemplo), agregados por el Módulo A solo para poder
-> probar el motor real de punta a punta mientras no existía ningún catálogo. Reemplázalos por
-> los definitivos en las tareas C1–C3 (15+ laptops verificadas, y las actividades/software que
-> realmente uses en el formulario de Perfil) — no hay que pedir permiso, es justo tu tarea.
-
 Reglas:
 - JSON válido (usa un validador; cuidado con la coma final de más).
 - Precios en **soles peruanos** (número, sin `S/` ni comas de miles).

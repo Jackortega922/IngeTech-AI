@@ -13,12 +13,18 @@ class Laptop extends Model
     protected $fillable = [
         'marca',
         'modelo',
+        'descripcion',
+        'tipo',
         'cpu',
         'ram_gb',
         'ram_ampliable_gb',
         'almacenamiento_gb',
+        'almacenamiento_tipo',
         'gpu',
+        'gpu_dedicada',
+        'bateria_horas',
         'precio_soles',
+        'tienda',
         'rendimiento_score',
     ];
 
@@ -26,6 +32,7 @@ class Laptop extends Model
     {
         return [
             'precio_soles' => 'decimal:2',
+            'gpu_dedicada' => 'boolean',
         ];
     }
 
