@@ -18,11 +18,35 @@
 **Idea central:**
 > No se trata únicamente de vender laptops, sino de ayudar al usuario a elegir la configuración tecnológica que realmente necesita.
 
-**A quién está dirigido:**
-- Estudiantes de Ingeniería de Sistemas
-- Estudiantes de carreras tecnológicas
-- Desarrolladores y profesionales de TI
-- Usuarios que necesitan adquirir un equipo según un presupuesto determinado
+**A quién está dirigido:** al **público general** que busca comprar una laptop o PC — no solo
+a estudiantes de Ingeniería de Sistemas. Pensado como el asesor de compra inteligente que una
+**empresa de venta de laptops/PCs** ofrece a sus clientes (en vez de que el cliente adivine
+specs por su cuenta, la tienda le ofrece este sistema para recomendar el equipo correcto según
+su carrera/actividad y presupuesto). En concreto:
+- Clientes de una tienda de tecnología, de cualquier carrera o profesión, que no saben
+  interpretar specs técnicas.
+- Estudiantes (de cualquier carrera, no solo TI) y profesionales que necesitan un equipo para
+  su área.
+- Desarrolladores y profesionales de TI con necesidades más específicas (más exigentes en
+  CPU/GPU/RAM).
+- Cualquier usuario que necesite adquirir un equipo según un presupuesto determinado.
+
+**Requisito de alcance — catálogo de carreras:** ya que el público es general y no solo
+Ingeniería de Sistemas y afines, el catálogo de carreras (`Carrera`) debe cubrir varias
+disciplinas académicas, de facultades distintas, para poder recomendar a cualquier cliente de
+la tienda, no solo a estudiantes de TI. **Ya cumplido:** `database/seeders/CarreraSeeder.php`
+incluye 15 carreras aparte de Ingeniería de Sistemas, cubriendo Ingeniería (Civil/Ambiental/
+Minas/Arquitectura), Ciencias de la Salud (Medicina/Enfermería/Psicología), Ciencias de la
+Educación (Educación/Comunicación), Ciencias Empresariales (Administración/Contabilidad/
+Turismo), Derecho y Ciencias Agrarias (Zootecnia/Agronomía) — 6 facultades distintas.
+
+**Requisito de alcance — módulos/páginas por disciplina:** distinto del punto anterior, el
+sistema (no el catálogo) debe tener páginas o módulos reconocibles de **al menos 5 carreras
+reales** aparte de la propia (Ingeniería de Sistemas, que es la base del software y no cuenta
+como "aparte"). No se refiere a dominios de habilidad transversales como IA, UX/UI o Ética
+(inherentes a cualquier software), sino a carreras distintas con su propio módulo: Ingeniería
+Industrial, Administración, Contabilidad, Derecho, Psicología, Marketing, Ingeniería Ambiental.
+Ver el detalle de cobertura actual en la [sección 5.1](#51-cobertura-actual--dónde-vive-cada-disciplina-dentro-del-sistema).
 
 ## 2. Problema
 
@@ -157,6 +181,29 @@ en la sesión 33 — el mismo MVP y la misma sustentación sirven para los dos c
 | Ética y Protección de Datos | Gobernanza de datos | Política de privacidad, revisión de sesgos del modelo, cumplimiento normativo | Ley de Protección de Datos Personales (Perú), GDPR como referencia |
 
 Conexiones clave entre disciplinas: Sistemas expone el modelo de IA como servicio; IA entrega insumos a Industrial para medir KPIs; Ética rige cómo Sistemas almacena datos y cómo IA entrena/opera el modelo; UX/UI muestra el consentimiento que define Ética.
+
+### 5.1. Cobertura actual — ¿dónde vive cada disciplina dentro del sistema?
+
+**Aclaración de alcance (2026-09-22):** "disciplina aparte" aquí significa una **carrera real**
+distinta a Ingeniería de Sistemas, con su propio módulo/página dentro del sistema — no un
+dominio de habilidad transversal como IA, UX/UI o Ética, que son inherentes a cualquier
+proyecto de software y no cuentan para este requisito. El sistema debe tener páginas o módulos
+reconocibles de **al menos 5 carreras distintas** a la propia:
+
+| # | Carrera | Módulo en el sistema | Estado |
+|---|---|---|---|
+| 1 | Ingeniería Industrial | `/admin` → pestaña "Dashboard" (`DashboardController`): total de consultas, agrupadas por carrera y por rango de presupuesto. | ✅ Ya existe |
+| 2 | Administración / Gestión | `docs/gestion/backlog.md`, `docs/gestion/sprints.md` + Jira/Trello (externo, tarea D7). | ⚠️ Vive fuera del sistema, no como página |
+| 3 | Contabilidad | Módulo de Finanzas: ingresos totales, ticket promedio, márgenes — ampliación de `/admin` → Dashboard. | ☐ Propuesto, no construido |
+| 4 | Derecho | Página de Términos y Condiciones / Garantía / Política de devoluciones. | ☐ Propuesto, no construido |
+| 5 | Psicología | Tono empático del chatbot (`ChatbotController`: valida ansiedad por presupuesto/confusión antes de responder) + paleta de colores del flujo ya usa significados de psicología del color (cian = confianza/calma, verde = ahorro/opción segura, ámbar = advertencia sin alarmar — ver `resultado/index.tsx` y `personalizar/index.tsx`). | ✅ Chatbot construido; paleta ya era consistente, solo se documentó |
+| 6 | Marketing | Módulo de promociones/campañas. | ☐ Propuesto, no construido |
+| 7 | Ingeniería Ambiental | Módulo de reciclaje/segunda vida de componentes. | ☐ Propuesto, no construido |
+
+**Conclusión:** con 1-2 (Industrial) ya construido, 5 (Psicología, chatbot) recién construido, y
+Administración ya cubierta como proceso de equipo, van 3 de 5 con presencia real en el sistema.
+Faltan construir Contabilidad, Derecho, Marketing e Ingeniería Ambiental (con 3 de esas 4 ya
+se llega al mínimo de 5 dentro del propio sistema, no solo en documentación de proceso).
 
 ## 6. Arquitectura general del sistema
 

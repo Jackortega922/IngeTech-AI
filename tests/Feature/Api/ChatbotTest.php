@@ -31,9 +31,20 @@ class ChatbotTest extends TestCase
 
     public function test_responde_con_faq_generica_cuando_no_reconoce_nada()
     {
-        $this->postJson('/api/chatbot', ['mensaje' => '¿cómo funciona el comparador?'])
+        $respuesta = $this->postJson('/api/chatbot', ['mensaje' => '¿cómo funciona el comparador?'])
             ->assertOk()
-            ->assertJsonPath('respuesta', 'Puedes marcar hasta 3 equipos en el Catálogo de Hardware y luego abrir "Comparador" para verlos lado a lado.');
+            ->json('respuesta');
+
+        $this->assertStringContainsString('Comparador', $respuesta);
+    }
+
+    public function test_valida_la_preocupacion_por_presupuesto_antes_de_responder()
+    {
+        $respuesta = $this->postJson('/api/chatbot', ['mensaje' => 'no me alcanza el presupuesto'])
+            ->assertOk()
+            ->json('respuesta');
+
+        $this->assertStringContainsString('Entiendo', $respuesta);
     }
 
     public function test_responde_algo_por_defecto_si_no_encuentra_coincidencias()
