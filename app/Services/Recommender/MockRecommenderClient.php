@@ -5,6 +5,7 @@ namespace App\Services\Recommender;
 use App\Models\Actividad;
 use App\Models\Carrera;
 use App\Models\Laptop;
+use Illuminate\Support\Collection;
 
 /**
  * Motor de recomendación local, en PHP puro.
@@ -91,7 +92,7 @@ class MockRecommenderClient implements RecommenderClient
      * marcó el alumno, y ajusta el resultado según su nivel de experiencia
      * (a más experiencia, exige un poco más de margen de potencia).
      *
-     * @param  \Illuminate\Support\Collection<int, Actividad>  $actividades
+     * @param  Collection<int, Actividad>  $actividades
      * @return array{ram_gb:int, cpu_score:int, gpu_dedicada:bool, nivel:string}
      */
     private function calcularNecesidad(Carrera $carrera, $actividades, string $nivelExperiencia): array

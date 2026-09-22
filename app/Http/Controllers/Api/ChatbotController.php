@@ -38,8 +38,7 @@ class ChatbotController extends Controller
             $cpu = $carrera->software->max('min_cpu_score') ?: 15;
             $gpu = $carrera->software->contains('min_gpu_dedicada', true);
 
-            return response()->json(['respuesta' =>
-                "Para {$carrera->nombre} el software típico es: {$software}. ".
+            return response()->json(['respuesta' => "Para {$carrera->nombre} el software típico es: {$software}. ".
                 "Vas a necesitar al menos {$ram} GB de RAM y un procesador con puntaje ≥ {$cpu}/100".
                 ($gpu ? ', además de GPU dedicada.' : '.').
                 ' Puedes generar tu recomendación personalizada en la pestaña "Nueva recomendación".',
@@ -51,8 +50,7 @@ class ChatbotController extends Controller
             fn (Software $s) => Str::contains($texto, $this->normalizar($s->nombre)) || Str::contains($texto, $this->normalizar($s->clave))
         );
         if ($software) {
-            return response()->json(['respuesta' =>
-                "{$software->nombre} ({$software->categoria}) necesita mínimo {$software->min_ram_gb} GB de RAM y CPU ≥ {$software->min_cpu_score}/100".
+            return response()->json(['respuesta' => "{$software->nombre} ({$software->categoria}) necesita mínimo {$software->min_ram_gb} GB de RAM y CPU ≥ {$software->min_cpu_score}/100".
                 ($software->min_gpu_dedicada ? ', con GPU dedicada' : '').
                 ". Para un uso más fluido, lo recomendado es {$software->rec_ram_gb} GB de RAM y CPU ≥ {$software->rec_cpu_score}/100.",
             ]);
@@ -63,11 +61,10 @@ class ChatbotController extends Controller
             fn (Laptop $l) => Str::contains($texto, $this->normalizar($l->modelo)) || Str::contains($texto, $this->normalizar($l->marca))
         );
         if ($equipo) {
-            return response()->json(['respuesta' =>
-                "{$equipo->marca} {$equipo->modelo}: {$equipo->cpu}, {$equipo->ram_gb} GB RAM, ".
+            return response()->json(['respuesta' => "{$equipo->marca} {$equipo->modelo}: {$equipo->cpu}, {$equipo->ram_gb} GB RAM, ".
                 "{$equipo->almacenamiento_tipo} {$equipo->almacenamiento_gb} GB, ".
                 ($equipo->gpu_dedicada ? "GPU dedicada ({$equipo->gpu})" : "gráficos integrados ({$equipo->gpu})").
-                ". Precio: S/ ".number_format((float) $equipo->precio_soles, 0, '.', ',').' en '.($equipo->tienda ?? 'tienda de referencia').'.',
+                '. Precio: S/ '.number_format((float) $equipo->precio_soles, 0, '.', ',').' en '.($equipo->tienda ?? 'tienda de referencia').'.',
             ]);
         }
 
@@ -86,8 +83,7 @@ class ChatbotController extends Controller
             }
         }
 
-        return response()->json(['respuesta' =>
-            'No encontré eso en el catálogo. Puedes preguntarme por una carrera (ej. "Ingeniería Civil"), '.
+        return response()->json(['respuesta' => 'No encontré eso en el catálogo. Puedes preguntarme por una carrera (ej. "Ingeniería Civil"), '.
             'un software (ej. "AutoCAD") o un equipo (ej. "Legion 5"), o cómo funciona la compatibilidad, el comparador o los kits.',
         ]);
     }

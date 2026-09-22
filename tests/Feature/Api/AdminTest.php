@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\Carrera;
 use App\Models\EventoAnalitica;
 use App\Models\Laptop;
+use App\Models\PerfilUsuario;
 use App\Models\Software;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -120,7 +120,7 @@ class AdminTest extends TestCase
         $this->comoAdmin();
 
         $estudiante = User::factory()->create(['is_admin' => false, 'name' => 'Juan Pérez']);
-        \App\Models\PerfilUsuario::create([
+        PerfilUsuario::create([
             'user_id' => $estudiante->id, 'carrera' => 'Ingeniería de Sistemas', 'nivel_experiencia' => 'basico',
             'actividades' => [], 'software' => [], 'presupuesto_soles' => 3000, 'portabilidad' => 'cualquiera',
         ]);

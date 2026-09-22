@@ -3,10 +3,12 @@
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\HandleInertiaRequests;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Session\Middleware\StartSession;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,8 +28,8 @@ return Application::configure(basePath: dirname(__DIR__))
             // El SPA llama a /api/* con fetch() de mismo origen usando la
             // sesión del login normal (no hay tokens Sanctum), así que la
             // API necesita la sesión iniciada para saber quién es el usuario.
-            \Illuminate\Cookie\Middleware\EncryptCookies::class,
-            \Illuminate\Session\Middleware\StartSession::class,
+            EncryptCookies::class,
+            StartSession::class,
         ]);
 
         $middleware->alias([
