@@ -159,5 +159,5 @@
 
 /* Inputs de las tablas editables del panel de Administración (/admin) */
 .campo {
-    @apply w-full rounded-md border border-input bg-transparent px-2 py-1 text-sm;
+    @apply border-input w-full rounded-md border bg-transparent px-2 py-1 text-sm;
 }

@@ -1,8 +1,8 @@
 import DeviceIllustration from '@/components/device-illustration';
-import { flujoStorage } from '@/lib/flujo-storage';
 import AppLayout from '@/layouts/app-layout';
-import type { Catalogos } from '@/types/flujo';
+import { flujoStorage } from '@/lib/flujo-storage';
 import { type BreadcrumbItem } from '@/types';
+import type { Catalogos } from '@/types/flujo';
 import { Head, Link } from '@inertiajs/react';
 import { BatteryFull, Cpu, HardDrive, MonitorSmartphone, Scale } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -44,7 +44,7 @@ export default function HardwareIndex() {
                         href={seleccion.length >= 2 ? '/comparador' : '#'}
                         aria-disabled={seleccion.length < 2}
                         className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white transition ${
-                            seleccion.length >= 2 ? 'bg-cyan-500 hover:bg-cyan-600' : 'pointer-events-none bg-muted text-muted-foreground'
+                            seleccion.length >= 2 ? 'bg-cyan-500 hover:bg-cyan-600' : 'bg-muted text-muted-foreground pointer-events-none'
                         }`}
                     >
                         <Scale className="h-4 w-4" /> Comparar ({seleccion.length})
@@ -54,7 +54,7 @@ export default function HardwareIndex() {
                 {!catalogos ? (
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="h-80 animate-pulse rounded-xl bg-muted" />
+                            <div key={i} className="bg-muted h-80 animate-pulse rounded-xl" />
                         ))}
                     </div>
                 ) : (
@@ -71,12 +71,12 @@ export default function HardwareIndex() {
                                 <div className="flex flex-1 flex-col p-4">
                                     <div className="flex items-start justify-between gap-2">
                                         <div>
-                                            <p className="text-xs tracking-wide text-muted-foreground uppercase">
+                                            <p className="text-muted-foreground text-xs tracking-wide uppercase">
                                                 {h.tipo === 'laptop' ? 'Laptop' : 'PC de escritorio'} · {h.marca}
                                             </p>
                                             <h3 className="font-bold">{h.modelo}</h3>
                                         </div>
-                                        <label className="flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground">
+                                        <label className="text-muted-foreground flex cursor-pointer items-center gap-1.5 text-xs">
                                             <input
                                                 type="checkbox"
                                                 checked={seleccion.includes(h.id)}
@@ -87,9 +87,9 @@ export default function HardwareIndex() {
                                         </label>
                                     </div>
 
-                                    {h.descripcion && <p className="mt-2 text-sm text-muted-foreground">{h.descripcion}</p>}
+                                    {h.descripcion && <p className="text-muted-foreground mt-2 text-sm">{h.descripcion}</p>}
 
-                                    <div className="mt-3 grid grid-cols-2 gap-1.5 text-xs text-muted-foreground">
+                                    <div className="text-muted-foreground mt-3 grid grid-cols-2 gap-1.5 text-xs">
                                         <span className="flex items-center gap-1">
                                             <Cpu className="h-3.5 w-3.5" /> {h.cpu}
                                         </span>
@@ -110,7 +110,7 @@ export default function HardwareIndex() {
                                         <span className="font-mono text-xl font-bold text-cyan-600 dark:text-cyan-400">
                                             S/ {Number(h.precio_soles).toLocaleString('es-PE')}
                                         </span>
-                                        <span className="text-xs text-muted-foreground">{h.tienda}</span>
+                                        <span className="text-muted-foreground text-xs">{h.tienda}</span>
                                     </div>
                                 </div>
                             </div>

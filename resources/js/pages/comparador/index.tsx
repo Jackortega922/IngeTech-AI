@@ -1,7 +1,7 @@
-import { flujoStorage } from '@/lib/flujo-storage';
 import AppLayout from '@/layouts/app-layout';
-import type { Catalogos, Laptop } from '@/types/flujo';
+import { flujoStorage } from '@/lib/flujo-storage';
 import { type BreadcrumbItem } from '@/types';
+import type { Catalogos, Laptop } from '@/types/flujo';
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
@@ -46,27 +46,27 @@ export default function ComparadorIndex() {
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold">Comparador</h1>
                     {equipos.length > 0 && (
-                        <button onClick={vaciar} className="text-sm text-muted-foreground underline hover:text-foreground">
+                        <button onClick={vaciar} className="text-muted-foreground hover:text-foreground text-sm underline">
                             Vaciar selección
                         </button>
                     )}
                 </div>
 
                 {catalogos && equipos.length < 2 ? (
-                    <div className="rounded-xl border p-10 text-center text-muted-foreground">
+                    <div className="text-muted-foreground rounded-xl border p-10 text-center">
                         <p>Selecciona al menos 2 equipos desde el catálogo de hardware para compararlos.</p>
                         <Link href="/hardware" className="mt-4 inline-block rounded-xl bg-cyan-500 px-6 py-3 font-bold text-white hover:bg-cyan-600">
                             Ir al catálogo
                         </Link>
                     </div>
                 ) : !catalogos ? (
-                    <div className="h-64 animate-pulse rounded-xl bg-muted" />
+                    <div className="bg-muted h-64 animate-pulse rounded-xl" />
                 ) : (
                     <div className="overflow-x-auto rounded-xl border">
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="bg-muted/50">
-                                    <th className="px-4 py-3 text-left text-muted-foreground">Criterio</th>
+                                    <th className="text-muted-foreground px-4 py-3 text-left">Criterio</th>
                                     {equipos.map((e) => (
                                         <th key={e.id} className="px-4 py-3 text-left font-bold">
                                             {e.marca} {e.modelo}
@@ -77,7 +77,7 @@ export default function ComparadorIndex() {
                             <tbody>
                                 {FILAS.map(([label, fn]) => (
                                     <tr key={label} className="border-t">
-                                        <td className="px-4 py-3 text-muted-foreground">{label}</td>
+                                        <td className="text-muted-foreground px-4 py-3">{label}</td>
                                         {equipos.map((e) => (
                                             <td key={e.id} className="px-4 py-3 font-mono">
                                                 {fn(e)}

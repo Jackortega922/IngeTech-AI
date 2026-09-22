@@ -50,7 +50,7 @@ export default function ChatWidget() {
     return (
         <div className="fixed right-5 bottom-5 z-50">
             {abierto && (
-                <div className="mb-3 flex h-96 w-80 flex-col overflow-hidden rounded-2xl border bg-background shadow-2xl">
+                <div className="bg-background mb-3 flex h-96 w-80 flex-col overflow-hidden rounded-2xl border shadow-2xl">
                     <div className="flex items-center justify-between border-b bg-cyan-500 px-4 py-3 text-white">
                         <span className="font-bold">Asistente IngeTech</span>
                         <button onClick={() => setAbierto(false)} aria-label="Cerrar">
@@ -68,7 +68,7 @@ export default function ChatWidget() {
                                 {m.texto}
                             </div>
                         ))}
-                        {enviando && <div className="max-w-[85%] rounded-xl bg-muted px-3 py-2 text-sm text-muted-foreground">Escribiendo…</div>}
+                        {enviando && <div className="bg-muted text-muted-foreground max-w-[85%] rounded-xl px-3 py-2 text-sm">Escribiendo…</div>}
                     </div>
                     <form
                         onSubmit={(e) => {

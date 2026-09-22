@@ -193,45 +193,40 @@ export default function PersonalizarIndex() {
                                 <span className="font-mono text-2xl font-bold text-cyan-400">S/ {precioFinal.toLocaleString('es-PE')}</span>
                             </div>
 
-      {confirmado ? (
-    <div className="mt-5 space-y-3">
-        {/* Confirmación */}
-        <div className="flex items-start gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-300">
-            <Check className="mt-0.5 h-4 w-4 shrink-0" />
+                            {confirmado ? (
+                                <div className="mt-5 space-y-3">
+                                    {/* Confirmación */}
+                                    <div className="flex items-start gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-300">
+                                        <Check className="mt-0.5 h-4 w-4 shrink-0" />
 
-            <div>
-                <p className="font-semibold">
-                    ¡Configuración guardada!
-                </p>
+                                        <div>
+                                            <p className="font-semibold">¡Configuración guardada!</p>
 
-                <p className="mt-1 text-xs text-emerald-300/70">
-                    Tu configuración está lista. Un asesor te contactará para
-                    ayudarte a cerrar la compra.
-                </p>
-            </div>
-        </div>
+                                            <p className="mt-1 text-xs text-emerald-300/70">
+                                                Tu configuración está lista. Un asesor te contactará para ayudarte a cerrar la compra.
+                                            </p>
+                                        </div>
+                                    </div>
 
-        {/* Botón panel de usuario */}
-        <Link
-            href="/dashboard"
-            className="group flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm font-bold text-cyan-300 transition-all duration-200 hover:border-cyan-400 hover:bg-cyan-400 hover:text-[#07111f]"
-        >
-            <span>Ir a mi panel</span>
+                                    {/* Botón panel de usuario */}
+                                    <Link
+                                        href="/dashboard"
+                                        className="group flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm font-bold text-cyan-300 transition-all duration-200 hover:border-cyan-400 hover:bg-cyan-400 hover:text-[#07111f]"
+                                    >
+                                        <span>Ir a mi panel</span>
 
-            <span className="transition-transform duration-200 group-hover:translate-x-1">
-                →
-            </span>
-        </Link>
-    </div>
-) : (
-    <button
-        type="button"
-        onClick={() => setConfirmado(true)}
-        className="mt-5 w-full rounded-xl bg-cyan-400 py-3 text-sm font-bold text-[#07111f] transition hover:bg-cyan-300 hover:shadow-lg hover:shadow-cyan-400/20"
-    >
-        Confirmar personalización
-    </button>
-)}
+                                        <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                                    </Link>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => setConfirmado(true)}
+                                    className="mt-5 w-full rounded-xl bg-cyan-400 py-3 text-sm font-bold text-[#07111f] transition hover:bg-cyan-300 hover:shadow-lg hover:shadow-cyan-400/20"
+                                >
+                                    Confirmar personalización
+                                </button>
+                            )}
                         </aside>
                     </div>
 
@@ -285,7 +280,7 @@ function OpcionKit({
                 <span className="block text-sm font-semibold">{label}</span>
                 {incluye && <span className="block text-xs text-slate-500">{incluye}</span>}
             </span>
-            {precio !== undefined && <span className="font-mono text-sm text-cyan-300 shrink-0">S/ {precio.toFixed(0)}</span>}
+            {precio !== undefined && <span className="shrink-0 font-mono text-sm text-cyan-300">S/ {precio.toFixed(0)}</span>}
         </button>
     );
 }

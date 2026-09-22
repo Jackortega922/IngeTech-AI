@@ -1,7 +1,7 @@
 import DeviceIllustration from '@/components/device-illustration';
 import AppLayout from '@/layouts/app-layout';
-import type { HistorialItem } from '@/types/flujo';
 import { type BreadcrumbItem } from '@/types';
+import type { HistorialItem } from '@/types/flujo';
 import { Head, Link } from '@inertiajs/react';
 import { Clock, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -27,11 +27,14 @@ export default function HistorialIndex() {
                 </div>
 
                 {!items ? (
-                    <div className="h-64 animate-pulse rounded-xl bg-muted" />
+                    <div className="bg-muted h-64 animate-pulse rounded-xl" />
                 ) : items.length === 0 ? (
-                    <div className="rounded-xl border p-10 text-center text-muted-foreground">
+                    <div className="text-muted-foreground rounded-xl border p-10 text-center">
                         <p>Todavía no has generado ninguna recomendación.</p>
-                        <Link href="/perfil" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-6 py-3 font-bold text-white hover:bg-cyan-600">
+                        <Link
+                            href="/perfil"
+                            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-6 py-3 font-bold text-white hover:bg-cyan-600"
+                        >
                             <Sparkles className="h-4 w-4" /> Generar mi primera recomendación
                         </Link>
                     </div>
@@ -39,14 +42,14 @@ export default function HistorialIndex() {
                     <div className="space-y-4">
                         {items.map((item) => (
                             <div key={item.id} className="rounded-xl border p-5">
-                                <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
-                                    <span className="font-semibold text-foreground">{item.carrera ?? 'Carrera no especificada'}</span>
+                                <div className="text-muted-foreground flex flex-wrap items-center justify-between gap-2 text-sm">
+                                    <span className="text-foreground font-semibold">{item.carrera ?? 'Carrera no especificada'}</span>
                                     <span className="flex items-center gap-1.5">
                                         <Clock className="h-3.5 w-3.5" />
                                         {new Date(item.created_at).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
                                     </span>
                                 </div>
-                                <p className="mt-1 text-xs text-muted-foreground">
+                                <p className="text-muted-foreground mt-1 text-xs">
                                     Nivel {item.nivel_experiencia} · Presupuesto S/ {Number(item.presupuesto_soles).toLocaleString('es-PE')} ·{' '}
                                     {item.portabilidad === 'cualquiera' ? 'Laptop o escritorio' : item.portabilidad}
                                     {item.actividades.length > 0 && <> · {item.actividades.join(', ')}</>}
@@ -60,7 +63,7 @@ export default function HistorialIndex() {
                                                 <p className="truncate text-sm font-semibold">
                                                     {r.laptop.marca} {r.laptop.modelo}
                                                 </p>
-                                                <p className="text-xs text-muted-foreground">{r.explicacion.badges.join(' · ')}</p>
+                                                <p className="text-muted-foreground text-xs">{r.explicacion.badges.join(' · ')}</p>
                                                 <p className="mt-1 font-mono text-sm text-cyan-600 dark:text-cyan-400">
                                                     S/ {Number(r.laptop.precio_soles).toLocaleString('es-PE')}
                                                 </p>

@@ -1,7 +1,7 @@
 import ChatWidget from '@/components/chat-widget';
 import FlowHeader from '@/components/flujo/flow-header';
 import { flujoStorage } from '@/lib/flujo-storage';
-import type { Catalogos, NivelExperiencia, Necesidad, Perfil, Portabilidad, RespuestaMotor } from '@/types/flujo';
+import type { Catalogos, Necesidad, NivelExperiencia, Perfil, Portabilidad, RespuestaMotor } from '@/types/flujo';
 import { Head, router } from '@inertiajs/react';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -150,7 +150,7 @@ export default function PerfilIndex() {
                                     <select
                                         value={perfil.carrera_clave}
                                         onChange={(e) => setPerfil({ ...perfil, carrera_clave: e.target.value })}
-                                        className="w-full appearance-none rounded-2xl border border-cyan-400/20 bg-slate-900 px-4 py-4 pr-12 text-white shadow-lg shadow-cyan-950/20 outline-none transition hover:border-cyan-400/40 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
+                                        className="w-full appearance-none rounded-2xl border border-cyan-400/20 bg-slate-900 px-4 py-4 pr-12 text-white shadow-lg shadow-cyan-950/20 transition outline-none hover:border-cyan-400/40 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
                                     >
                                         {!catalogos?.carreras?.length ? (
                                             <option value="" className="bg-slate-900 text-slate-300">
@@ -166,7 +166,11 @@ export default function PerfilIndex() {
                                     </select>
                                     <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-cyan-400">
                                         <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z"
+                                                clipRule="evenodd"
+                                            />
                                         </svg>
                                     </div>
                                 </div>
@@ -196,7 +200,8 @@ export default function PerfilIndex() {
                                         <div>
                                             <p className="font-semibold">No se encontraron carreras</p>
                                             <p className="mt-0.5 text-xs text-amber-200/70">
-                                                El diseño ya está preparado, pero el catálogo de carreras no está llegando desde <code>/api/catalogos</code>.
+                                                El diseño ya está preparado, pero el catálogo de carreras no está llegando desde{' '}
+                                                <code>/api/catalogos</code>.
                                             </p>
                                         </div>
                                     </div>
@@ -242,7 +247,9 @@ export default function PerfilIndex() {
                                         >
                                             <span
                                                 className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 text-[9px] ${
-                                                    perfil.actividades.includes(a.clave) ? 'border-cyan-400 bg-cyan-400 text-[#07111f]' : 'border-slate-500'
+                                                    perfil.actividades.includes(a.clave)
+                                                        ? 'border-cyan-400 bg-cyan-400 text-[#07111f]'
+                                                        : 'border-slate-500'
                                                 }`}
                                             >
                                                 {perfil.actividades.includes(a.clave) && '✓'}

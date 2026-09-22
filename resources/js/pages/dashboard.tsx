@@ -25,11 +25,10 @@ export default function Dashboard() {
 
             <div className="flex flex-1 flex-col gap-6 p-4">
                 <div className="overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent p-8">
-                    <p className="text-sm text-muted-foreground">Hola, {auth.user.name} 👋</p>
+                    <p className="text-muted-foreground text-sm">Hola, {auth.user.name} 👋</p>
                     <h1 className="mt-1 text-2xl font-bold sm:text-3xl">¿Buscamos tu próxima laptop?</h1>
-                    <p className="mt-2 max-w-xl text-muted-foreground">
-                        Responde unas preguntas sobre tu carrera y lo que necesitas hacer, y te recomendamos la mejor opción para tu
-                        presupuesto.
+                    <p className="text-muted-foreground mt-2 max-w-xl">
+                        Responde unas preguntas sobre tu carrera y lo que necesitas hacer, y te recomendamos la mejor opción para tu presupuesto.
                     </p>
                     <Link
                         href="/perfil"
@@ -47,7 +46,7 @@ export default function Dashboard() {
                                 <span className="text-xs font-bold">Paso {i + 1}</span>
                             </div>
                             <h3 className="mt-3 font-semibold">{paso.titulo}</h3>
-                            <p className="mt-1 text-sm text-muted-foreground">{paso.texto}</p>
+                            <p className="text-muted-foreground mt-1 text-sm">{paso.texto}</p>
                         </div>
                     ))}
                 </div>

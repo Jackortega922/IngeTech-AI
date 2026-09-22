@@ -4,8 +4,8 @@ import { flujoStorage } from '@/lib/flujo-storage';
 import type { Laptop, RespuestaMotorError, Tarjeta } from '@/types/flujo';
 import { Head, Link, router } from '@inertiajs/react';
 import { AlertTriangle, Cpu, HardDrive, MonitorSmartphone, Scale } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 
 const COLOR_BADGE: Record<string, string> = {
     'Mejor Opción Económica': 'bg-emerald-400 text-emerald-950',
@@ -57,9 +57,7 @@ export default function ResultadoIndex() {
 
                 <main className="mx-auto max-w-6xl px-6 py-14 lg:px-10">
                     <h1 className="text-3xl font-bold sm:text-4xl">Tu recomendación</h1>
-                    <p className="mt-2 max-w-xl text-slate-400">
-                        Clasificamos los equipos viables en tres categorías, según qué priorices.
-                    </p>
+                    <p className="mt-2 max-w-xl text-slate-400">Clasificamos los equipos viables en tres categorías, según qué priorices.</p>
 
                     {errorMotor ? (
                         <>
@@ -97,10 +95,7 @@ export default function ResultadoIndex() {
                             ← Cambiar mi perfil
                         </Link>
                         {comparar.length >= 2 && (
-                            <Link
-                                href="/comparador"
-                                className="flex items-center gap-1.5 text-sm font-semibold text-cyan-400 hover:text-cyan-300"
-                            >
+                            <Link href="/comparador" className="flex items-center gap-1.5 text-sm font-semibold text-cyan-400 hover:text-cyan-300">
                                 <Scale className="h-4 w-4" /> Comparar seleccionados ({comparar.length})
                             </Link>
                         )}

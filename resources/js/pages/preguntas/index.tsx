@@ -49,14 +49,14 @@ export default function PreguntasIndex() {
 
                 <div className="max-w-3xl space-y-3">
                     {PREGUNTAS.map((item) => (
-                        <details key={item.q} className="group rounded-xl border p-4 open:bg-muted/30">
+                        <details key={item.q} className="group open:bg-muted/30 rounded-xl border p-4">
                             <summary className="cursor-pointer list-none font-semibold marker:content-none">
                                 <span className="flex items-center justify-between">
                                     {item.q}
                                     <span className="text-muted-foreground transition group-open:rotate-45">+</span>
                                 </span>
                             </summary>
-                            <p className="mt-3 text-sm text-muted-foreground">{item.a}</p>
+                            <p className="text-muted-foreground mt-3 text-sm">{item.a}</p>
                         </details>
                     ))}
                 </div>

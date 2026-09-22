@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
-import type { Catalogos } from '@/types/flujo';
 import { type BreadcrumbItem } from '@/types';
+import type { Catalogos } from '@/types/flujo';
 import { Head } from '@inertiajs/react';
 import { Code2, Cpu, GraduationCap, LayoutGrid, Network, Palette, Stethoscope } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -39,7 +39,7 @@ export default function SoftwareIndex() {
                 {!catalogos ? (
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="h-40 animate-pulse rounded-xl bg-muted" />
+                            <div key={i} className="bg-muted h-40 animate-pulse rounded-xl" />
                         ))}
                     </div>
                 ) : (
@@ -58,16 +58,16 @@ export default function SoftwareIndex() {
                                             <Icono className="h-5 w-5" />
                                         </span>
                                         <div>
-                                            <p className="text-xs text-muted-foreground">{s.categoria}</p>
+                                            <p className="text-muted-foreground text-xs">{s.categoria}</p>
                                             <h3 className="font-bold">{s.nombre}</h3>
                                         </div>
                                     </div>
 
-                                    {s.descripcion && <p className="mt-3 text-sm text-muted-foreground">{s.descripcion}</p>}
+                                    {s.descripcion && <p className="text-muted-foreground mt-3 text-sm">{s.descripcion}</p>}
 
                                     <div className="mt-3 flex flex-wrap gap-1">
                                         {carreras.map((c) => (
-                                            <span key={c} className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                                            <span key={c} className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-[11px]">
                                                 {c}
                                             </span>
                                         ))}
