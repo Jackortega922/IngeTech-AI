@@ -192,18 +192,21 @@ reconocibles de **al menos 5 carreras distintas** a la propia:
 
 | # | Carrera | Módulo en el sistema | Estado |
 |---|---|---|---|
-| 1 | Ingeniería Industrial | `/admin` → pestaña "Dashboard" (`DashboardController`): total de consultas, agrupadas por carrera y por rango de presupuesto. | ✅ Ya existe |
+| 1 | Ingeniería Industrial | `resources/js/pages/industrial/panel-dashboard.tsx`, pestaña "Dashboard" de `/admin` (`DashboardController`): total de consultas, agrupadas por carrera y por rango de presupuesto. | ✅ Construido |
 | 2 | Administración / Gestión | `docs/gestion/backlog.md`, `docs/gestion/sprints.md` + Jira/Trello (externo, tarea D7). | ⚠️ Vive fuera del sistema, no como página |
-| 3 | Contabilidad | Módulo de Finanzas: ingresos totales, ticket promedio, márgenes — ampliación de `/admin` → Dashboard. | ☐ Propuesto, no construido |
-| 4 | Derecho | Página de Términos y Condiciones / Garantía / Política de devoluciones. | ☐ Propuesto, no construido |
-| 5 | Psicología | Tono empático del chatbot (`ChatbotController`: valida ansiedad por presupuesto/confusión antes de responder) + paleta de colores del flujo ya usa significados de psicología del color (cian = confianza/calma, verde = ahorro/opción segura, ámbar = advertencia sin alarmar — ver `resultado/index.tsx` y `personalizar/index.tsx`). | ✅ Chatbot construido; paleta ya era consistente, solo se documentó |
-| 6 | Marketing | Módulo de promociones/campañas. | ☐ Propuesto, no construido |
-| 7 | Ingeniería Ambiental | Módulo de reciclaje/segunda vida de componentes. | ☐ Propuesto, no construido |
+| 3 | Contabilidad | `resources/js/pages/contabilidad/panel-contabilidad.tsx`, pestaña "Contabilidad" de `/admin` (`ContabilidadController`): ingreso potencial total, ticket promedio, distribución por rango de precio. | ✅ Construido |
+| 4 | Derecho | `resources/js/pages/derecho/index.tsx` (`/derecho`): términos de uso, garantía, devoluciones, protección de datos del perfil. Enlazada también desde el footer público de `sistemas/welcome.tsx`. | ✅ Construido |
+| 5 | Psicología | Tono empático del chatbot (`ChatbotController`: valida ansiedad por presupuesto/confusión antes de responder) + paleta de colores del flujo ya usa significados de psicología del color (cian = confianza/calma, verde = ahorro/opción segura, ámbar = advertencia sin alarmar — ver `sistemas/resultado/index.tsx` y `sistemas/personalizar/index.tsx`). | ✅ Chatbot construido; paleta ya era consistente, solo se documentó |
+| 6 | Marketing | `resources/js/pages/marketing/index.tsx` (`/marketing`): kits del catálogo presentados como promociones, con el % de ahorro calculado frente a comprar cada accesorio suelto. | ✅ Construido |
+| 7 | Ingeniería Ambiental | `resources/js/pages/ing-ambiental/index.tsx` (`/ing-ambiental`): reciclaje de componentes, vida útil, manejo de baterías, borrado seguro de datos. | ✅ Construido |
 
-**Conclusión:** con 1-2 (Industrial) ya construido, 5 (Psicología, chatbot) recién construido, y
-Administración ya cubierta como proceso de equipo, van 3 de 5 con presencia real en el sistema.
-Faltan construir Contabilidad, Derecho, Marketing e Ingeniería Ambiental (con 3 de esas 4 ya
-se llega al mínimo de 5 dentro del propio sistema, no solo en documentación de proceso).
+**Conclusión:** las 6 carreras aparte de Ingeniería de Sistemas ya tienen presencia real en el
+sistema (Administración sigue viviendo fuera, como proceso de equipo) — de sobra el mínimo de
+5 pedido. Cada página/módulo está marcado como "básico" a propósito (ver commits de
+2026-09-22): reusa datos que ya existían (`Recomendacion`, `Kit`/`Accesorio`) sin agregar
+modelos ni migraciones nuevas, dejando espacio para profundizar cada uno más adelante (ej.
+Contabilidad con reportes exportables, Marketing con promociones editables desde admin, Derecho
+con textos legales revisados por alguien del área).
 
 ## 6. Arquitectura general del sistema
 

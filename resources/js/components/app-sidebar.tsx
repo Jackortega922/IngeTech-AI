@@ -3,7 +3,22 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { CircleHelp, Clock, GraduationCap, LayoutDashboard, LayoutGrid, LayoutList, Monitor, Scale, Sparkles, Users } from 'lucide-react';
+import {
+    CircleHelp,
+    Clock,
+    Coins,
+    GraduationCap,
+    LayoutDashboard,
+    LayoutGrid,
+    LayoutList,
+    Monitor,
+    Recycle,
+    Scale,
+    Scroll,
+    Sparkles,
+    Tag,
+    Users,
+} from 'lucide-react';
 import AppLogo from './app-logo';
 
 const navEstudiante: NavItem[] = [
@@ -13,6 +28,9 @@ const navEstudiante: NavItem[] = [
     { title: 'Catálogo de software', url: '/software', icon: LayoutList },
     { title: 'Catálogo de hardware', url: '/hardware', icon: Monitor },
     { title: 'Comparador', url: '/comparador', icon: Scale },
+    { title: 'Promociones', url: '/marketing', icon: Tag },
+    { title: 'Reciclaje y sostenibilidad', url: '/ing-ambiental', icon: Recycle },
+    { title: 'Términos y Garantía', url: '/derecho', icon: Scroll },
     { title: 'Preguntas frecuentes', url: '/preguntas', icon: CircleHelp },
 ];
 
@@ -20,6 +38,7 @@ const navEstudiante: NavItem[] = [
 // corresponde al admin — el flujo de recomendación es para estudiantes.
 const navAdmin: NavItem[] = [
     { title: 'Dashboard', url: '/admin?tab=dashboard', icon: LayoutDashboard },
+    { title: 'Contabilidad', url: '/admin?tab=contabilidad', icon: Coins },
     { title: 'Clientes', url: '/admin?tab=clientes', icon: Users },
     { title: 'Equipos', url: '/admin?tab=hardware', icon: Monitor },
     { title: 'Software', url: '/admin?tab=software', icon: LayoutList },

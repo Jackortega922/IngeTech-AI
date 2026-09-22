@@ -1,10 +1,14 @@
+import { LoadingPanel } from '@/components/loading-panel';
 import AppLayout from '@/layouts/app-layout';
+import { PanelContabilidad } from '@/pages/contabilidad/panel-contabilidad';
+import { PanelDashboard } from '@/pages/industrial/panel-dashboard';
 import { type BreadcrumbItem } from '@/types';
-import type { Carrera, Catalogos, Cliente, DashboardAdmin, Laptop, Software } from '@/types/flujo';
+import type { Carrera, Catalogos, Cliente, ContabilidadAdmin, DashboardAdmin, Laptop, Software } from '@/types/flujo';
 import { Head } from '@inertiajs/react';
 import {
     AlertCircle,
     CheckCircle2,
+    Coins,
     Database,
     GraduationCap,
     Laptop as LaptopIcon,
@@ -18,16 +22,15 @@ import {
     Users,
     X,
 } from 'lucide-react';
-import { LoadingPanel } from '@/components/loading-panel';
-import { PanelDashboard } from '@/pages/industrial/panel-dashboard';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Administración', href: '/admin' }];
 
-type Sub = 'dashboard' | 'clientes' | 'hardware' | 'software' | 'carreras';
+type Sub = 'dashboard' | 'contabilidad' | 'clientes' | 'hardware' | 'software' | 'carreras';
 
 const TABS = [
     { value: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { value: 'contabilidad', label: 'Contabilidad', icon: Coins },
     { value: 'clientes', label: 'Estudiantes', icon: Users },
     { value: 'hardware', label: 'Equipos', icon: LaptopIcon },
     { value: 'software', label: 'Software', icon: Package },
@@ -78,6 +81,7 @@ export default function AdminIndex() {
     const [sub, setSub] = useState<Sub>(tabInicial);
     const [catalogos, setCatalogos] = useState<Catalogos | null>(null);
     const [dashboard, setDashboard] = useState<DashboardAdmin | null>(null);
+    const [contabilidad, setContabilidad] = useState<ContabilidadAdmin | null>(null);
     const [clientes, setClientes] = useState<Cliente[] | null>(null);
 
     const [mensaje, setMensaje] = useState<string | null>(null);
@@ -89,7 +93,7 @@ export default function AdminIndex() {
             setCargando(true);
             setError(null);
 
-            const [catalogosRes, dashboardRes, clientesRes] = await Promise.all([
+            const [catalogosRes, dashboardRes, contabilidadRes, clientesRes] = await Promise.all([
                 fetch('/api/catalogos', {
                     headers: {
                         Accept: 'application/json',
@@ -97,6 +101,12 @@ export default function AdminIndex() {
                     credentials: 'same-origin',
                 }),
                 fetch('/api/admin/dashboard', {
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                    credentials: 'same-origin',
+                }),
+                fetch('/api/admin/contabilidad', {
                     headers: {
                         Accept: 'application/json',
                     },
@@ -110,14 +120,20 @@ export default function AdminIndex() {
                 }),
             ]);
 
-            if (!catalogosRes.ok || !dashboardRes.ok || !clientesRes.ok) {
+            if (!catalogosRes.ok || !dashboardRes.ok || !contabilidadRes.ok || !clientesRes.ok) {
                 throw new Error('No se pudieron cargar los datos del panel.');
             }
 
-            const [catalogosData, dashboardData, clientesData] = await Promise.all([catalogosRes.json(), dashboardRes.json(), clientesRes.json()]);
+            const [catalogosData, dashboardData, contabilidadData, clientesData] = await Promise.all([
+                catalogosRes.json(),
+                dashboardRes.json(),
+                contabilidadRes.json(),
+                clientesRes.json(),
+            ]);
 
             setCatalogos(catalogosData);
             setDashboard(dashboardData);
+            setContabilidad(contabilidadData);
             setClientes(clientesData);
         } catch (e) {
             setError(e instanceof Error ? e.message : 'No se pudieron cargar los datos.');
@@ -243,6 +259,8 @@ export default function AdminIndex() {
                         <LoadingPanel />
                     ) : sub === 'dashboard' ? (
                         <PanelDashboard dashboard={dashboard} carreras={catalogos.carreras} />
+                    ) : sub === 'contabilidad' ? (
+                        <PanelContabilidad datos={contabilidad} />
                     ) : sub === 'clientes' ? (
                         <PanelClientes clientes={clientes} />
                     ) : sub === 'hardware' ? (

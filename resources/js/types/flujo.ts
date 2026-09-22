@@ -129,6 +129,13 @@ export interface DashboardAdmin {
     por_presupuesto: Record<string, number>;
 }
 
+export interface ContabilidadAdmin {
+    ingreso_potencial_total: number;
+    ticket_promedio: number;
+    total_recomendaciones: number;
+    por_rango_precio: Record<string, number>;
+}
+
 export interface Cliente {
     id: number;
     name: string;

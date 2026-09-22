@@ -121,7 +121,10 @@ export default function Welcome() {
                 </section>
 
                 <footer className="border-t border-white/10 px-6 py-6 text-center text-sm text-slate-500">
-                    © 2026 IngeTech AI · UNHEVAL · Grupo 12
+                    © 2026 IngeTech AI · UNHEVAL · Grupo 12 ·{' '}
+                    <Link href="/derecho" className="underline decoration-white/20 hover:text-slate-300">
+                        Términos y Garantía
+                    </Link>
                 </footer>
             </main>
         </>

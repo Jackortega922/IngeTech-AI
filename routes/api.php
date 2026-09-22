@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\CarreraController;
 use App\Http\Controllers\Api\Admin\ClienteController;
+use App\Http\Controllers\Api\Admin\ContabilidadController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\HardwareController;
 use App\Http\Controllers\Api\Admin\SoftwareController;
@@ -23,6 +24,7 @@ Route::get('/mis-recomendaciones', [HistorialController::class, 'index'])->middl
 
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/contabilidad', [ContabilidadController::class, 'index']);
     Route::get('/clientes', [ClienteController::class, 'index']);
 
     Route::post('/hardware', [HardwareController::class, 'store']);

@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\EventoAnalitica;
 use App\Models\Laptop;
 use App\Models\PerfilUsuario;
+use App\Models\Recomendacion;
 use App\Models\Software;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -113,6 +114,36 @@ class AdminTest extends TestCase
             ->assertJsonPath('total_equipos', 1)
             ->assertJsonPath('total_usuarios', 1)
             ->assertJsonPath('por_carrera.ing_sistemas', 2);
+    }
+
+    public function test_contabilidad_calcula_ingreso_potencial_y_ticket_promedio()
+    {
+        $this->comoAdmin();
+
+        $perfil = PerfilUsuario::create([
+            'carrera' => 'Ingeniería de Sistemas', 'nivel_experiencia' => 'basico',
+            'actividades' => [], 'software' => [], 'presupuesto_soles' => 3000, 'portabilidad' => 'cualquiera',
+        ]);
+        $barata = Laptop::create([
+            'marca' => 'HP', 'modelo' => '15 Laptop', 'tipo' => 'laptop', 'cpu' => 'i3',
+            'ram_gb' => 8, 'almacenamiento_gb' => 256, 'almacenamiento_tipo' => 'SSD',
+            'gpu' => 'integrada', 'gpu_dedicada' => false, 'precio_soles' => 1000, 'rendimiento_score' => 38,
+        ]);
+        $cara = Laptop::create([
+            'marca' => 'Lenovo', 'modelo' => 'Legion 5', 'tipo' => 'laptop', 'cpu' => 'Ryzen 7',
+            'ram_gb' => 32, 'almacenamiento_gb' => 1024, 'almacenamiento_tipo' => 'SSD',
+            'gpu' => 'RTX 4070', 'gpu_dedicada' => true, 'precio_soles' => 3000, 'rendimiento_score' => 94,
+        ]);
+        Recomendacion::create(['perfil_usuario_id' => $perfil->id, 'laptop_id' => $barata->id, 'compatibilidad_pct' => 80, 'explicacion' => []]);
+        Recomendacion::create(['perfil_usuario_id' => $perfil->id, 'laptop_id' => $cara->id, 'compatibilidad_pct' => 95, 'explicacion' => []]);
+
+        $this->getJson('/api/admin/contabilidad')
+            ->assertOk()
+            ->assertJsonPath('ingreso_potencial_total', 4000)
+            ->assertJsonPath('ticket_promedio', 2000)
+            ->assertJsonPath('total_recomendaciones', 2)
+            ->assertJsonPath('por_rango_precio.< S/2,000', 1)
+            ->assertJsonPath('por_rango_precio.S/2,000–4,000', 1);
     }
 
     public function test_lista_clientes_con_su_cantidad_de_recomendaciones()
