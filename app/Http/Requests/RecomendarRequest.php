@@ -17,20 +17,22 @@ class RecomendarRequest extends FormRequest
         $opciones = $this->input('opciones', []);
         $opciones['top_n'] = $opciones['top_n'] ?? 3;
 
-        $this->merge(['opciones' => $opciones]);
+        $perfil = $this->input('perfil', []);
+        $perfil['actividades'] = $perfil['actividades'] ?? [];
+
+        $this->merge(['opciones' => $opciones, 'perfil' => $perfil]);
     }
 
     public function rules(): array
     {
         return [
             'perfil' => ['required', 'array'],
-            'perfil.carrera' => ['nullable', 'string'],
+            'perfil.carrera_clave' => ['required', 'string', Rule::exists('carreras', 'clave')],
             'perfil.nivel_experiencia' => ['required', Rule::in(['basico', 'intermedio', 'avanzado'])],
-            'perfil.actividades' => ['required', 'array', 'min:1'],
-            'perfil.actividades.*' => ['string'],
-            'perfil.software' => ['array'],
-            'perfil.software.*' => ['string'],
+            'perfil.actividades' => ['array'],
+            'perfil.actividades.*' => ['string', Rule::exists('actividades', 'clave')],
             'perfil.presupuesto_soles' => ['required', 'numeric', 'gt:0'],
+            'perfil.portabilidad' => ['required', Rule::in(['laptop', 'escritorio', 'cualquiera'])],
             'opciones' => ['array'],
             'opciones.top_n' => ['integer', 'between:1,10'],
         ];

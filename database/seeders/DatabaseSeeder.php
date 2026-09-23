@@ -13,11 +13,29 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // Cuenta de administrador: ve y edita catálogos, carreras y métricas.
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Admin',
+            'email' => 'admin@ingetech.test',
+            'password' => bcrypt('password'),
+            'is_admin' => true,
+        ]);
+
+        // Cuenta de estudiante normal: solo ve el flujo de recomendación,
+        // catálogos y comparador — sin acceso a /admin.
+        User::factory()->create([
+            'name' => 'Estudiante Demo',
+            'email' => 'estudiante@ingetech.test',
+            'password' => bcrypt('password'),
+            'is_admin' => false,
+        ]);
+
+        $this->call([
+            CarreraSeeder::class,
+            SoftwareSeeder::class,
+            ActividadSeeder::class,
+            LaptopSeeder::class,
+            AccesorioKitSeeder::class,
         ]);
     }
 }

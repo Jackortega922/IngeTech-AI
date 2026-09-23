@@ -156,3 +156,8 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Inputs de las tablas editables del panel de Administración (/admin) */
+.campo {
+    @apply border-input w-full rounded-md border bg-transparent px-2 py-1 text-sm;
+}

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PerfilUsuario extends Model
@@ -13,7 +14,10 @@ class PerfilUsuario extends Model
     protected $table = 'perfiles_usuario';
 
     protected $fillable = [
+        'user_id',
+        'carrera_id',
         'carrera',
+        'portabilidad',
         'nivel_experiencia',
         'actividades',
         'software',
@@ -27,6 +31,16 @@ class PerfilUsuario extends Model
             'software' => 'array',
             'presupuesto_soles' => 'decimal:2',
         ];
+    }
+
+    public function carreraRelacion(): BelongsTo
+    {
+        return $this->belongsTo(Carrera::class, 'carrera_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function recomendaciones(): HasMany
