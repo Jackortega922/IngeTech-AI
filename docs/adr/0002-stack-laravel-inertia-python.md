@@ -11,8 +11,10 @@ como subproceso"). Solo una persona programa con soltura.
 
 ## Decisión
 
-- **App + API:** Laravel 11.
-- **Frontend:** Inertia + React (vía Breeze) — no una SPA Next.js separada.
+- **App + API:** Laravel 12 (el scaffold instaló la versión estable actual; Laravel 11 quedó fuera
+  de soporte de seguridad en marzo 2026).
+- **Frontend:** Inertia + React. La base concreta es el React Starter Kit oficial — ver
+  [ADR 0004](0004-react-starter-kit.md), que reemplaza la idea original de usar Breeze.
 - **Motor de recomendación:** Python. Se escribe con **FastAPI** (servidor local + Swagger), pero
   en producción Laravel lo invoca como **subproceso CLI**. Ver [ADR 0003](0003-motor-python-subproceso.md).
 - **BD:** PostgreSQL (como pide el sílabo).

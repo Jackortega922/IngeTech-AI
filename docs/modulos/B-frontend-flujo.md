@@ -1,6 +1,6 @@
 # Módulo B — Frontend del flujo de usuario
 
-**Dueño:** Marco · **IA:** DeepSeek
+**Dueño:** Marco (también dueño del Módulo C) · **IA:** DeepSeek
 
 Las pantallas que usa la persona de principio a fin: llenar su perfil, ver la laptop recomendada
 con su % de compatibilidad, y personalizar la configuración.
@@ -17,17 +17,21 @@ Un flujo claro y usable, en 3 pantallas:
 ## Carpetas que te pertenecen
 
 ```
-resources/js/Pages/Perfil/          # formulario por pasos
-resources/js/Pages/Resultado/       # tarjeta de recomendación + gráfico de compatibilidad
-resources/js/Pages/Personalizar/    # selección de RAM/SSD/kits/accesorios + resumen de precio
+resources/js/pages/perfil/          # formulario por pasos
+resources/js/pages/resultado/       # tarjeta de recomendación + gráfico de compatibilidad
+resources/js/pages/personalizar/    # selección de RAM/SSD/kits/accesorios + resumen de precio
 resources/js/hooks/                 # hooks propios del flujo (ej. useWizard)
 ```
 
 ## Qué NO tocas
 
 - `app/` y `ml-engine/` → Módulo A. Tú **consumes** la API, no la modificas.
-- `resources/js/Pages/Admin/` → Módulo C.
-- `resources/js/Components/` (componentes base compartidos) → los usas; si falta uno, pídeselo a Jack.
+- `resources/js/pages/admin/` → Módulo C.
+- `resources/js/components/ui/` (componentes de shadcn/ui) y `resources/js/layouts/` → los usas; si falta uno, pídeselo a Jack.
+
+> El frontend es **TypeScript** (`.tsx`). Puedes empezar con tipos flojos (`any` donde te trabe) e
+> ir apretando. Los componentes base (botón, input, select, diálogo, tarjeta…) ya vienen de shadcn/ui
+> en `resources/js/components/ui/`. El login/registro y los ajustes de perfil ya están hechos.
 
 ## De qué dependes
 
@@ -55,15 +59,22 @@ de ejemplo antes de que el motor real exista.
 ## Cómo probar
 
 ```bash
-docker compose exec app npm run dev      # y abre http://localhost:8000
-docker compose exec app npm run test     # Vitest
+composer run dev          # servidor + vite; abre http://localhost:8000
+npm run lint              # ESLint
+npx tsc --noEmit          # tipos
+npm run format            # Prettier (formatea)
+php artisan test          # pruebas de las páginas (Pest, con Inertia)
 ```
 Prueba con presupuesto muy bajo (debe mostrar el error `sin_resultados` con elegancia) y con
 perfiles distintos.
+
+> Aún no hay runner de pruebas de JS (Vitest). Si tu componente tiene lógica de cálculo (ej. el
+> precio al personalizar), coordina con Jack para agregar Vitest, o extrae esa lógica a una función
+> pura y pruébala desde una prueba Pest/Inertia.
 
 ## Definición de "hecho"
 
 - Se ve bien en pantalla de laptop y de celular (responsive).
 - Maneja carga, error y "sin resultados" sin romperse.
+- `npm run lint`, `tsc` y `npm run format:check` en verde.
 - Textos en español, claros, sin jerga técnica para el usuario final.
-- Tests de los componentes con lógica (wizard, cálculo de precio).

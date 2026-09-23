@@ -7,7 +7,11 @@ sustentación. Fuera de tu módulo, solo lees; para cambiar algo ajeno, coordín
 |---|---|---|---|
 | **A** — Núcleo Laravel · API · Motor de recomendación · Infra/CI/Deploy | Jack | Claude | [A-nucleo-api-infra.md](A-nucleo-api-infra.md) |
 | **B** — Frontend del flujo de usuario (perfil → resultado → personalización) | Marco | DeepSeek | [B-frontend-flujo.md](B-frontend-flujo.md) |
-| **C** — Catálogo · datos reales · manuales · QA/UAT | Diego | Claude/DeepSeek (guiado) | [C-catalogo-datos-docs.md](C-catalogo-datos-docs.md) |
+| **C** — Catálogo · datos reales · manuales · QA/UAT | Marco | DeepSeek | [C-catalogo-datos-docs.md](C-catalogo-datos-docs.md) |
+
+Equipo activo: **Jack** (Módulo A) y **Marco** (Módulos B y C, con DeepSeek). **Diego** participa
+como colaborador ocasional en tareas puntuales que se coordinan aparte — todavía no tiene módulo
+ni carpetas asignadas de forma fija.
 
 ## Cómo encajan las 6 disciplinas del proyecto
 

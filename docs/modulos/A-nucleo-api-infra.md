@@ -35,8 +35,8 @@ app/Services/Analitica/           # registro de eventos y cálculo de KPIs
 
 ## Qué NO tocas
 
-- `resources/js/Pages/{Perfil,Resultado,Personalizar}/` → Módulo B.
-- `resources/js/Pages/Admin/Catalogo/`, `database/seeders/`, contenido de `ml-engine/data/*.json` → Módulo C.
+- `resources/js/pages/{perfil,resultado,personalizar}/` → Módulo B.
+- `resources/js/pages/admin/catalogo/`, `database/seeders/`, contenido de `ml-engine/data/*.json` → Módulo C.
 - Si necesitas un cambio ahí, ábrelo como sub-tarea y pídeselo al dueño.
 
 ## Interfaces que provees (y que otros consumen)
@@ -45,24 +45,23 @@ app/Services/Analitica/           # registro de eventos y cálculo de KPIs
 |---|---|---|
 | `POST /api/recomendaciones` | Módulo B | [../arquitectura/contrato-motor.md](../arquitectura/contrato-motor.md) |
 | Esquema base de BD (`laptops`, `accesorios`, `kits` con columnas mínimas) | Módulo C | `database/migrations/` |
-| Layout raíz Inertia + componentes base (Button, Input…) | Módulo B y C | `resources/js/Components/` |
+| Layout raíz Inertia + componentes base (shadcn/ui: Button, Input…) | Módulo B y C | `resources/js/components/` |
 
 Mantén estables esas interfaces. Si cambian, avisa en el grupo y actualiza el documento en el mismo PR.
 
 ## Primeras tareas (orden sugerido)
 
-1. `chore: scaffold Laravel 11 + Breeze (Inertia/React) + PostgreSQL`
+1. ✅ `chore: scaffold — React Starter Kit (Laravel 12 + Inertia/React/TS) + PostgreSQL` — hecho
 2. `chore: docker-compose (app + postgres + ml-engine) + Dockerfile PHP+Python`
 3. `feat: migraciones base + modelos (Laptop, Accesorio, Kit, PerfilUsuario, Recomendacion, EventoAnalitica)`
 4. `feat: GET /api/health`
 5. `feat: POST /api/recomendaciones con motor MOCK` (respuesta fija según el contrato) — **desbloquea a B**
 6. `feat: seeders con columnas mínimas de catálogo` — **desbloquea a C**
-7. `chore: CI real (jobs laravel + ml-engine + frontend)`
-8. `feat: ml-engine — portar recomendador_pro.py y compatibilidad.py de PC_EXPERT`
-9. `feat: scorer por perfil (ponderado) + explicación de factores`
-10. `feat: reemplazar el mock por la llamada real al motor`
-11. `feat: registro de eventos + endpoint de KPIs`
-12. `chore: deploy a Render + staging`
+7. `feat: ml-engine — portar recomendador_pro.py y compatibilidad.py de PC_EXPERT`
+8. `feat: scorer por perfil (ponderado) + explicación de factores`
+9. `feat: reemplazar el mock por la llamada real al motor`
+10. `feat: registro de eventos + endpoint de KPIs`
+11. `chore: deploy a Render + staging`
 
 ## Cómo probar
 
