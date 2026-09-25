@@ -1,0 +1,51 @@
+# Blueprint de despliegue para Render (A10). Ver docs/despliegue.md para la guía paso a paso
+# (crear cuenta, conectar el repo, base de datos externa, etc.) — este archivo solo describe
+# la configuración; Render no crea cuentas ni bases de datos por ti.
+#
+# Diseño: un solo servicio web. El motor de recomendación NO se despliega como servicio
+# aparte — corre como subproceso dentro de este mismo contenedor (RECOMMENDER_MODE=cli, ver
+# ADR 0003), así el plan gratuito de Render alcanza para todo el proyecto.
+#
+# La base de datos NO se define aquí a propósito: el Postgres gratuito de Render expira a los
+# 30 días y se borra. Usamos un Postgres externo sin vencimiento (Neon o Supabase, ver
+# docs/despliegue.md) y sus credenciales se cargan como variables "sync: false" (secretas,
+# se completan a mano en el dashboard de Render, nunca se commitean).
+
+services:
+    - type: web
+      name: ingetech-ai
+      runtime: docker
+      dockerfilePath: ./Dockerfile
+      plan: free
+      healthCheckPath: /up
+      envVars:
+          - key: APP_NAME
+            value: IngeTech AI
+          - key: APP_ENV
+            value: production
+          - key: APP_DEBUG
+            value: false
+          - key: APP_TIMEZONE
+            value: America/Lima
+          - key: APP_LOCALE
+            value: es
+          - key: APP_KEY
+            sync: false # generar con: php artisan key:generate --show
+          - key: APP_URL
+            sync: false # la URL que Render asigna al servicio, ej. https://ingetech-ai.onrender.com
+          - key: DB_CONNECTION
+            value: pgsql
+          - key: DB_HOST
+            sync: false # host del Postgres externo (Neon/Supabase)
+          - key: DB_PORT
+            value: 5432
+          - key: DB_DATABASE
+            sync: false
+          - key: DB_USERNAME
+            sync: false
+          - key: DB_PASSWORD
+            sync: false
+          - key: RECOMMENDER_MODE
+            value: cli
+          - key: RECOMMENDER_CLI
+            value: python ml-engine/cli_entry.py
