@@ -40,6 +40,11 @@ RUN composer install --no-dev --no-interaction --no-progress --optimize-autoload
     && npm run build \
     && python3 -m pip install --break-system-packages --no-cache-dir -r ml-engine/requirements.txt
 
+RUN chmod +x docker/entrypoint.sh
+
 EXPOSE 8000
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# EXPOSE es solo documentación (Render, por ejemplo, ignora el puerto fijo y espera que la app
+# escuche en $PORT) — por eso el puerto real lo decide docker/entrypoint.sh en tiempo de arranque,
+# no este Dockerfile.
+ENTRYPOINT ["docker/entrypoint.sh"]
