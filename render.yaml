@@ -35,16 +35,13 @@ services:
             sync: false # la URL que Render asigna al servicio, ej. https://ingetech-ai.onrender.com
           - key: DB_CONNECTION
             value: pgsql
-          - key: DB_HOST
-            sync: false # host del Postgres externo (Neon/Supabase)
-          - key: DB_PORT
-            value: 5432
-          - key: DB_DATABASE
-            sync: false
-          - key: DB_USERNAME
-            sync: false
-          - key: DB_PASSWORD
-            sync: false
+          # Laravel acepta la conexión entera en una sola variable (config/database.php ya
+          # lee env('DB_URL')), que es justo el formato que entregan Neon y Supabase. Se usa
+          # en vez de DB_HOST/DB_DATABASE/DB_USERNAME/DB_PASSWORD sueltas: una sola credencial
+          # que pegar, sin riesgo de equivocarse al separarla, y el sslmode=require que exigen
+          # esos proveedores viaja incluido en la propia cadena.
+          - key: DB_URL
+            sync: false # postgresql://usuario:password@host/basededatos?sslmode=require
           - key: RECOMMENDER_MODE
             value: cli
           - key: RECOMMENDER_CLI

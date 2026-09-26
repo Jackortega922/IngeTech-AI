@@ -16,17 +16,21 @@ Render. Todo esto queda en el plan gratuito de ambos.
 **Opción Neon** (https://neon.tech):
 1. Crea una cuenta gratuita (puede ser con GitHub).
 2. "Create a project" → elige una región cercana (o "US East" si no hay una de Sudamérica).
-3. En el dashboard del proyecto, copia el **connection string** — Neon lo da como
-   `postgresql://usuario:password@host/basededatos?sslmode=require`. De ahí sacas
-   `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` por separado.
+   De los servicios que ofrece, solo hace falta **Postgres database**; el resto (Object
+   storage, Functions, AI gateway, Neon Auth) se deja apagado — Laravel ya trae lo suyo.
+3. Botón **Connect** → **apaga "Connection pooling"** y copia el **connection string**
+   completo (con "Show password"). Queda así:
+   `postgresql://usuario:password@host/basededatos?sslmode=require`
 
-**Opción Supabase** (https://supabase.com): igual de válida — "New project", y las
-credenciales de Postgres están en `Project Settings → Database`.
+> **Por qué sin pooling:** el pooler de Neon es PgBouncer en modo transacción, que tiene
+> incompatibilidades conocidas con los *prepared statements* de PHP/PDO (errores intermitentes
+> tipo "prepared statement already exists"). La app corre en un solo proceso, así que el
+> pooling no aporta nada a cambio de ese riesgo.
 
-Guarda esos 4 datos (host, base de datos, usuario, contraseña) — se necesitan en el paso 3.
+**Opción Supabase** (https://supabase.com): igual de válida — "New project", y la cadena de
+conexión está en `Project Settings → Database`.
 
-> Nota: Neon usa SSL obligatorio (`sslmode=require`). Si el primer deploy falla al conectar,
-> revisar si hace falta agregar `?sslmode=require` a la configuración de conexión de Laravel.
+Guarda esa cadena completa — es lo único que se necesita de la base de datos (paso 3).
 
 ## 2. Crear la cuenta en Render y conectar el repo
 
@@ -44,7 +48,7 @@ commitear credenciales. Render pedirá completarlas al crear el Blueprint:
 |---|---|
 | `APP_KEY` | Correr localmente `php artisan key:generate --show` y pegar el valor (empieza con `base64:`) |
 | `APP_URL` | La URL que Render asigna al servicio (ej. `https://ingetech-ai.onrender.com`) — se sabe después del primer deploy, se puede dejar vacío y completar después |
-| `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | Los 4 datos del paso 1 (Neon/Supabase) |
+| `DB_URL` | La cadena de conexión completa del paso 1, tal cual (`postgresql://...?sslmode=require`) |
 
 ## 4. Primer deploy
 
