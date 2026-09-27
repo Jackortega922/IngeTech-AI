@@ -64,10 +64,32 @@ historia puntual de aquí, se reasigna esa fila y se avisa en el grupo.
 | D4 | Memoria Técnica | M | equipo | ☐ |
 | D5 | Póster / artículo | S | equipo | ☐ |
 | D6 | Ensayo de la sustentación (live demo) | M | equipo | ☐ |
-| D7 | Panel Jira/Trello + acta de gobernanza del equipo (evidencia Unidad II de PIT, Examen Parcial sesión 17) | M | equipo | ☐ |
+| D7 | ~~Panel Jira/Trello~~ + acta de gobernanza del equipo — el acta ya se presentó; el tablero se descartó porque el docente no lo evalúa | M | equipo | ✅ |
 | D8 | Encuesta de usabilidad (SUS) sobre el flujo de usuario | S | equipo | ☐ |
 | D9 | Artículo científico en formato IEEE | S | equipo | ☐ |
 | D10 | Análisis de licencias (Open Source vs. propietario) del stack usado | C | Jack | ☐ |
+
+## Épica 5 — Disciplinas integradas a la recomendación
+
+Aprobada el 2026-09-27. La primera versión de las disciplinas (ver
+[contexto-proyecto.md §5.1](../contexto-proyecto.md)) quedó *al lado* de la recomendación:
+páginas y métricas que la observan pero no la tocan. El docente evalúa el sistema como cliente
+y quiere ver cada disciplina al servicio del objetivo principal — recomendar laptops con IA —,
+así que cada una se engancha en un paso del flujo (Perfil → Motor → Resultado → Personalizar).
+
+Todo se construye en la capa de Laravel: el motor de IA y su contrato v0 no se tocan. Los
+datos nuevos que haga falta (garantía, etc.) deben ser reales o quedar marcados como
+referenciales.
+
+| # | Disciplina | Historia | Paso del flujo | Prio | Dueño | Estado |
+|---|---|---|---|---|---|---|
+| E1 | Derecho | Consentimiento del uso de datos antes de enviar el perfil (Ley 29733); garantía por equipo en el resultado | Perfil / Resultado | M | Jack | ☐ |
+| E2 | Ing. Industrial | Medir la calidad de la recomendación: tasa de elección de la opción recomendada, compatibilidad promedio, tiempo de decisión (resuelve D1) | Todo el recorrido | M | Jack | ☐ |
+| E3 | Psicología | Pregunta de prioridad en el perfil (precio / rendimiento / durabilidad) que reordena las opciones; mantener 3 opciones para no saturar la decisión | Perfil → Resultado | S | Jack | ☐ |
+| E4 | Ing. Ambiental | Indicador de durabilidad por equipo (ampliabilidad de RAM → vida útil → menos residuo electrónico) | Resultado | S | Jack | ☐ |
+| E5 | Contabilidad | Precio al contado vs. en cuotas y costo por año de uso (usa la vida útil de E4) | Resultado | S | Jack | ☐ |
+| E6 | Marketing | Kit sugerido según el perfil (venta cruzada), con el ahorro frente a comprarlo suelto | Personalizar | S | Jack | ☐ |
+| E7 | Administración | Panel de salud del catálogo que alimenta a la IA: carreras sin software asignado, equipos sin precio verificado | Admin | C | Jack | ☐ |
 
 ## Won't (por ahora)
 
