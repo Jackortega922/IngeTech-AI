@@ -8,7 +8,12 @@ class CliRecommenderClient implements RecommenderClient
 {
     public function recomendar(array $payload): array
     {
-        $resultado = Process::timeout((int) config('recommender.timeout'))
+        // El directorio de trabajo se fija a la raíz del proyecto porque RECOMMENDER_CLI usa
+        // una ruta relativa ("python ml-engine/cli_entry.py"). Sin esto, el subproceso hereda
+        // el directorio del proceso PHP, que con `artisan serve` es public/ — y el motor no
+        // se encuentra (falla solo en producción, donde se usa este modo).
+        $resultado = Process::path(base_path())
+            ->timeout((int) config('recommender.timeout'))
             ->input(json_encode($payload))
             ->run(config('recommender.cli'));
 
