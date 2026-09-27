@@ -14,6 +14,7 @@ class Laptop extends Model
         'marca',
         'modelo',
         'descripcion',
+        'imagen_url',
         'tipo',
         'cpu',
         'ram_gb',

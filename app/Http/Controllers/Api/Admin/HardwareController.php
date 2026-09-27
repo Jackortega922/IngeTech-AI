@@ -15,6 +15,7 @@ class HardwareController extends Controller
             'marca' => ['required', 'string', 'max:100'],
             'modelo' => ['required', 'string', 'max:100'],
             'descripcion' => ['nullable', 'string', 'max:500'],
+            'imagen_url' => ['nullable', 'url', 'max:500'],
             'tipo' => ['required', Rule::in(['laptop', 'escritorio'])],
             'cpu' => ['required', 'string', 'max:150'],
             'cpu_score' => ['nullable'], // alias de rendimiento_score, ver map()

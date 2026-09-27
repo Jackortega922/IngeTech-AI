@@ -52,6 +52,7 @@ export interface Laptop {
     marca: string;
     modelo: string;
     descripcion: string | null;
+    imagen_url: string | null;
     tipo: TipoEquipo;
     cpu: string;
     ram_gb: number;

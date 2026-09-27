@@ -1,3 +1,4 @@
+import LaptopImage from '@/components/laptop-image';
 import AppLayout from '@/layouts/app-layout';
 import { flujoStorage } from '@/lib/flujo-storage';
 import { type BreadcrumbItem } from '@/types';
@@ -69,6 +70,12 @@ export default function ComparadorIndex() {
                                     <th className="text-muted-foreground px-4 py-3 text-left">Criterio</th>
                                     {equipos.map((e) => (
                                         <th key={e.id} className="px-4 py-3 text-left font-bold">
+                                            <LaptopImage
+                                                imagenUrl={e.imagen_url}
+                                                marca={e.marca}
+                                                tipo={e.tipo}
+                                                className="mb-2 h-16 w-24 rounded-lg"
+                                            />
                                             {e.marca} {e.modelo}
                                         </th>
                                     ))}
