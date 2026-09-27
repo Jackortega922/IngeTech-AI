@@ -131,6 +131,22 @@ class RecomendacionesTest extends TestCase
             ->assertJsonPath('error', 'sin_resultados');
     }
 
+    public function test_guarda_el_cargo_si_se_indica_y_lo_deja_null_si_viene_vacio()
+    {
+        $this->fakeMotor(['version' => 'v0', 'error' => 'sin_resultados', 'mensaje' => 'Nada en tu presupuesto.']);
+
+        $payload = $this->perfilValido();
+        $payload['perfil']['cargo'] = '  Contador Público  ';
+        $this->postJson('/api/recomendaciones', $payload)->assertStatus(422);
+        $this->assertSame('Contador Público', PerfilUsuario::sole()->cargo);
+
+        PerfilUsuario::query()->delete();
+        $payload = $this->perfilValido();
+        $payload['perfil']['cargo'] = '   ';
+        $this->postJson('/api/recomendaciones', $payload)->assertStatus(422);
+        $this->assertNull(PerfilUsuario::sole()->cargo);
+    }
+
     public function test_rechaza_el_perfil_si_no_se_acepta_el_tratamiento_de_datos()
     {
         // Sin consentimiento no se procesa nada: ni se llama al motor ni se guarda el perfil.

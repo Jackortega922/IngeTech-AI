@@ -9,6 +9,7 @@ export type NivelExperiencia = 'basico' | 'intermedio' | 'avanzado';
 
 export interface Perfil {
     carrera_clave: string;
+    cargo: string;
     nivel_experiencia: NivelExperiencia | '';
     actividades: string[];
     presupuesto_soles: number;
@@ -155,6 +156,8 @@ export interface Cliente {
     email: string;
     created_at: string;
     perfiles_count: number;
+    carrera: string | null;
+    cargo: string | null;
 }
 
 export interface HistorialItem {

@@ -31,6 +31,10 @@ class RecomendarRequest extends FormRequest
             'consentimiento' => ['accepted'],
             'perfil' => ['required', 'array'],
             'perfil.carrera_clave' => ['required', 'string', Rule::exists('carreras', 'clave')],
+            // Informativo, no alimenta el motor: dato del cliente para el panel admin y
+            // Marketing/Contabilidad (E5, E6). Libre porque los cargos del público general no
+            // caben en un catálogo cerrado como sí cabe la carrera/ocupación.
+            'perfil.cargo' => ['nullable', 'string', 'max:100'],
             'perfil.nivel_experiencia' => ['required', Rule::in(['basico', 'intermedio', 'avanzado'])],
             'perfil.actividades' => ['array'],
             'perfil.actividades.*' => ['string', Rule::exists('actividades', 'clave')],

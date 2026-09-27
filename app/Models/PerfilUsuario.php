@@ -17,6 +17,7 @@ class PerfilUsuario extends Model
         'user_id',
         'carrera_id',
         'carrera',
+        'cargo',
         'portabilidad',
         'nivel_experiencia',
         'actividades',

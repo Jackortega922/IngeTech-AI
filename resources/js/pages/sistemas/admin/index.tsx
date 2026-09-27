@@ -1175,7 +1175,7 @@ function PanelClientes({ clientes }: { clientes: Cliente[] | null }) {
                     <div>
                         <div className="flex items-center gap-2">
                             <Users className="h-5 w-5 text-cyan-500" />
-                            <h2 className="text-xl font-bold">Estudiantes registrados</h2>
+                            <h2 className="text-xl font-bold">Clientes registrados</h2>
                         </div>
 
                         <p className="text-muted-foreground mt-1 text-sm">Usuarios que utilizan el sistema de recomendaciones.</p>
@@ -1191,7 +1191,7 @@ function PanelClientes({ clientes }: { clientes: Cliente[] | null }) {
 
                 <input
                     className="bg-card w-full rounded-xl border py-3 pr-4 pl-10 text-sm shadow-sm outline-none focus:border-cyan-500"
-                    placeholder="Buscar estudiante por nombre o email..."
+                    placeholder="Buscar cliente por nombre o email..."
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
                 />
@@ -1201,18 +1201,20 @@ function PanelClientes({ clientes }: { clientes: Cliente[] | null }) {
                 <div className="bg-card rounded-2xl border p-12 text-center shadow-sm">
                     <Users className="text-muted-foreground mx-auto h-9 w-9" />
 
-                    <h3 className="mt-4 font-bold">Todavía no hay estudiantes</h3>
+                    <h3 className="mt-4 font-bold">Todavía no hay clientes</h3>
 
                     <p className="text-muted-foreground mt-1 text-sm">Los usuarios registrados aparecerán aquí.</p>
                 </div>
             ) : (
                 <div className="bg-card overflow-hidden rounded-2xl border shadow-sm">
                     <div className="overflow-x-auto">
-                        <table className="w-full min-w-[800px] text-sm">
+                        <table className="w-full min-w-[1000px] text-sm">
                             <thead className="bg-muted/50 text-muted-foreground text-left text-xs tracking-wide uppercase">
                                 <tr>
-                                    <th className="px-5 py-4">Estudiante</th>
+                                    <th className="px-5 py-4">Cliente</th>
                                     <th className="px-5 py-4">Email</th>
+                                    <th className="px-5 py-4">Carrera / ocupación</th>
+                                    <th className="px-5 py-4">Cargo</th>
                                     <th className="px-5 py-4">Registrado</th>
                                     <th className="px-5 py-4">Recomendaciones</th>
                                 </tr>
@@ -1233,6 +1235,10 @@ function PanelClientes({ clientes }: { clientes: Cliente[] | null }) {
 
                                         <td className="text-muted-foreground px-5 py-4">{c.email}</td>
 
+                                        <td className="text-muted-foreground px-5 py-4">{c.carrera ?? '—'}</td>
+
+                                        <td className="text-muted-foreground px-5 py-4">{c.cargo ?? '—'}</td>
+
                                         <td className="text-muted-foreground px-5 py-4">
                                             {new Date(c.created_at).toLocaleDateString('es-PE', {
                                                 day: '2-digit',
@@ -1252,7 +1258,7 @@ function PanelClientes({ clientes }: { clientes: Cliente[] | null }) {
                         </table>
                     </div>
 
-                    {filtrados.length === 0 && <div className="text-muted-foreground p-12 text-center text-sm">No se encontraron estudiantes.</div>}
+                    {filtrados.length === 0 && <div className="text-muted-foreground p-12 text-center text-sm">No se encontraron clientes.</div>}
                 </div>
             )}
         </div>

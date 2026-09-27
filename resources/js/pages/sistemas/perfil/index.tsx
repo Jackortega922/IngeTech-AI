@@ -59,6 +59,7 @@ export default function PerfilIndex() {
 
     const [perfil, setPerfil] = useState<Perfil>({
         carrera_clave: '',
+        cargo: '',
         nivel_experiencia: '',
         actividades: [],
         presupuesto_soles: 3500,
@@ -138,15 +139,15 @@ export default function PerfilIndex() {
                 <FlowHeader pasoActual={1} />
 
                 <main className="mx-auto max-w-2xl px-6 py-14 lg:px-10">
-                    <h1 className="text-3xl font-bold">Perfilamiento del estudiante</h1>
-                    <p className="mt-2 text-slate-400">Con esto identificamos qué tan exigente es tu carga académica.</p>
+                    <h1 className="text-3xl font-bold">Cuéntanos sobre ti</h1>
+                    <p className="mt-2 text-slate-400">Con esto identificamos qué tan exigentes son tus actividades diarias, seas estudiante o no.</p>
 
                     {cargando ? (
                         <div className="mt-8 h-96 animate-pulse rounded-2xl bg-white/[0.04]" />
                     ) : (
                         <div className="mt-8 space-y-7 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                             <label className="block">
-                                <span className="mb-1.5 block text-sm font-medium text-slate-300">Facultad / Escuela Profesional</span>
+                                <span className="mb-1.5 block text-sm font-medium text-slate-300">Carrera u ocupación</span>
                                 <div className="relative">
                                     <select
                                         value={perfil.carrera_clave}
@@ -180,19 +181,17 @@ export default function PerfilIndex() {
                                     <div className="mt-3 flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.025] px-4 py-3">
                                         <div className="flex min-w-0 items-center gap-3">
                                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-400/10 text-lg">
-                                                🎓
+                                                💼
                                             </div>
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-semibold text-white">
-                                                    {carreraActual?.nombre ?? 'Carrera seleccionada'}
+                                                    {carreraActual?.nombre ?? 'Carrera u ocupación seleccionada'}
                                                 </p>
-                                                <p className="truncate text-xs text-slate-500">
-                                                    {carreraActual?.facultad ?? 'Facultad / Escuela Profesional'}
-                                                </p>
+                                                <p className="truncate text-xs text-slate-500">{carreraActual?.facultad ?? 'Carrera u ocupación'}</p>
                                             </div>
                                         </div>
                                         <span className="ml-3 shrink-0 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-300">
-                                            {catalogos.carreras.length} carreras
+                                            {catalogos.carreras.length} opciones
                                         </span>
                                     </div>
                                 ) : (
@@ -207,6 +206,21 @@ export default function PerfilIndex() {
                                         </div>
                                     </div>
                                 )}
+                            </label>
+
+                            <label className="block">
+                                <span className="mb-1.5 block text-sm font-medium text-slate-300">
+                                    Cargo específico <span className="text-slate-500">(opcional)</span>
+                                </span>
+                                <input
+                                    type="text"
+                                    value={perfil.cargo}
+                                    onChange={(e) => setPerfil({ ...perfil, cargo: e.target.value })}
+                                    placeholder="Ej. Contador, Chef, Gerente de ventas..."
+                                    maxLength={100}
+                                    className="w-full rounded-2xl border border-cyan-400/20 bg-slate-900 px-4 py-4 text-white placeholder-slate-500 shadow-lg shadow-cyan-950/20 transition outline-none hover:border-cyan-400/40 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
+                                />
+                                <p className="mt-1.5 text-xs text-slate-500">Nos ayuda a conocerte mejor — no afecta tu recomendación.</p>
                             </label>
 
                             <div>
@@ -301,7 +315,7 @@ export default function PerfilIndex() {
 
                     {necesidad && (
                         <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.02] p-5 text-sm text-slate-400">
-                            <p className="font-semibold text-slate-300">Software típico de esta carrera:</p>
+                            <p className="font-semibold text-slate-300">Software típico para esto:</p>
                             <p className="mt-1">{softwareDeLaCarrera.map((s) => s?.nombre).join(' · ')}</p>
                             <p className="mt-3">
                                 Necesitas al menos <b className="text-cyan-400">{necesidad.ram_gb} GB RAM</b>, procesador con puntaje ≥{' '}
