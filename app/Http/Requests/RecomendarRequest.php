@@ -26,6 +26,9 @@ class RecomendarRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // Se exige aquí y no solo en la casilla del formulario: quien llame a la API
+            // directamente, sin pasar por la página, tampoco puede saltárselo.
+            'consentimiento' => ['accepted'],
             'perfil' => ['required', 'array'],
             'perfil.carrera_clave' => ['required', 'string', Rule::exists('carreras', 'clave')],
             'perfil.nivel_experiencia' => ['required', Rule::in(['basico', 'intermedio', 'avanzado'])],

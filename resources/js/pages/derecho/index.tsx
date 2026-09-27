@@ -22,8 +22,14 @@ const SECCIONES = [
         texto: 'Puedes solicitar el cambio o devolución de un equipo dentro de los 7 días calendario posteriores a la compra, siempre que esté en las mismas condiciones en que se entregó (empaque original, sin señales de uso). Pasado ese plazo, aplica solo la garantía de fábrica.',
     },
     {
-        titulo: 'Protección de datos del perfil',
-        texto: 'Tu perfil (carrera, actividades, presupuesto) se guarda únicamente para generar tu historial de recomendaciones y estadísticas de uso del sistema. No se comparte con terceros ni se usa con fines distintos a mejorar la recomendación.',
+        titulo: 'Protección de tus datos personales (Ley N.° 29733)',
+        texto: 'Para recomendarte un equipo usamos los datos de tu perfil: carrera, nivel de experiencia, actividades, presupuesto y preferencia de portabilidad. Solo los tratamos si lo aceptas expresamente antes de enviar el formulario, y registramos la fecha en que lo hiciste. Los usamos para generar tu recomendación, mostrarte tu historial y calcular estadísticas anónimas de uso del sistema. No los vendemos ni los cedemos a terceros; se almacenan en los servidores de nuestros proveedores de alojamiento.',
+    },
+    {
+        // Describe lo que el sistema hace de verdad: al eliminar la cuenta, perfiles_usuario.user_id
+        // pasa a NULL (nullOnDelete) — el perfil se conserva, pero ya sin nada que identifique a la persona.
+        titulo: 'Tus derechos: acceso, rectificación, cancelación y oposición (ARCO)',
+        texto: 'Puedes ver en cualquier momento las recomendaciones generadas con tus datos en «Mis recomendaciones», y corregir tu nombre o correo desde Ajustes → Perfil. Si eliminas tu cuenta (Ajustes → Perfil), tus perfiles dejan de estar vinculados a ti y se conservan solo como datos estadísticos anónimos, sin nombre ni correo. Si no aceptas el tratamiento de tus datos, puedes seguir consultando el catálogo y las promociones, pero no generar una recomendación.',
     },
 ];
 

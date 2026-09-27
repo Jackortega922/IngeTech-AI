@@ -55,6 +55,7 @@ export default function PerfilIndex() {
     const [cargando, setCargando] = useState(true);
     const [enviando, setEnviando] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [consentimiento, setConsentimiento] = useState(false);
 
     const [perfil, setPerfil] = useState<Perfil>({
         carrera_clave: '',
@@ -107,7 +108,7 @@ export default function PerfilIndex() {
             const res = await fetch('/api/recomendaciones', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-                body: JSON.stringify({ perfil, opciones: { top_n: 3 } }),
+                body: JSON.stringify({ consentimiento, perfil, opciones: { top_n: 3 } }),
             });
             const data: RespuestaMotor = await res.json();
 
@@ -322,11 +323,33 @@ export default function PerfilIndex() {
                         </div>
                     )}
 
+                    <label className="mt-8 flex cursor-pointer items-start gap-3 text-sm text-slate-400">
+                        <input
+                            type="checkbox"
+                            checked={consentimiento}
+                            onChange={(e) => setConsentimiento(e.target.checked)}
+                            className="mt-0.5 h-4 w-4 shrink-0 accent-cyan-400"
+                        />
+                        <span>
+                            Acepto que IngeTech AI use los datos de este perfil (carrera, actividades y presupuesto) solo para generar mi
+                            recomendación, según la Ley N.° 29733 de Protección de Datos Personales.{' '}
+                            {/* En pestaña nueva: navegar fuera de esta página perdería lo ya llenado en el formulario. */}
+                            <a
+                                href="/derecho"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-cyan-400 underline decoration-cyan-400/30 hover:text-cyan-300"
+                            >
+                                Ver cómo tratamos tus datos
+                            </a>
+                        </span>
+                    </label>
+
                     <button
                         type="button"
                         onClick={enviar}
-                        disabled={enviando || cargando || !perfil.carrera_clave}
-                        className="mt-8 flex items-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-bold text-[#07111f] transition hover:bg-cyan-300 disabled:opacity-60"
+                        disabled={enviando || cargando || !perfil.carrera_clave || !consentimiento}
+                        className="mt-5 flex items-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-bold text-[#07111f] transition hover:bg-cyan-300 disabled:opacity-60"
                     >
                         {enviando ? (
                             <>

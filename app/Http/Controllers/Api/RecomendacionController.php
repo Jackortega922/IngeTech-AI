@@ -115,6 +115,9 @@ class RecomendacionController extends Controller
             'actividades' => $actividades->pluck('nombre')->all(),
             'software' => $carrera->software->pluck('clave')->all(),
             'presupuesto_soles' => $perfil['presupuesto_soles'],
+            // RecomendarRequest ya rechazó la petición si no se aceptó, así que llegar hasta
+            // aquí significa que el consentimiento se dio en este momento.
+            'consentimiento_at' => now(),
         ]);
     }
 
