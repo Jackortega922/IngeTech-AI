@@ -16,5 +16,11 @@ return [
 
     'cli' => env('RECOMMENDER_CLI', 'python ml-engine/cli_entry.py'),
 
-    'timeout' => env('RECOMMENDER_TIMEOUT', 5),
+    /*
+    | Segundos que se espera al motor. Arrancar Python e importar scikit-learn, numpy y
+    | pandas cuesta ~3,5 s incluso en hardware rápido, y en una instancia con CPU limitada
+    | (Render plan gratuito) se multiplica. Por eso el margen es amplio: el costo real es el
+    | arranque del intérprete, no el cálculo.
+    */
+    'timeout' => env('RECOMMENDER_TIMEOUT', 30),
 ];
