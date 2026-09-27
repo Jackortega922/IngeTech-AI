@@ -48,15 +48,21 @@ export default function Welcome() {
                                 href="/register"
                                 className="rounded-xl bg-cyan-400 px-7 py-4 font-bold text-[#07111f] shadow-lg shadow-cyan-400/20 transition hover:bg-cyan-300"
                             >
-                                Comenzar recomendación →
+                                Recomendación con IA →
                             </Link>
-                            <a
-                                href="#como-funciona"
+                            <Link
+                                href="/hardware"
                                 className="rounded-xl border border-slate-600 px-7 py-4 font-semibold text-slate-200 transition hover:border-cyan-400"
                             >
-                                Conocer más
-                            </a>
+                                Ver catálogo
+                            </Link>
                         </div>
+                        <p className="mt-4 text-sm text-slate-500">
+                            El catálogo se navega libremente.{' '}
+                            <a href="#como-funciona" className="underline decoration-slate-600 hover:text-slate-300">
+                                ¿Cómo funciona la recomendación?
+                            </a>
+                        </p>
                     </div>
 
                     <div className="relative">

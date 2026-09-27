@@ -12,13 +12,18 @@ export function NavUser() {
     const { state } = useSidebar();
     const isMobile = useIsMobile();
 
+    // AppSidebar solo renderiza <NavUser /> cuando ya sabe que hay sesión (rama contraria a la
+    // del visitante público), así que aquí siempre llega un usuario real.
+    if (!auth.user) return null;
+    const usuario = auth.user;
+
     return (
         <SidebarMenu>
             <SidebarMenuItem>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton size="lg" className="text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent group">
-                            <UserInfo user={auth.user} />
+                            <UserInfo user={usuario} />
                             <ChevronsUpDown className="ml-auto size-4" />
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
@@ -27,7 +32,7 @@ export function NavUser() {
                         align="end"
                         side={isMobile ? 'bottom' : state === 'collapsed' ? 'left' : 'bottom'}
                     >
-                        <UserMenuContent user={auth.user} />
+                        <UserMenuContent user={usuario} />
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>

@@ -11,15 +11,25 @@ import {
     LayoutDashboard,
     LayoutGrid,
     LayoutList,
+    LogIn,
     Monitor,
     Recycle,
     Scale,
     Scroll,
     Sparkles,
     Tag,
+    UserPlus,
     Users,
 } from 'lucide-react';
 import AppLogo from './app-logo';
+
+// Catálogo abierto al público: navegar y comparar specs no requiere cuenta. Solo la
+// recomendación con IA (que guarda perfil e historial) pide iniciar sesión.
+const navVisitante: NavItem[] = [
+    { title: 'Catálogo de hardware', url: '/hardware', icon: Monitor },
+    { title: 'Catálogo de software', url: '/software', icon: LayoutList },
+    { title: 'Comparador', url: '/comparador', icon: Scale },
+];
 
 const navEstudiante: NavItem[] = [
     { title: 'Inicio', url: '/dashboard', icon: LayoutGrid },
@@ -47,8 +57,12 @@ const navAdmin: NavItem[] = [
 
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
-    const mainNavItems = auth.user.is_admin ? navAdmin : navEstudiante;
-    const inicio = auth.user.is_admin ? '/admin' : '/dashboard';
+    // El catálogo ahora es público (/hardware, /software, /comparador): esta pantalla se
+    // renderiza también para quien no inició sesión, así que auth.user puede ser null.
+    const usuario = auth.user;
+    const esVisitante = usuario === null;
+    const mainNavItems = usuario === null ? navVisitante : usuario.is_admin ? navAdmin : navEstudiante;
+    const inicio = usuario === null ? '/' : usuario.is_admin ? '/admin' : '/dashboard';
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -69,7 +83,28 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavUser />
+                {esVisitante ? (
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild>
+                                <Link href="/register">
+                                    <UserPlus />
+                                    <span>Generar recomendación con IA</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild>
+                                <Link href="/login">
+                                    <LogIn />
+                                    <span>Iniciar sesión</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                ) : (
+                    <NavUser />
+                )}
             </SidebarFooter>
         </Sidebar>
     );
