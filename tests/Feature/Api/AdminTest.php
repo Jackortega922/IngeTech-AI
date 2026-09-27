@@ -227,4 +227,27 @@ class AdminTest extends TestCase
             ->assertOk()
             ->assertJsonFragment(['name' => 'Juan Pérez', 'perfiles_count' => 1]);
     }
+
+    public function test_lista_clientes_muestra_la_carrera_y_el_cargo_de_su_ultima_consulta()
+    {
+        $this->comoAdmin();
+        $cliente = User::factory()->create(['is_admin' => false]);
+
+        PerfilUsuario::create([
+            'user_id' => $cliente->id, 'carrera' => 'Independiente / Freelance', 'cargo' => 'Diseñador gráfico',
+            'nivel_experiencia' => 'basico', 'actividades' => [], 'software' => [], 'presupuesto_soles' => 3000,
+            'portabilidad' => 'cualquiera',
+        ]);
+        // Consulta más reciente (mayor id): debe mostrarse esta, no la primera.
+        PerfilUsuario::create([
+            'user_id' => $cliente->id, 'carrera' => 'Emprendimiento / Negocio Propio', 'cargo' => 'Dueño de bodega',
+            'nivel_experiencia' => 'basico', 'actividades' => [], 'software' => [], 'presupuesto_soles' => 3000,
+            'portabilidad' => 'cualquiera',
+        ]);
+
+        $this->getJson('/api/admin/clientes')
+            ->assertOk()
+            ->assertJsonFragment(['carrera' => 'Emprendimiento / Negocio Propio', 'cargo' => 'Dueño de bodega'])
+            ->assertJsonMissing(['cargo' => 'Diseñador gráfico']);
+    }
 }

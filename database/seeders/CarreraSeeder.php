@@ -26,6 +26,15 @@ class CarreraSeeder extends Seeder
             ['clave' => 'agronomia', 'nombre' => 'Agronomía', 'facultad' => 'Ciencias Agrarias'],
             ['clave' => 'turismo', 'nombre' => 'Turismo y Hotelería', 'facultad' => 'Ciencias Empresariales'],
             ['clave' => 'comunicacion', 'nombre' => 'Ciencias de la Comunicación', 'facultad' => 'Ciencias de la Educación'],
+
+            // Ocupaciones no académicas: la tienda le vende a cualquier persona, no solo a
+            // estudiantes. Mismo mecanismo (carrera -> software típico -> requisitos de
+            // hardware), solo que agrupadas bajo "Público General" en vez de una facultad.
+            ['clave' => 'oficina_general', 'nombre' => 'Trabajo de Oficina / Administrativo', 'facultad' => 'Público General'],
+            ['clave' => 'independiente', 'nombre' => 'Independiente / Freelance', 'facultad' => 'Público General'],
+            ['clave' => 'emprendimiento', 'nombre' => 'Emprendimiento / Negocio Propio', 'facultad' => 'Público General'],
+            ['clave' => 'gaming_streaming', 'nombre' => 'Gaming y Streaming', 'facultad' => 'Público General'],
+            ['clave' => 'uso_personal', 'nombre' => 'Uso Personal / Hogar', 'facultad' => 'Público General'],
         ];
 
         foreach ($carreras as $carrera) {

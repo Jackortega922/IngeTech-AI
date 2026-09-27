@@ -110,6 +110,9 @@ class RecomendacionController extends Controller
             'user_id' => $usuarioId,
             'carrera_id' => $carrera->id,
             'carrera' => $carrera->nombre,
+            // El campo es opcional en el formulario; una cadena vacía se guarda como null en
+            // vez de "" para no confundir "no contestó" con "contestó algo vacío".
+            'cargo' => trim((string) ($perfil['cargo'] ?? '')) ?: null,
             'portabilidad' => $perfil['portabilidad'],
             'nivel_experiencia' => $perfil['nivel_experiencia'],
             'actividades' => $actividades->pluck('nombre')->all(),

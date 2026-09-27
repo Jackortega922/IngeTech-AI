@@ -49,6 +49,17 @@ class SoftwareSeeder extends Seeder
             'agronomia' => ['office', 'gis'],
             'turismo' => ['office'],
             'comunicacion' => ['office', 'edicion_multimedia'],
+
+            // Ocupaciones no académicas: necesidades más livianas y genéricas por diseño — no
+            // hay un catálogo real de software "típico" para "freelance" u "hogar" como sí lo
+            // hay para una carrera con un plan de estudios. Reusa software que ya existe.
+            'oficina_general' => ['office'],
+            'independiente' => ['office', 'edicion_multimedia'],
+            'emprendimiento' => ['office', 'software_contable'],
+            // La exigencia real de "gaming" la pone la actividad "videojuegos" (requiere_gpu);
+            // aquí solo va la base de edición/streaming de contenido.
+            'gaming_streaming' => ['edicion_multimedia'],
+            'uso_personal' => ['office'],
         ];
 
         foreach ($porCarrera as $claveCarrera => $clavesSoftware) {
