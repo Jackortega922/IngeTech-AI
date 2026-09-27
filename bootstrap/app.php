@@ -18,6 +18,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // En producción (Render y cualquier PaaS parecido) el certificado TLS termina en el
+        // proxy de la plataforma, que reenvía la petición al contenedor por HTTP plano. Sin
+        // confiar en las cabeceras X-Forwarded-*, Laravel cree que la petición llegó por
+        // http:// y genera los enlaces de los assets con ese esquema: el navegador los
+        // bloquea por mixed content y la página queda en blanco.
+        //
+        // Confiar en '*' es seguro aquí porque el contenedor solo es alcanzable a través del
+        // proxy de la plataforma, nunca directo desde internet.
+        $middleware->trustProxies(at: '*');
+
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
