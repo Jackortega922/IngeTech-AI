@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Services\Recommender\CliRecommenderClient;
+use App\Services\Recommender\RecommenderException;
 use Tests\TestCase;
 
 class MotorCliTest extends TestCase
@@ -33,5 +34,23 @@ class MotorCliTest extends TestCase
         } finally {
             chdir($directorioOriginal);
         }
+    }
+
+    /**
+     * Si el motor tarda más de la cuenta, Process lanza su propia excepción de timeout, que
+     * no es una RecommenderException — sin traducirla, la API devuelve un 500 genérico en vez
+     * del error del contrato que el frontend sabe mostrar.
+     */
+    public function test_un_timeout_del_motor_se_traduce_a_un_error_del_contrato()
+    {
+        config([
+            'recommender.timeout' => 1,
+            'recommender.cli' => 'php -r "sleep(5);"',
+        ]);
+
+        $this->expectException(RecommenderException::class);
+        $this->expectExceptionMessage('tardó demasiado');
+
+        (new CliRecommenderClient)->recomendar(['perfil' => []]);
     }
 }

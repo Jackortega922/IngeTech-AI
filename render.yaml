@@ -52,3 +52,8 @@ services:
             value: cli
           - key: RECOMMENDER_CLI
             value: python ml-engine/cli_entry.py
+          # Margen amplio a propósito: el plan gratuito da una fracción de CPU, y el costo del
+          # motor es arrancar Python e importar scikit-learn/numpy/pandas en cada llamada
+          # (~3,5 s ya en hardware rápido), no el cálculo en sí.
+          - key: RECOMMENDER_TIMEOUT
+            value: 60
