@@ -6,9 +6,10 @@ import { Head, router } from '@inertiajs/react';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
+// Por ahora el catálogo es solo laptops (sin PCs de escritorio), así que "PC de escritorio"
+// queda oculta acá: ofrecerla sería un camino muerto, siempre terminaría en "sin resultados".
 const PORTABILIDAD_OPCIONES: { value: Portabilidad; label: string }[] = [
     { value: 'laptop', label: 'Laptop' },
-    { value: 'escritorio', label: 'PC de escritorio' },
     { value: 'cualquiera', label: 'Cualquiera' },
 ];
 
