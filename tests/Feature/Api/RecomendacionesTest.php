@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\Carrera;
 use App\Models\Laptop;
+use App\Models\PerfilUsuario;
 use App\Services\Recommender\RecommenderClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,6 +18,7 @@ class RecomendacionesTest extends TestCase
         Carrera::firstOrCreate(['clave' => 'ing_sistemas'], ['nombre' => 'Ingeniería de Sistemas', 'facultad' => 'Ingeniería']);
 
         return [
+            'consentimiento' => true,
             'perfil' => [
                 'carrera_clave' => 'ing_sistemas',
                 'nivel_experiencia' => 'intermedio',
@@ -127,6 +129,37 @@ class RecomendacionesTest extends TestCase
         $this->postJson('/api/recomendaciones', $payload)
             ->assertStatus(422)
             ->assertJsonPath('error', 'sin_resultados');
+    }
+
+    public function test_rechaza_el_perfil_si_no_se_acepta_el_tratamiento_de_datos()
+    {
+        // Sin consentimiento no se procesa nada: ni se llama al motor ni se guarda el perfil.
+        foreach ([false, null] as $valor) {
+            $payload = $this->perfilValido();
+            $payload['consentimiento'] = $valor;
+
+            $this->postJson('/api/recomendaciones', $payload)
+                ->assertUnprocessable()
+                ->assertJsonValidationErrors('consentimiento');
+        }
+
+        $payload = $this->perfilValido();
+        unset($payload['consentimiento']);
+
+        $this->postJson('/api/recomendaciones', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('consentimiento');
+
+        $this->assertDatabaseCount('perfiles_usuario', 0);
+    }
+
+    public function test_registra_cuando_se_dio_el_consentimiento()
+    {
+        $this->fakeMotor(['version' => 'v0', 'error' => 'sin_resultados', 'mensaje' => 'Nada en tu presupuesto.']);
+
+        $this->postJson('/api/recomendaciones', $this->perfilValido());
+
+        $this->assertNotNull(PerfilUsuario::sole()->consentimiento_at);
     }
 
     public function test_rechaza_un_perfil_sin_carrera()

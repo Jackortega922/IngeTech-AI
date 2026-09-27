@@ -22,6 +22,7 @@ class PerfilUsuario extends Model
         'actividades',
         'software',
         'presupuesto_soles',
+        'consentimiento_at',
     ];
 
     protected function casts(): array
@@ -30,6 +31,7 @@ class PerfilUsuario extends Model
             'actividades' => 'array',
             'software' => 'array',
             'presupuesto_soles' => 'decimal:2',
+            'consentimiento_at' => 'datetime',
         ];
     }
 
