@@ -63,7 +63,22 @@ laptops ni las cuentas demo — eso lo hacen los seeders. Desde el dashboard de 
 php artisan db:seed
 ```
 
-## 5. Verificar
+## 5. Si algo falla: dónde mirar
+
+Los logs de Render (pestaña **Logs**) muestran las peticiones que atiende el servidor y las
+excepciones de la app — esto último funciona porque `render.yaml` fija `LOG_CHANNEL=stderr`.
+Sin eso, Laravel escribiría los errores en `storage/logs/laravel.log` *dentro* del contenedor
+y en Render solo se verían las peticiones, sin la causa.
+
+Si aun así hace falta hurgar dentro del contenedor, la pestaña **Shell** da una terminal:
+
+```bash
+tail -n 40 storage/logs/laravel.log   # errores viejos, previos a LOG_CHANNEL=stderr
+php artisan about                     # resumen de configuración efectiva
+php artisan migrate:status            # ¿conectó a la BD? ¿qué migraciones corrieron?
+```
+
+## 6. Verificar
 
 Abrir la URL que Render asignó. Debería verse la landing de IngeTech AI con estilos
 (si se ve sin estilos, revisar que `npm run build` haya corrido bien en los logs del build —
@@ -73,7 +88,7 @@ Probar login con las cuentas demo del seeder (`admin@ingetech.test` / `estudiant
 contraseña `password`) y correr el flujo completo (Perfil → Resultado) para confirmar que el
 motor de recomendación (modo `cli`, subproceso) responde bien contra la base de datos real.
 
-## 6. El día de la sustentación
+## 7. El día de la sustentación
 
 El plan gratuito de Render duerme el servicio tras 15 minutos sin tráfico y tarda ~1 minuto en
 despertar con la primera visita. **Entra a la URL 2-3 minutos antes de presentar** para que ya
