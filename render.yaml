@@ -29,6 +29,12 @@ services:
             value: America/Lima
           - key: APP_LOCALE
             value: es
+          # En un contenedor los logs tienen que salir por stderr para que la plataforma los
+          # recoja. Con el canal por defecto ('stack' -> archivo en storage/logs/laravel.log)
+          # los errores quedan atrapados dentro del contenedor: Render muestra las peticiones
+          # pero no la excepción, y con APP_DEBUG=false el navegador solo enseña "Server Error".
+          - key: LOG_CHANNEL
+            value: stderr
           - key: APP_KEY
             sync: false # generar con: php artisan key:generate --show
           - key: APP_URL
