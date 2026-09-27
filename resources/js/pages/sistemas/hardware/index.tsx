@@ -2,9 +2,9 @@ import DeviceIllustration from '@/components/device-illustration';
 import AppLayout from '@/layouts/app-layout';
 import { flujoStorage } from '@/lib/flujo-storage';
 import { type BreadcrumbItem } from '@/types';
-import type { Catalogos } from '@/types/flujo';
-import { Head, Link } from '@inertiajs/react';
-import { BatteryFull, Cpu, HardDrive, MonitorSmartphone, Scale } from 'lucide-react';
+import type { Catalogos, Laptop } from '@/types/flujo';
+import { Head, Link, router } from '@inertiajs/react';
+import { BatteryFull, Cpu, HardDrive, MonitorSmartphone, Scale, Wrench } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Catálogo de hardware', href: '/hardware' }];
@@ -19,6 +19,15 @@ export default function HardwareIndex() {
             .then((r) => r.json())
             .then(setCatalogos);
     }, []);
+
+    // Segundo camino, aparte de la recomendación con IA: elegir directo del catálogo y
+    // personalizarla (RAM/almacenamiento/kits). /personalizar solo lee tarjeta.laptop para el
+    // precio base — badges/compatibilidad_pct/recomendacion_id no aplican aquí porque esta
+    // laptop no vino de una recomendación, así que quedan en un valor provisional sin uso.
+    function personalizar(laptop: Laptop) {
+        flujoStorage.guardarSeleccionada({ laptop_id: laptop.id, laptop, badges: [], compatibilidad_pct: 0, recomendacion_id: 0 });
+        router.visit('/personalizar');
+    }
 
     function toggle(id: number) {
         setSeleccion((prev) => {
@@ -112,6 +121,14 @@ export default function HardwareIndex() {
                                         </span>
                                         <span className="text-muted-foreground text-xs">{h.tienda}</span>
                                     </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => personalizar(h)}
+                                        className="border-input hover:bg-muted mt-3 flex items-center justify-center gap-2 rounded-lg border py-2 text-sm font-semibold transition"
+                                    >
+                                        <Wrench className="h-3.5 w-3.5" /> Personalizar
+                                    </button>
                                 </div>
                             </div>
                         ))}

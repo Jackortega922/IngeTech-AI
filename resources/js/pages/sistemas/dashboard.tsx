@@ -25,7 +25,8 @@ export default function Dashboard() {
 
             <div className="flex flex-1 flex-col gap-6 p-4">
                 <div className="overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent p-8">
-                    <p className="text-muted-foreground text-sm">Hola, {auth.user.name} 👋</p>
+                    {/* Ruta detrás de `auth` en routes/web.php: siempre hay sesión aquí. */}
+                    <p className="text-muted-foreground text-sm">Hola, {auth.user!.name} 👋</p>
                     <h1 className="mt-1 text-2xl font-bold sm:text-3xl">¿Buscamos tu próxima laptop?</h1>
                     <p className="text-muted-foreground mt-2 max-w-xl">
                         Responde unas preguntas sobre tu carrera y lo que necesitas hacer, y te recomendamos la mejor opción para tu presupuesto.

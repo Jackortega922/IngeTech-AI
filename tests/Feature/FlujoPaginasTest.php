@@ -15,6 +15,20 @@ class FlujoPaginasTest extends TestCase
         $this->get('/perfil')->assertRedirect('/login');
     }
 
+    public function test_invitados_pueden_navegar_el_catalogo_sin_iniciar_sesion()
+    {
+        // Navegar y comparar specs es como en cualquier tienda: no pide cuenta. Solo la
+        // recomendación con IA (que guarda perfil e historial) sí la pide.
+        foreach (['/software', '/hardware', '/comparador'] as $ruta) {
+            $this->get($ruta)->assertOk();
+        }
+    }
+
+    public function test_invitados_son_redirigidos_al_login_desde_personalizar()
+    {
+        $this->get('/personalizar')->assertRedirect('/login');
+    }
+
     public function test_usuario_autenticado_puede_ver_las_paginas_del_flujo()
     {
         $this->actingAs(User::factory()->create(['is_admin' => false]));

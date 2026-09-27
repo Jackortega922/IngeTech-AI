@@ -1,7 +1,10 @@
 import { LucideIcon } from 'lucide-react';
 
 export interface Auth {
-    user: User;
+    // El catálogo (/hardware, /software, /comparador) es público: en esas páginas no hay
+    // sesión, así que user es null. Las páginas detrás de `auth` en routes/web.php sí pueden
+    // asumirlo no nulo con seguridad.
+    user: User | null;
 }
 
 export interface BreadcrumbItem {
