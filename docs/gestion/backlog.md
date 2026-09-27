@@ -45,7 +45,7 @@ historia puntual de aquí, se reasigna esa fila y se avisa en el grupo.
 | # | Historia | Prio | Dueño | Estado |
 |---|---|---|---|---|
 | C1 | Plantilla de ficha de laptop | M | Marco | ✅ |
-| C2 | 15+ laptops reales verificadas (`laptops.json`) | M | Marco | ⚠️ — hay 14 en `LaptopSeeder`, ya sincronizadas 1 a 1 con `ml-engine/data/laptops.json` (ver A14). Falta 1 para llegar a 15+ y falta el paso de "verificadas" (specs/precio confirmados en tienda real, hoy son referenciales). |
+| C2 | 15+ laptops reales verificadas (`laptops.json`) | M | Marco | ⚠️ — ya son 19 en `LaptopSeeder` (15 laptops: Lenovo/HP/Apple/Asus/Acer con 3 c/u, + 4 PCs de escritorio), sincronizadas 1 a 1 con `ml-engine/data/laptops.json` (ver A14). El conteo ya llega a 15+; falta el paso de "verificadas" (specs/precio/imagen confirmados en tienda real, hoy son referenciales) — `laptops.imagen_url` ya existe en el esquema, listo para cargar enlaces reales. |
 | C3 | `actividades.json` y `software.json` (deben calzar con el formulario de Perfil) | M | Marco | ✅ |
 | C4 | `CatalogoSeeder` — carga JSON → BD | M | Marco | ✅ — vía seeders (`LaptopSeeder`, `SoftwareSeeder`, `ActividadSeeder`, `CarreraSeeder`) |
 | C5 | Pantalla admin — listado de laptops | S | Marco | ✅ |

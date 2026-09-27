@@ -1,4 +1,4 @@
-import DeviceIllustration from '@/components/device-illustration';
+import LaptopImage from '@/components/laptop-image';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import type { HistorialItem } from '@/types/flujo';
@@ -58,7 +58,12 @@ export default function HistorialIndex() {
                                 <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                     {item.recomendaciones.map((r) => (
                                         <div key={r.id} className="flex gap-3 rounded-lg border p-3">
-                                            <DeviceIllustration marca={r.laptop.marca} tipo={r.laptop.tipo} className="h-16 w-16 shrink-0" />
+                                            <LaptopImage
+                                                imagenUrl={r.laptop.imagen_url}
+                                                marca={r.laptop.marca}
+                                                tipo={r.laptop.tipo}
+                                                className="h-16 w-16 shrink-0"
+                                            />
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-semibold">
                                                     {r.laptop.marca} {r.laptop.modelo}

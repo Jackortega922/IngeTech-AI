@@ -1,5 +1,6 @@
 import ChatWidget from '@/components/chat-widget';
 import FlowHeader from '@/components/flujo/flow-header';
+import LaptopImage from '@/components/laptop-image';
 import { flujoStorage } from '@/lib/flujo-storage';
 import type { Accesorio, Catalogos, Kit, Tarjeta } from '@/types/flujo';
 import { Head, Link, router } from '@inertiajs/react';
@@ -77,10 +78,22 @@ export default function PersonalizarIndex() {
                 <FlowHeader pasoActual={3} />
 
                 <main className="mx-auto max-w-5xl px-6 py-14 lg:px-10">
-                    <h1 className="text-3xl font-bold sm:text-4xl">
-                        Ajusta la {laptop.marca} {laptop.modelo}
-                    </h1>
-                    <p className="mt-2 text-slate-400">Cambia memoria, almacenamiento o agrega accesorios — el precio se actualiza al instante.</p>
+                    <div className="flex items-center gap-4">
+                        <LaptopImage
+                            imagenUrl={laptop.imagen_url}
+                            marca={laptop.marca}
+                            tipo={laptop.tipo}
+                            className="h-16 w-16 shrink-0 rounded-xl"
+                        />
+                        <div>
+                            <h1 className="text-3xl font-bold sm:text-4xl">
+                                Ajusta la {laptop.marca} {laptop.modelo}
+                            </h1>
+                            <p className="mt-2 text-slate-400">
+                                Cambia memoria, almacenamiento o agrega accesorios — el precio se actualiza al instante.
+                            </p>
+                        </div>
+                    </div>
 
                     <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_360px]">
                         <div className="space-y-10">

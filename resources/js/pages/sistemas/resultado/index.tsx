@@ -1,5 +1,6 @@
 import ChatWidget from '@/components/chat-widget';
 import FlowHeader from '@/components/flujo/flow-header';
+import LaptopImage from '@/components/laptop-image';
 import { flujoStorage } from '@/lib/flujo-storage';
 import type { Laptop, RespuestaMotorError, Tarjeta } from '@/types/flujo';
 import { Head, Link, router } from '@inertiajs/react';
@@ -133,6 +134,8 @@ function TarjetaLaptop({ t, enComparar, onElegir, onComparar }: { t: Tarjeta; en
                 ))}
             </div>
 
+            <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="mt-4 h-32 w-full rounded-xl" />
+
             <h2 className="mt-3 text-xl font-bold">
                 {l.marca} {l.modelo}
             </h2>
@@ -177,14 +180,17 @@ function TarjetaLaptop({ t, enComparar, onElegir, onComparar }: { t: Tarjeta; en
 
 function TarjetaSimple({ l }: { l: Laptop }) {
     return (
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-            <p className="font-semibold">
-                {l.marca} {l.modelo}
-            </p>
-            <p className="mt-1 text-xs text-slate-400">
-                {l.cpu} · {l.ram_gb}GB · score {l.rendimiento_score}
-            </p>
-            <p className="mt-2 font-mono text-cyan-400">S/ {Number(l.precio_soles).toLocaleString('es-PE')}</p>
+        <div className="flex gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+            <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="h-14 w-14 shrink-0 rounded-lg" />
+            <div>
+                <p className="font-semibold">
+                    {l.marca} {l.modelo}
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
+                    {l.cpu} · {l.ram_gb}GB · score {l.rendimiento_score}
+                </p>
+                <p className="mt-2 font-mono text-cyan-400">S/ {Number(l.precio_soles).toLocaleString('es-PE')}</p>
+            </div>
         </div>
     );
 }

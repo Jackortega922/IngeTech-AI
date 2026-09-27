@@ -1,4 +1,4 @@
-import DeviceIllustration from '@/components/device-illustration';
+import LaptopImage from '@/components/laptop-image';
 import AppLayout from '@/layouts/app-layout';
 import { flujoStorage } from '@/lib/flujo-storage';
 import { type BreadcrumbItem } from '@/types';
@@ -75,7 +75,7 @@ export default function HardwareIndex() {
                                     seleccion.includes(h.id) ? 'border-cyan-500 ring-1 ring-cyan-500' : 'hover:border-cyan-500/40'
                                 }`}
                             >
-                                <DeviceIllustration marca={h.marca} tipo={h.tipo} className="h-36 w-full rounded-none" />
+                                <LaptopImage imagenUrl={h.imagen_url} marca={h.marca} tipo={h.tipo} className="h-36 w-full rounded-none" />
 
                                 <div className="flex flex-1 flex-col p-4">
                                     <div className="flex items-start justify-between gap-2">

@@ -11,6 +11,7 @@ import {
     Coins,
     Database,
     GraduationCap,
+    Image as ImageIcon,
     Laptop as LaptopIcon,
     LayoutDashboard,
     Package,
@@ -332,6 +333,7 @@ function TablaHardware({ equipos, onCambio, avisar }: { equipos: Laptop[]; onCam
                     marca: f.marca,
                     modelo: f.modelo,
                     descripcion: f.descripcion,
+                    imagen_url: f.imagen_url || null,
                     tipo: f.tipo,
                     cpu: f.cpu,
                     rendimiento_score: Number(f.rendimiento_score),
@@ -363,6 +365,7 @@ function TablaHardware({ equipos, onCambio, avisar }: { equipos: Laptop[]; onCam
                 marca: 'Nueva',
                 modelo: 'Nuevo equipo',
                 descripcion: '',
+                imagen_url: null,
                 tipo: 'laptop',
                 cpu: '—',
                 rendimiento_score: 50,
@@ -630,6 +633,36 @@ function TablaHardware({ equipos, onCambio, avisar }: { equipos: Laptop[]; onCam
                                 value={f.descripcion ?? ''}
                                 onChange={(e) => set(i, 'descripcion', e.target.value)}
                                 placeholder="Descripción corta del equipo..."
+                            />
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            <div className="bg-card rounded-2xl border p-5 shadow-sm">
+                <div className="mb-4 flex items-center gap-2">
+                    <ImageIcon className="h-5 w-5 text-cyan-500" />
+                    <div>
+                        <h3 className="font-bold">Imágenes del catálogo</h3>
+                        <p className="text-muted-foreground text-xs">
+                            Enlace a una foto ya alojada en otro lado (tienda o fabricante) — no se sube ningún archivo al servidor.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="grid gap-3 md:grid-cols-2">
+                    {filas.map((f, i) => (
+                        <label key={f.id} className="block">
+                            <span className="text-muted-foreground mb-1 block text-xs font-medium">
+                                {f.marca} {f.modelo}
+                            </span>
+
+                            <input
+                                type="url"
+                                className="campo bg-background w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-cyan-500"
+                                value={f.imagen_url ?? ''}
+                                onChange={(e) => set(i, 'imagen_url', e.target.value)}
+                                placeholder="https://..."
                             />
                         </label>
                     ))}

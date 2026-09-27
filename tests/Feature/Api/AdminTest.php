@@ -50,12 +50,28 @@ class AdminTest extends TestCase
             ->assertCreated()
             ->json('id');
 
-        $this->putJson("/api/admin/hardware/{$id}", array_merge($payload, ['precio_soles' => 5999]))
+        $this->putJson("/api/admin/hardware/{$id}", array_merge($payload, ['precio_soles' => 5999, 'imagen_url' => 'https://tienda.test/foto.jpg']))
             ->assertOk()
-            ->assertJsonPath('precio_soles', '5999.00');
+            ->assertJsonPath('precio_soles', '5999.00')
+            ->assertJsonPath('imagen_url', 'https://tienda.test/foto.jpg');
 
         $this->deleteJson("/api/admin/hardware/{$id}")->assertNoContent();
         $this->assertDatabaseMissing('laptops', ['id' => $id]);
+    }
+
+    public function test_rechaza_un_enlace_de_imagen_que_no_es_una_url_valida()
+    {
+        $this->comoAdmin();
+
+        $payload = [
+            'marca' => 'Lenovo', 'modelo' => 'Legion 5', 'tipo' => 'laptop', 'cpu' => 'Ryzen 7',
+            'rendimiento_score' => 90, 'ram_gb' => 32, 'almacenamiento_gb' => 1024, 'almacenamiento_tipo' => 'SSD',
+            'gpu_dedicada' => true, 'precio_soles' => 6499, 'imagen_url' => 'no-es-una-url',
+        ];
+
+        $this->postJson('/api/admin/hardware', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('imagen_url');
     }
 
     public function test_crea_actualiza_y_elimina_software()
