@@ -127,6 +127,19 @@ export interface DashboardAdmin {
     total_consultas: number;
     por_carrera: Record<string, number>;
     por_presupuesto: Record<string, number>;
+    calidad: CalidadRecomendacion;
+}
+
+// KPIs de Ingeniería Industrial (docs/gestion/kpis.md). Las tasas llegan en null cuando todavía
+// no hay muestra para calcularlas.
+export interface CalidadRecomendacion {
+    consultas_con_resultado: number;
+    cobertura_pct: number | null;
+    compatibilidad_promedio: number | null;
+    perfiles_con_eleccion: number;
+    tasa_eleccion_pct: number | null;
+    tiempo_decision_mediana_seg: number | null;
+    elecciones_por_opcion: Record<string, number>;
 }
 
 export interface ContabilidadAdmin {

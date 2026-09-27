@@ -33,6 +33,14 @@ export default function ResultadoIndex() {
     }, []);
 
     function elegir(t: Tarjeta) {
+        // Avisa al servidor qué opción eligió la persona: es el dato con el que se mide si la IA
+        // recomienda bien (docs/gestion/kpis.md). Sin await y sin propagar errores a propósito:
+        // si el registro falla, igual se pasa a personalizar — medir no debe romper la compra.
+        fetch(`/api/recomendaciones/${t.recomendacion_id}/eleccion`, {
+            method: 'POST',
+            headers: { Accept: 'application/json' },
+        }).catch(() => {});
+
         flujoStorage.guardarSeleccionada(t);
         router.visit('/personalizar');
     }

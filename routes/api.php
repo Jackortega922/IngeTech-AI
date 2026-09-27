@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Admin\HardwareController;
 use App\Http\Controllers\Api\Admin\SoftwareController;
 use App\Http\Controllers\Api\CatalogoController;
 use App\Http\Controllers\Api\ChatbotController;
+use App\Http\Controllers\Api\EleccionController;
 use App\Http\Controllers\Api\HistorialController;
 use App\Http\Controllers\Api\RecomendacionController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,8 @@ Route::get('/health', function () {
 Route::get('/catalogos', [CatalogoController::class, 'index']);
 Route::post('/recomendaciones', [RecomendacionController::class, 'store']);
 Route::post('/chatbot', [ChatbotController::class, 'responder']);
+
+Route::post('/recomendaciones/{recomendacion}/eleccion', [EleccionController::class, 'store'])->middleware('auth');
 
 Route::get('/mis-recomendaciones', [HistorialController::class, 'index'])->middleware('auth');
 

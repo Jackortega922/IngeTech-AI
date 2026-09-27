@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Carrera;
 use App\Models\EventoAnalitica;
 use App\Models\Laptop;
+use App\Models\Recomendacion;
 use App\Models\Software;
 use App\Models\User;
+use Illuminate\Support\Collection;
 
 class DashboardController extends Controller
 {
@@ -40,6 +42,54 @@ class DashboardController extends Controller
             'total_consultas' => $eventos->count(),
             'por_carrera' => $porCarrera,
             'por_presupuesto' => $buckets,
+            'calidad' => $this->calidadDeLaRecomendacion($eventos),
         ]);
+    }
+
+    /**
+     * KPIs de Ingeniería Industrial: ¿la IA recomienda bien? Definiciones, fórmulas y metas en
+     * docs/gestion/kpis.md. Las tasas son null si todavía no hay datos para calcularlas, para
+     * no mostrar un 0% que parezca un resultado malo cuando en realidad no hay muestra.
+     *
+     * @param  Collection<int, EventoAnalitica>  $consultas
+     */
+    private function calidadDeLaRecomendacion(Collection $consultas): array
+    {
+        $conResultado = $consultas->filter(fn (EventoAnalitica $e) => ($e->payload['resultado'] ?? null) === 'ok')->count();
+
+        // Se cuenta solo la primera elección de cada perfil: si alguien vuelve atrás y elige
+        // otra opción, no debe pesar doble en la tasa ni en la opción preferida.
+        $primeraEleccionPorPerfil = EventoAnalitica::where('tipo', 'eleccion_recomendacion')
+            ->with('recomendacion.perfilUsuario')
+            ->orderBy('created_at')
+            ->get()
+            ->filter(fn (EventoAnalitica $e) => $e->recomendacion?->perfilUsuario !== null)
+            ->unique(fn (EventoAnalitica $e) => $e->recomendacion->perfil_usuario_id);
+
+        // Relojes del servidor en ambos extremos (no el del navegador). Mediana y no promedio:
+        // alguien que deja la pestaña abierta una hora no debe distorsionar el indicador.
+        $tiemposDecision = $primeraEleccionPorPerfil->map(
+            fn (EventoAnalitica $e) => (int) round(abs($e->recomendacion->perfilUsuario->created_at->diffInSeconds($e->created_at)))
+        );
+
+        $porOpcion = ['Mejor Opción Económica' => 0, 'Opción Equilibrada' => 0, 'Mejor Rendimiento' => 0];
+        foreach ($primeraEleccionPorPerfil as $eleccion) {
+            // Una misma laptop puede ganar dos categorías a la vez; se cuentan ambas.
+            foreach ($eleccion->payload['badges'] ?? [] as $badge) {
+                $porOpcion[$badge] = ($porOpcion[$badge] ?? 0) + 1;
+            }
+        }
+
+        $compatibilidad = Recomendacion::avg('compatibilidad_pct');
+
+        return [
+            'consultas_con_resultado' => $conResultado,
+            'cobertura_pct' => $consultas->isEmpty() ? null : round($conResultado / $consultas->count() * 100, 1),
+            'compatibilidad_promedio' => $compatibilidad === null ? null : round((float) $compatibilidad, 1),
+            'perfiles_con_eleccion' => $primeraEleccionPorPerfil->count(),
+            'tasa_eleccion_pct' => $conResultado === 0 ? null : round($primeraEleccionPorPerfil->count() / $conResultado * 100, 1),
+            'tiempo_decision_mediana_seg' => $tiemposDecision->isEmpty() ? null : (int) $tiemposDecision->median(),
+            'elecciones_por_opcion' => $porOpcion,
+        ];
     }
 }

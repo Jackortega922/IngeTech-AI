@@ -116,6 +116,73 @@ class AdminTest extends TestCase
             ->assertJsonPath('por_carrera.ing_sistemas', 2);
     }
 
+    public function test_dashboard_mide_la_calidad_de_la_recomendacion()
+    {
+        $this->comoAdmin();
+        $laptop = Laptop::create([
+            'marca' => 'Acer', 'modelo' => 'Aspire 5', 'tipo' => 'laptop', 'cpu' => 'Ryzen 5',
+            'ram_gb' => 16, 'almacenamiento_gb' => 512, 'almacenamiento_tipo' => 'SSD',
+            'gpu' => 'integrada', 'gpu_dedicada' => false, 'precio_soles' => 2399, 'rendimiento_score' => 55,
+        ]);
+
+        // 3 consultas: 2 con resultado y 1 sin opciones en el presupuesto -> cobertura 66,7 %.
+        foreach (['ok', 'ok', 'sin_resultados'] as $resultado) {
+            EventoAnalitica::create(['tipo' => 'consulta_recomendacion', 'payload' => ['resultado' => $resultado]]);
+        }
+
+        $this->travelTo(now()->startOfMinute());
+        $crear = function (int $compatibilidad, string $badge) use ($laptop) {
+            $perfil = PerfilUsuario::create([
+                'carrera' => 'Ingeniería de Sistemas', 'nivel_experiencia' => 'basico',
+                'actividades' => [], 'software' => [], 'presupuesto_soles' => 3000, 'portabilidad' => 'cualquiera',
+            ]);
+
+            return Recomendacion::create([
+                'perfil_usuario_id' => $perfil->id, 'laptop_id' => $laptop->id,
+                'compatibilidad_pct' => $compatibilidad, 'explicacion' => ['badges' => [$badge]],
+            ]);
+        };
+        $deAna = $crear(80, 'Mejor Opción Económica');
+        $deBeto = $crear(100, 'Mejor Rendimiento');
+
+        $elegir = fn (Recomendacion $r) => EventoAnalitica::create([
+            'tipo' => 'eleccion_recomendacion', 'recomendacion_id' => $r->id, 'payload' => ['badges' => $r->explicacion['badges']],
+        ]);
+        $this->travel(60)->seconds();
+        $elegir($deAna);
+        $this->travel(60)->seconds();
+        $elegir($deBeto);
+        // Ana vuelve atrás y elige de nuevo: no debe contar doble ni alterar su tiempo.
+        $this->travel(180)->seconds();
+        $elegir($deAna);
+
+        $this->getJson('/api/admin/dashboard')
+            ->assertOk()
+            ->assertJsonPath('calidad.cobertura_pct', 66.7)
+            ->assertJsonPath('calidad.compatibilidad_promedio', 90)
+            ->assertJsonPath('calidad.perfiles_con_eleccion', 2)
+            ->assertJsonPath('calidad.tasa_eleccion_pct', 100)
+            ->assertJsonPath('calidad.tiempo_decision_mediana_seg', 90)
+            ->assertJsonPath('calidad.elecciones_por_opcion', [
+                'Mejor Opción Económica' => 1,
+                'Opción Equilibrada' => 0,
+                'Mejor Rendimiento' => 1,
+            ]);
+    }
+
+    public function test_sin_datos_los_indicadores_quedan_vacios_y_no_en_cero()
+    {
+        // Un 0 % se leería como "la IA recomienda mal"; sin muestra, lo correcto es "sin dato".
+        $this->comoAdmin();
+
+        $this->getJson('/api/admin/dashboard')
+            ->assertOk()
+            ->assertJsonPath('calidad.cobertura_pct', null)
+            ->assertJsonPath('calidad.tasa_eleccion_pct', null)
+            ->assertJsonPath('calidad.tiempo_decision_mediana_seg', null)
+            ->assertJsonPath('calidad.compatibilidad_promedio', null);
+    }
+
     public function test_contabilidad_calcula_ingreso_potencial_y_ticket_promedio()
     {
         $this->comoAdmin();
