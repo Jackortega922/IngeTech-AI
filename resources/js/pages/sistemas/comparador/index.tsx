@@ -77,7 +77,7 @@ export default function ComparadorIndex() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Comparador" />
-            <div className="flex flex-1 flex-col gap-4 p-4">
+            <div className="flex min-w-0 flex-1 flex-col gap-4 p-4">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold">Comparador</h1>
                     {equipos.length > 0 && (
@@ -102,14 +102,14 @@ export default function ComparadorIndex() {
                             <table className="w-full text-sm">
                                 <thead>
                                     <tr className="bg-muted/50">
-                                        <th className="text-muted-foreground px-4 py-3 text-left">Criterio</th>
+                                        <th className="text-muted-foreground bg-muted sticky left-0 z-10 px-3 py-3 text-left sm:px-4">Criterio</th>
                                         {equipos.map((e) => (
-                                            <th key={e.id} className="px-4 py-3 text-left font-bold">
+                                            <th key={e.id} className="min-w-[8.5rem] px-3 py-3 text-left align-top font-bold sm:px-4">
                                                 <LaptopImage
                                                     imagenUrl={e.imagen_url}
                                                     marca={e.marca}
                                                     tipo={e.tipo}
-                                                    className="mb-2 h-16 w-24 rounded-lg"
+                                                    className="mb-2 h-12 w-16 rounded-lg sm:h-16 sm:w-24"
                                                 />
                                                 {e.marca} {e.modelo}
                                                 <p className="text-muted-foreground mt-1 text-xs font-normal">
@@ -124,11 +124,13 @@ export default function ComparadorIndex() {
                                         const ganadores = ganadoresDe(fila, equipos);
                                         return (
                                             <tr key={fila.label} className="border-t">
-                                                <td className="text-muted-foreground px-4 py-3">{fila.label}</td>
+                                                <td className="text-muted-foreground bg-background sticky left-0 z-10 px-3 py-3 text-xs sm:px-4 sm:text-sm">
+                                                    {fila.label}
+                                                </td>
                                                 {equipos.map((e) => (
                                                     <td
                                                         key={e.id}
-                                                        className={`px-4 py-3 font-mono ${
+                                                        className={`px-3 py-3 text-xs sm:px-4 sm:font-mono sm:text-sm ${
                                                             ganadores.includes(e.id) ? 'font-bold text-emerald-600 dark:text-emerald-400' : ''
                                                         }`}
                                                     >
@@ -141,7 +143,9 @@ export default function ComparadorIndex() {
                                 </tbody>
                             </table>
                         </div>
-                        <p className="text-muted-foreground text-xs">En verde, el mejor valor de cada fila.</p>
+                        <p className="text-muted-foreground text-xs">
+                            En verde, el mejor valor de cada fila.<span className="sm:hidden"> Desliza la tabla hacia los lados para ver todas.</span>
+                        </p>
 
                         <GuiaPorTarea tareas={tareas} equipos={equipos} />
 
@@ -182,9 +186,9 @@ function GuiaPorTarea({ tareas, equipos }: { tareas: ComparacionTarea[]; equipos
             <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {tareas.map((t) => (
                     <article key={t.clave} className="bg-card rounded-xl border p-4">
-                        <div className="flex items-baseline justify-between gap-2">
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
                             <h3 className="font-semibold">{t.nombre}</h3>
-                            <span className="text-muted-foreground shrink-0 text-xs">
+                            <span className="text-muted-foreground text-xs">
                                 pide {t.requisito.ram_gb} GB · CPU {t.requisito.cpu_score}
                                 {t.requisito.gpu_dedicada ? ' · GPU dedicada' : ''}
                             </span>

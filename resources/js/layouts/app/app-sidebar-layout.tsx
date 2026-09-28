@@ -9,7 +9,10 @@ export default function AppSidebarLayout({ children, breadcrumbs = [] }: { child
     return (
         <AppShell variant="sidebar">
             <AppSidebar />
-            <AppContent variant="sidebar">
+            {/* min-w-0: sin esto el contenedor flex no puede ser más angosto que su contenido, y una
+                tabla ancha (comparador, admin) estira toda la página hacia los costados en celular
+                en vez de desplazarse solo dentro de su recuadro. */}
+            <AppContent variant="sidebar" className="min-w-0">
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
                 {children}
             </AppContent>
