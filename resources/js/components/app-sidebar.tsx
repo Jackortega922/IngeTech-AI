@@ -31,7 +31,7 @@ const navVisitante: NavItem[] = [
     { title: 'Comparador', url: '/comparador', icon: Scale },
 ];
 
-const navEstudiante: NavItem[] = [
+const navCliente: NavItem[] = [
     { title: 'Inicio', url: '/dashboard', icon: LayoutGrid },
     { title: 'Nueva recomendación', url: '/perfil', icon: Sparkles },
     { title: 'Mis recomendaciones', url: '/historial', icon: Clock },
@@ -45,7 +45,7 @@ const navEstudiante: NavItem[] = [
 ];
 
 // Cuando entras como administrador, el menú solo muestra lo que le
-// corresponde al admin — el flujo de recomendación es para estudiantes.
+// corresponde al admin — el flujo de recomendación es para los clientes.
 const navAdmin: NavItem[] = [
     { title: 'Dashboard', url: '/admin?tab=dashboard', icon: LayoutDashboard },
     { title: 'Contabilidad', url: '/admin?tab=contabilidad', icon: Coins },
@@ -61,7 +61,7 @@ export function AppSidebar() {
     // renderiza también para quien no inició sesión, así que auth.user puede ser null.
     const usuario = auth.user;
     const esVisitante = usuario === null;
-    const mainNavItems = usuario === null ? navVisitante : usuario.is_admin ? navAdmin : navEstudiante;
+    const mainNavItems = usuario === null ? navVisitante : usuario.is_admin ? navAdmin : navCliente;
     const inicio = usuario === null ? '/' : usuario.is_admin ? '/admin' : '/dashboard';
 
     return (

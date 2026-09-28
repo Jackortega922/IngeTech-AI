@@ -31,7 +31,7 @@ export function PanelDashboard({ dashboard, carreras }: { dashboard: DashboardAd
             icon: GraduationCap,
         },
         {
-            label: 'Estudiantes',
+            label: 'Clientes',
             valor: dashboard.total_usuarios,
             descripcion: 'Usuarios registrados',
             icon: Users,
@@ -89,7 +89,7 @@ export function PanelDashboard({ dashboard, carreras }: { dashboard: DashboardAd
                     <h3 className="mt-4 font-bold">Aún no hay consultas registradas</h3>
 
                     <p className="text-muted-foreground mx-auto mt-1 max-w-md text-sm">
-                        Cuando los estudiantes utilicen el recomendador, aquí aparecerán estadísticas del sistema.
+                        Cuando los clientes utilicen el recomendador, aquí aparecerán estadísticas del sistema.
                     </p>
                 </div>
             ) : (
