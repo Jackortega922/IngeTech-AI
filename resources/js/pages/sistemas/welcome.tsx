@@ -277,7 +277,7 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
                                 <select
                                     value={orden}
                                     onChange={(e) => setOrden(e.target.value as typeof orden)}
-                                    className="rounded-full border border-white/10 bg-[#07111f] px-3 py-1.5 text-slate-300"
+                                    className="rounded-full border border-white/10 bg-[#07111f] px-3 py-1.5 text-slate-300 [color-scheme:dark]"
                                     aria-label="Ordenar"
                                 >
                                     <option value="precio_asc">Menor precio</option>

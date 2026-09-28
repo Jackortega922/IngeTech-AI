@@ -366,8 +366,11 @@ export default function CheckoutIndex({ departamentos }: { departamentos: string
     );
 }
 
+// color-scheme dark: la lista desplegable de un <select> la dibuja el navegador, y con el fondo
+// semitransparente del campo salía blanca con letra blanca (ilegible). Así la dibuja oscura; el
+// fondo explícito de las opciones cubre a los navegadores que no respetan color-scheme.
 const input =
-    'w-full rounded-xl border border-white/10 bg-white/[0.06] px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none';
+    'w-full rounded-xl border border-white/10 bg-white/[0.06] px-3.5 py-2.5 text-sm text-white [color-scheme:dark] placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none [&_option]:bg-[#0d1d31] [&_option]:text-white';
 
 function Seccion({ titulo, icono, children }: { titulo: string; icono?: ReactNode; children: ReactNode }) {
     return (
