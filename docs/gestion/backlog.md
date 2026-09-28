@@ -22,7 +22,7 @@ priorización. Actualízalo cuando cambie el alcance.
 | A10 | Despliegue a Render + staging | M | Jack | ☐ |
 | A11 | Registro de eventos + endpoint de KPIs | S | Jack | ✅ |
 | A12 | Swagger/OpenAPI publicado | S | Jack | ☐ |
-| A13 | Asistente conversacional complementario (LLM vía API, ej. DeepSeek) — **no reemplaza el motor de scoring**, es una función aparte (ver [ADR 0005](../adr/0005-llm-complementario-no-motor.md)) | C | Jack | ☐ |
+| A13 | Asistente conversacional complementario (LLM vía API, ej. DeepSeek) — **no reemplaza el motor de scoring**, es una función aparte (ver [ADR 0005](../adr/0005-llm-complementario-no-motor.md)) | C | Jack | ✅ — `app/Services/Asistente/DeepseekAsistente.php`, anclado al catálogo real; sin `DEEPSEEK_API_KEY` o si falla, responde el asistente por palabras clave. |
 
 ## Épica 2 — Flujo de usuario (Módulo B) — *Bloque I / UX*
 

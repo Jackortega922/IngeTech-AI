@@ -28,6 +28,15 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    // Asistente del chat (A13, ADR 0005). Sin DEEPSEEK_API_KEY el chat sigue funcionando con
+    // el asistente por palabras clave de ChatbotController.
+    'deepseek' => [
+        'key' => env('DEEPSEEK_API_KEY'),
+        'url' => env('DEEPSEEK_URL', 'https://api.deepseek.com'),
+        'model' => env('DEEPSEEK_MODEL', 'deepseek-flash'),
+        'timeout' => (int) env('DEEPSEEK_TIMEOUT', 20),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

@@ -19,7 +19,8 @@ Route::get('/health', function () {
 
 Route::get('/catalogos', [CatalogoController::class, 'index']);
 Route::post('/recomendaciones', [RecomendacionController::class, 'store']);
-Route::post('/chatbot', [ChatbotController::class, 'responder']);
+// Límite por minuto: con DeepSeek configurado, cada mensaje cuesta una llamada a la API.
+Route::post('/chatbot', [ChatbotController::class, 'responder'])->middleware('throttle:20,1');
 
 Route::post('/recomendaciones/{recomendacion}/eleccion', [EleccionController::class, 'store'])->middleware('auth');
 

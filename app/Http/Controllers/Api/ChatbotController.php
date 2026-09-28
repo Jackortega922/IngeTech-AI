@@ -6,17 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Models\Carrera;
 use App\Models\Laptop;
 use App\Models\Software;
+use App\Services\Asistente\DeepseekAsistente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
- * Asistente de preguntas frecuentes (Módulo "Sistemas Inteligentes" del
- * sílabo: NLP simple + base de conocimiento). No depende de un LLM externo
- * — responde por coincidencia de palabras clave contra el catálogo real
- * (carreras, software, hardware), para que funcione sin configurar ninguna
- * API de pago. El punto de integración queda aislado aquí: si más adelante
- * se conecta un LLM real (OpenAI/Claude/etc.), solo se reemplaza el cuerpo
- * de responder(), sin tocar el frontend.
+ * Chat del asistente (Módulo "Sistemas Inteligentes" del sílabo). Tiene dos capas:
+ *
+ * 1. Si hay DEEPSEEK_API_KEY, responde un LLM (DeepseekAsistente, tarea A13) anclado al
+ *    catálogo real.
+ * 2. Si no hay key, o DeepSeek falla o tarda, responde el asistente por palabras clave
+ *    (responderPorReglas): NLP simple + base de conocimiento contra el catálogo real
+ *    (carreras, software, hardware). Así el chat funciona sin ninguna API de pago.
  *
  * El tono de las respuestas está diseñado con la disciplina de Psicología:
  * elegir un equipo con presupuesto limitado genera ansiedad, así que antes
@@ -39,7 +40,27 @@ class ChatbotController extends Controller
         'Cuando quieras, dale a "Nueva recomendación" y lo vemos con calma.',
     ];
 
-    public function responder(Request $request)
+    public function responder(Request $request, DeepseekAsistente $llm)
+    {
+        $datos = $request->validate([
+            'mensaje' => ['nullable', 'string', 'max:500'],
+            'historial' => ['array', 'max:10'],
+            'historial.*.autor' => ['required', 'in:usuario,bot'],
+            'historial.*.texto' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $mensaje = trim((string) ($datos['mensaje'] ?? ''));
+        if ($mensaje !== '') {
+            $respuesta = $llm->responder($mensaje, $datos['historial'] ?? []);
+            if ($respuesta !== null) {
+                return response()->json(['respuesta' => $respuesta, 'fuente' => 'deepseek']);
+            }
+        }
+
+        return $this->responderPorReglas($request);
+    }
+
+    private function responderPorReglas(Request $request)
     {
         $nombre = $request->user()?->name;
         $saludoNombre = $nombre ? explode(' ', trim($nombre))[0] : null;
