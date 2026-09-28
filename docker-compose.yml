@@ -2,7 +2,8 @@
 #
 # El servicio `app` corre la imagen "ya armada" (ver Dockerfile) — útil para probar en Docker
 # de punta a punta, o como referencia de producción. Para el día a día sigue siendo más rápido
-# `composer run dev` nativo (sin reconstruir la imagen en cada cambio de PHP).
+# `composer run dev` nativo (sin reconstruir la imagen en cada cambio de PHP), por eso `app`
+# solo arranca con `--profile docker-app`.
 
 services:
   db:
@@ -32,6 +33,12 @@ services:
     command: uvicorn app:app --host 0.0.0.0 --port 5001 --reload
 
   app:
+    # Bajo un perfil para que `docker compose up -d` a secas NO lo levante: este contenedor trae
+    # el código copiado al construir la imagen, así que queda desactualizado frente a los
+    # cambios locales y, al ocupar el puerto 8000, tapa a `composer run dev` sin avisar (pasó
+    # dos veces: KPIs en undefined y el catálogo público pidiendo login). Para usarlo a
+    # propósito: `docker compose --profile docker-app up -d --build`.
+    profiles: ["docker-app"]
     build:
       context: .
       dockerfile: Dockerfile

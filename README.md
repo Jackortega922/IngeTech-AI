@@ -60,5 +60,10 @@ composer run dev        # levanta servidor + queue + vite
 - App: http://localhost:8000
 - Motor de recomendación (Swagger): http://localhost:5001/docs
 
+> El contenedor `app` (Laravel dentro de Docker) no arranca con `docker compose up`: trae una
+> copia del código de cuando se construyó la imagen y, si ocupa el puerto 8000, tapa a
+> `composer run dev` con código viejo. Para probarlo a propósito:
+> `docker compose --profile docker-app up -d --build`.
+
 > El contenedor `app` (para correr Laravel sin instalar nada) llega en la tarea A2.
 > Detalle completo en [ONBOARDING.md](ONBOARDING.md).
