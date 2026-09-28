@@ -176,3 +176,18 @@ export interface HistorialItem {
         laptop: Laptop;
     }[];
 }
+
+// Personalización confirmada, guardada como cotización para que un asesor la atienda.
+export interface Cotizacion {
+    id: number;
+    user_id: number;
+    laptop_id: number;
+    recomendacion_id: number | null;
+    ram_gb: number;
+    almacenamiento_gb: number;
+    precio_total: string | number;
+    created_at: string;
+    laptop: Laptop;
+    items: { id: number; item: { id: number; nombre: string; precio_soles: string | number } | null }[];
+    user?: { id: number; name: string; email: string };
+}

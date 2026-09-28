@@ -4,11 +4,12 @@ import LaptopImage from '@/components/laptop-image';
 import { flujoStorage } from '@/lib/flujo-storage';
 import type { Accesorio, Catalogos, Kit, Tarjeta } from '@/types/flujo';
 import { Head, Link, router } from '@inertiajs/react';
-import { Check, Cpu, MonitorSmartphone } from 'lucide-react';
+import { AlertTriangle, Check, Cpu, MonitorSmartphone } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 const TIERS_RAM = [8, 16, 32, 64];
 const TIERS_ALMACENAMIENTO = [256, 512, 1024, 2048];
+// Deben coincidir con config/tienda.php: el servidor recalcula el total con esos valores al guardar.
 const SOLES_POR_GB_RAM = 12;
 const SOLES_POR_GB_ALMACENAMIENTO = 0.25;
 
@@ -20,6 +21,8 @@ export default function PersonalizarIndex() {
     const [kitId, setKitId] = useState<number | null>(null);
     const [accesorioIds, setAccesorioIds] = useState<number[]>([]);
     const [confirmado, setConfirmado] = useState(false);
+    const [guardando, setGuardando] = useState(false);
+    const [errorGuardar, setErrorGuardar] = useState<string | null>(null);
 
     useEffect(() => {
         const r = flujoStorage.leerSeleccionada();
@@ -66,6 +69,35 @@ export default function PersonalizarIndex() {
     const precioKit = kitSeleccionado ? Number(kitSeleccionado.precio_soles) : 0;
     const precioAccesorios = accesoriosSueltosSeleccionados.reduce((sum, a) => sum + Number(a.precio_soles), 0);
     const precioFinal = precioBase + deltaRam + deltaAlmacenamiento + precioKit + precioAccesorios;
+
+    // Antes "Confirmar" solo cambiaba el mensaje; ahora guarda la cotización y solo dice
+    // "guardada" si el servidor la guardó de verdad.
+    async function confirmar() {
+        if (!seleccionada || ram === null || almacenamiento === null) return;
+        setGuardando(true);
+        setErrorGuardar(null);
+        try {
+            const res = await fetch('/api/personalizaciones', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({
+                    laptop_id: seleccionada.laptop_id,
+                    // Desde el catálogo no hay recomendación: llega en 0.
+                    recomendacion_id: seleccionada.recomendacion_id || null,
+                    ram_gb: ram,
+                    almacenamiento_gb: almacenamiento,
+                    kit_id: kitId,
+                    accesorio_ids: accesorioIds,
+                }),
+            });
+            if (!res.ok) throw new Error();
+            setConfirmado(true);
+        } catch {
+            setErrorGuardar('No pudimos guardar tu cotización. Inténtalo de nuevo en un momento.');
+        } finally {
+            setGuardando(false);
+        }
+    }
 
     function toggleAccesorio(id: number) {
         setAccesorioIds((ids) => (ids.includes(id) ? ids.filter((i) => i !== id) : [...ids, id]));
@@ -213,32 +245,41 @@ export default function PersonalizarIndex() {
                                         <Check className="mt-0.5 h-4 w-4 shrink-0" />
 
                                         <div>
-                                            <p className="font-semibold">¡Configuración guardada!</p>
+                                            <p className="font-semibold">¡Cotización guardada!</p>
 
                                             <p className="mt-1 text-xs text-emerald-300/70">
-                                                Tu configuración está lista. Un asesor te contactará para ayudarte a cerrar la compra.
+                                                Un asesor te contactará a tu correo para ayudarte a cerrar la compra. Puedes verla en tu panel.
                                             </p>
                                         </div>
                                     </div>
 
                                     {/* Botón panel de usuario */}
                                     <Link
-                                        href="/dashboard"
+                                        href="/dashboard#cotizaciones"
                                         className="group flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm font-bold text-cyan-300 transition-all duration-200 hover:border-cyan-400 hover:bg-cyan-400 hover:text-[#07111f]"
                                     >
-                                        <span>Ir a mi panel</span>
+                                        <span>Ver mis cotizaciones</span>
 
                                         <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
                                     </Link>
                                 </div>
                             ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => setConfirmado(true)}
-                                    className="mt-5 w-full rounded-xl bg-cyan-400 py-3 text-sm font-bold text-[#07111f] transition hover:bg-cyan-300 hover:shadow-lg hover:shadow-cyan-400/20"
-                                >
-                                    Confirmar personalización
-                                </button>
+                                <>
+                                    {errorGuardar && (
+                                        <p className="mt-5 flex items-start gap-2 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-xs text-amber-200">
+                                            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                                            {errorGuardar}
+                                        </p>
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={confirmar}
+                                        disabled={guardando}
+                                        className="mt-5 w-full rounded-xl bg-cyan-400 py-3 text-sm font-bold text-[#07111f] transition hover:bg-cyan-300 hover:shadow-lg hover:shadow-cyan-400/20 disabled:opacity-60"
+                                    >
+                                        {guardando ? 'Guardando…' : 'Confirmar y pedir cotización'}
+                                    </button>
+                                </>
                             )}
                         </aside>
                     </div>

@@ -36,6 +36,7 @@ priorización. Actualízalo cuando cambie el alcance.
 | B6 | Personalización — kits y accesorios | S | Marco | ✅ |
 | B7 | Estados de carga / error / sin resultados | M | Marco | ✅ |
 | B8 | Responsive + revisión de usabilidad | S | Marco | ☐ |
+| B9 | Guardar la personalización como cotización (panel del cliente + pestaña Cotizaciones del admin para que el asesor contacte). Antes "Confirmar" solo cambiaba el mensaje y no guardaba nada. | M | Jack | ✅ |
 
 ## Épica 3 — Catálogo, datos y documentación (Módulo C) — *Bloques I, III, IV*
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\CarreraController;
 use App\Http\Controllers\Api\Admin\ClienteController;
 use App\Http\Controllers\Api\Admin\ContabilidadController;
+use App\Http\Controllers\Api\Admin\CotizacionController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\HardwareController;
 use App\Http\Controllers\Api\Admin\SoftwareController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\CatalogoController;
 use App\Http\Controllers\Api\ChatbotController;
 use App\Http\Controllers\Api\EleccionController;
 use App\Http\Controllers\Api\HistorialController;
+use App\Http\Controllers\Api\PersonalizacionController;
 use App\Http\Controllers\Api\RecomendacionController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,10 +28,15 @@ Route::post('/recomendaciones/{recomendacion}/eleccion', [EleccionController::cl
 
 Route::get('/mis-recomendaciones', [HistorialController::class, 'index'])->middleware('auth');
 
+// Cotizaciones: la personalización confirmada, que un asesor atiende para cerrar la compra.
+Route::get('/mis-cotizaciones', [PersonalizacionController::class, 'index'])->middleware('auth');
+Route::post('/personalizaciones', [PersonalizacionController::class, 'store'])->middleware('auth');
+
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/contabilidad', [ContabilidadController::class, 'index']);
     Route::get('/clientes', [ClienteController::class, 'index']);
+    Route::get('/cotizaciones', [CotizacionController::class, 'index']);
 
     Route::post('/hardware', [HardwareController::class, 'store']);
     Route::put('/hardware/{laptop}', [HardwareController::class, 'update']);
