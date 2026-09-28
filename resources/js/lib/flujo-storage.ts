@@ -1,4 +1,4 @@
-import type { Perfil, Tarjeta } from '@/types/flujo';
+import type { Configuracion, Perfil, Tarjeta } from '@/types/flujo';
 
 // Las pantallas del flujo son rutas Inertia independientes, así que usamos
 // sessionStorage para llevar el perfil, el resultado y la selección del
@@ -8,6 +8,7 @@ const KEY_PERFIL = 'ingetech:perfil';
 const KEY_TARJETAS = 'ingetech:tarjetas';
 const KEY_SELECCIONADA = 'ingetech:seleccionada';
 const KEY_COMPARAR = 'ingetech:comparar';
+const KEY_CONFIGURACION = 'ingetech:configuracion';
 
 function leer<T>(key: string): T | null {
     if (typeof window === 'undefined') return null;
@@ -36,6 +37,15 @@ export const flujoStorage = {
 
     leerComparar: () => leer<number[]>(KEY_COMPARAR) ?? [],
     guardarComparar: (ids: number[]) => escribir(KEY_COMPARAR, ids),
+
+    guardarConfiguracion: (c: Configuracion) => escribir(KEY_CONFIGURACION, c),
+    leerConfiguracion: () => leer<Configuracion>(KEY_CONFIGURACION),
+    // Tras comprar: que "atrás" no deje volver a pagar lo mismo por error.
+    limpiarCompra: () => {
+        if (typeof window === 'undefined') return;
+        window.sessionStorage.removeItem(KEY_CONFIGURACION);
+        window.sessionStorage.removeItem(KEY_SELECCIONADA);
+    },
 
     limpiar: () => {
         if (typeof window === 'undefined') return;

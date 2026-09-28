@@ -36,6 +36,7 @@ priorización. Actualízalo cuando cambie el alcance.
 | B6 | Personalización — kits y accesorios | S | Marco | ✅ |
 | B7 | Estados de carga / error / sin resultados | M | Marco | ✅ |
 | B8 | Responsive + revisión de usabilidad | S | Marco | ☐ |
+| B9 | Compra con o sin cuenta: personalizar → checkout (datos, envío, pago simulado) → confirmación con código; "Mis pedidos" en el panel del cliente y pestaña Pedidos en el admin para avanzar el estado del envío. | M | Jack | ✅ |
 
 ## Épica 3 — Catálogo, datos y documentación (Módulo C) — *Bloques I, III, IV*
 
@@ -74,4 +75,4 @@ historia puntual de aquí, se reasigna esa fila y se avisa en el grupo.
 - Cuentas de usuario finales / login público (el perfil es anónimo en el MVP).
 - App móvil nativa.
 - Modelo de ML avanzado (redes neuronales). Se empieza con scoring ponderado + similitud.
-- Pasarela de pago / compra real.
+- Pasarela de pago real. Hoy el pago es **simulado** (tarjetas de prueba, no cobra nada): el checkout ya guarda solo marca y últimos 4 dígitos, así que conectar una pasarela real (ej. Culqi, Niubiz) sería reemplazar la validación del navegador por el token de la pasarela.

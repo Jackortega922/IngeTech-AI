@@ -4,7 +4,7 @@ import { flujoStorage } from '@/lib/flujo-storage';
 import { type BreadcrumbItem } from '@/types';
 import type { Catalogos, Laptop } from '@/types/flujo';
 import { Head, Link, router } from '@inertiajs/react';
-import { BatteryFull, Cpu, HardDrive, MonitorSmartphone, Scale, Wrench } from 'lucide-react';
+import { BatteryFull, Cpu, HardDrive, MonitorSmartphone, Scale, ShoppingCart } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Catálogo de hardware', href: '/hardware' }];
@@ -127,7 +127,7 @@ export default function HardwareIndex() {
                                         onClick={() => personalizar(h)}
                                         className="border-input hover:bg-muted mt-3 flex items-center justify-center gap-2 rounded-lg border py-2 text-sm font-semibold transition"
                                     >
-                                        <Wrench className="h-3.5 w-3.5" /> Personalizar
+                                        <ShoppingCart className="h-3.5 w-3.5" /> Comprar
                                     </button>
                                 </div>
                             </div>

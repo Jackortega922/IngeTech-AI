@@ -4,11 +4,12 @@ import LaptopImage from '@/components/laptop-image';
 import { flujoStorage } from '@/lib/flujo-storage';
 import type { Accesorio, Catalogos, Kit, Tarjeta } from '@/types/flujo';
 import { Head, Link, router } from '@inertiajs/react';
-import { Check, Cpu, MonitorSmartphone } from 'lucide-react';
+import { Cpu, MonitorSmartphone, ShoppingCart } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 const TIERS_RAM = [8, 16, 32, 64];
 const TIERS_ALMACENAMIENTO = [256, 512, 1024, 2048];
+// Deben coincidir con config/tienda.php: el servidor recalcula el total con esos valores al guardar.
 const SOLES_POR_GB_RAM = 12;
 const SOLES_POR_GB_ALMACENAMIENTO = 0.25;
 
@@ -19,12 +20,11 @@ export default function PersonalizarIndex() {
     const [almacenamiento, setAlmacenamiento] = useState<number | null>(null);
     const [kitId, setKitId] = useState<number | null>(null);
     const [accesorioIds, setAccesorioIds] = useState<number[]>([]);
-    const [confirmado, setConfirmado] = useState(false);
 
     useEffect(() => {
         const r = flujoStorage.leerSeleccionada();
         if (!r || !r.laptop) {
-            router.visit('/resultado');
+            router.visit('/#productos');
             return;
         }
         setSeleccionada(r);
@@ -67,6 +67,26 @@ export default function PersonalizarIndex() {
     const precioAccesorios = accesoriosSueltosSeleccionados.reduce((sum, a) => sum + Number(a.precio_soles), 0);
     const precioFinal = precioBase + deltaRam + deltaAlmacenamiento + precioKit + precioAccesorios;
 
+    // Viene de la IA si tiene recomendación; si no, se entró directo desde la tienda.
+    const flujo = seleccionada.recomendacion_id ? 'ia' : 'tienda';
+
+    // La configuración viaja al checkout; el pedido (y el precio que vale) lo registra el
+    // servidor al pagar.
+    function continuarCompra() {
+        if (!seleccionada || ram === null || almacenamiento === null) return;
+        flujoStorage.guardarConfiguracion({
+            laptop_id: seleccionada.laptop_id,
+            // Desde el catálogo no hay recomendación: llega en 0.
+            recomendacion_id: seleccionada.recomendacion_id || null,
+            ram_gb: ram,
+            almacenamiento_gb: almacenamiento,
+            kit_id: kitId,
+            accesorio_ids: accesorioIds,
+            precio_estimado: precioFinal,
+        });
+        router.visit('/checkout');
+    }
+
     function toggleAccesorio(id: number) {
         setAccesorioIds((ids) => (ids.includes(id) ? ids.filter((i) => i !== id) : [...ids, id]));
     }
@@ -75,7 +95,7 @@ export default function PersonalizarIndex() {
         <>
             <Head title={`Personalizar ${laptop.modelo} — IngeTech AI`} />
             <div className="min-h-screen bg-[#07111f] text-white">
-                <FlowHeader pasoActual={3} />
+                <FlowHeader pasoActual={3} flujo={flujo} />
 
                 <main className="mx-auto max-w-5xl px-6 py-14 lg:px-10">
                     <div className="flex items-center gap-4">
@@ -206,45 +226,22 @@ export default function PersonalizarIndex() {
                                 <span className="font-mono text-2xl font-bold text-cyan-400">S/ {precioFinal.toLocaleString('es-PE')}</span>
                             </div>
 
-                            {confirmado ? (
-                                <div className="mt-5 space-y-3">
-                                    {/* Confirmación */}
-                                    <div className="flex items-start gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-300">
-                                        <Check className="mt-0.5 h-4 w-4 shrink-0" />
-
-                                        <div>
-                                            <p className="font-semibold">¡Configuración guardada!</p>
-
-                                            <p className="mt-1 text-xs text-emerald-300/70">
-                                                Tu configuración está lista. Un asesor te contactará para ayudarte a cerrar la compra.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Botón panel de usuario */}
-                                    <Link
-                                        href="/dashboard"
-                                        className="group flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm font-bold text-cyan-300 transition-all duration-200 hover:border-cyan-400 hover:bg-cyan-400 hover:text-[#07111f]"
-                                    >
-                                        <span>Ir a mi panel</span>
-
-                                        <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-                                    </Link>
-                                </div>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => setConfirmado(true)}
-                                    className="mt-5 w-full rounded-xl bg-cyan-400 py-3 text-sm font-bold text-[#07111f] transition hover:bg-cyan-300 hover:shadow-lg hover:shadow-cyan-400/20"
-                                >
-                                    Confirmar personalización
-                                </button>
-                            )}
+                            <button
+                                type="button"
+                                onClick={continuarCompra}
+                                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-400 py-3 text-sm font-bold text-[#07111f] transition hover:bg-cyan-300 hover:shadow-lg hover:shadow-cyan-400/20"
+                            >
+                                <ShoppingCart className="h-4 w-4" /> Continuar con la compra
+                            </button>
+                            <p className="mt-3 text-center text-xs text-slate-500">Envío gratis a todo el Perú · No necesitas cuenta</p>
                         </aside>
                     </div>
 
-                    <Link href="/resultado" className="mt-10 inline-block text-sm text-slate-400 underline decoration-white/20 hover:text-white">
-                        ← Elegir otra laptop
+                    <Link
+                        href={flujo === 'ia' ? '/resultado' : '/#productos'}
+                        className="mt-10 inline-block text-sm text-slate-400 underline decoration-white/20 hover:text-white"
+                    >
+                        ← {flujo === 'ia' ? 'Volver a mi recomendación' : 'Seguir viendo laptops'}
                     </Link>
                 </main>
                 <ChatWidget />

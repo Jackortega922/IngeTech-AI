@@ -176,3 +176,45 @@ export interface HistorialItem {
         laptop: Laptop;
     }[];
 }
+
+// Lo que se eligió en /personalizar y viaja al checkout. El precio aquí es solo para mostrar:
+// el servidor lo recalcula al registrar el pedido.
+export interface Configuracion {
+    laptop_id: number;
+    recomendacion_id: number | null;
+    ram_gb: number;
+    almacenamiento_gb: number;
+    kit_id: number | null;
+    accesorio_ids: number[];
+    precio_estimado: number;
+}
+
+export type EstadoPedido = 'pagado' | 'preparando' | 'enviado' | 'entregado' | 'cancelado';
+
+export interface Pedido {
+    id: number;
+    codigo: string;
+    user_id: number | null;
+    nombre: string;
+    email: string;
+    telefono: string;
+    departamento: string;
+    ciudad: string;
+    direccion: string;
+    referencia: string | null;
+    metodo_pago: string;
+    tarjeta_marca: string | null;
+    tarjeta_ultimos4: string | null;
+    subtotal: string | number;
+    costo_envio: string | number;
+    total: string | number;
+    estado: EstadoPedido;
+    created_at: string;
+    personalizacion: {
+        ram_gb: number;
+        almacenamiento_gb: number;
+        recomendacion_id: number | null;
+        laptop: Laptop;
+        items: { id: number; item: { id: number; nombre: string; precio_soles: string | number } | null }[];
+    };
+}

@@ -14,6 +14,8 @@ class Personalizacion extends Model
     protected $table = 'personalizaciones';
 
     protected $fillable = [
+        'user_id',
+        'laptop_id',
         'recomendacion_id',
         'ram_gb',
         'almacenamiento_gb',
@@ -25,6 +27,16 @@ class Personalizacion extends Model
         return [
             'precio_total' => 'decimal:2',
         ];
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function laptop(): BelongsTo
+    {
+        return $this->belongsTo(Laptop::class);
     }
 
     public function recomendacion(): BelongsTo
