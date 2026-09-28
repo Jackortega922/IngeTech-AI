@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Tienda\PedidoConfirmacionController;
 use App\Models\Laptop;
+use App\Models\Pedido;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -21,6 +23,14 @@ Route::get('comparador', fn () => Inertia::render('sistemas/comparador/index'))-
 Route::get('preguntas', fn () => Inertia::render('sistemas/preguntas/index'))->name('preguntas');
 Route::get('derecho', fn () => Inertia::render('derecho/index'))->name('derecho');
 
+// Compra: se puede comprar sin cuenta (personalizar, pagar y ver la confirmación). La cuenta
+// solo hace falta para la recomendación con IA y para ver el historial de pedidos.
+Route::get('personalizar', fn () => Inertia::render('sistemas/personalizar/index'))->name('personalizar');
+Route::get('checkout', fn () => Inertia::render('sistemas/checkout/index', [
+    'departamentos' => Pedido::DEPARTAMENTOS,
+]))->name('checkout');
+Route::get('pedido/{codigo}', PedidoConfirmacionController::class)->name('pedido');
+
 Route::middleware(['auth'])->group(function () {
     // Los administradores no tienen un "dashboard de cliente": van directo
     // a su panel, para que nunca vean el flujo de recomendación por error.
@@ -34,7 +44,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('perfil', fn () => Inertia::render('sistemas/perfil/index'))->name('perfil');
     Route::get('resultado', fn () => Inertia::render('sistemas/resultado/index'))->name('resultado');
-    Route::get('personalizar', fn () => Inertia::render('sistemas/personalizar/index'))->name('personalizar');
 
     Route::get('historial', fn () => Inertia::render('sistemas/historial/index'))->name('historial');
 

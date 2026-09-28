@@ -6,7 +6,7 @@ import { flujoStorage } from '@/lib/flujo-storage';
 import { type SharedData } from '@/types';
 import type { Laptop } from '@/types/flujo';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ArrowRight, BookOpen, Briefcase, Check, Cpu, Gamepad2, HardDrive, Scale, Search, Sparkles, Truck, User, Wrench } from 'lucide-react';
+import { ArrowRight, BookOpen, Briefcase, Check, Cpu, Gamepad2, HardDrive, Scale, Search, ShoppingCart, Sparkles, Truck, User } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 // Categorías por uso, derivadas de las specs (no hay columna "categoría" en la BD): así cada
@@ -80,7 +80,7 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
         });
     }
 
-    // Personalizar pide cuenta: si no hay sesión, /personalizar manda al login y vuelve solo.
+    // Comprar no pide cuenta: se elige la configuración en /personalizar y se paga en /checkout.
     function personalizar(l: Laptop) {
         flujoStorage.guardarSeleccionada({ laptop_id: l.id, laptop: l, badges: [], compatibilidad_pct: 0, recomendacion_id: 0 });
         router.visit('/personalizar');
@@ -418,7 +418,7 @@ function TarjetaProducto({
                         onClick={onPersonalizar}
                         className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-white py-2.5 text-sm font-bold text-[#07111f] hover:bg-cyan-300"
                     >
-                        <Wrench className="h-4 w-4" /> Personalizar
+                        <ShoppingCart className="h-4 w-4" /> Comprar
                     </button>
                     <button
                         onClick={onComparar}

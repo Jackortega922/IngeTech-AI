@@ -24,9 +24,13 @@ class FlujoPaginasTest extends TestCase
         }
     }
 
-    public function test_invitados_son_redirigidos_al_login_desde_personalizar()
+    // Se puede comprar sin cuenta: personalizar y pagar son públicos. La recomendación con IA
+    // sí sigue pidiendo sesión.
+    public function test_invitados_pueden_personalizar_y_pagar_pero_no_usar_la_ia()
     {
-        $this->get('/personalizar')->assertRedirect('/login');
+        $this->get('/personalizar')->assertOk();
+        $this->get('/checkout')->assertOk();
+        $this->get('/perfil')->assertRedirect('/login');
     }
 
     public function test_usuario_autenticado_puede_ver_las_paginas_del_flujo()
