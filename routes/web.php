@@ -3,6 +3,7 @@
 use App\Http\Controllers\Tienda\PedidoConfirmacionController;
 use App\Models\Laptop;
 use App\Models\Pedido;
+use App\Support\UbigeoHuanuco;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -28,6 +29,7 @@ Route::get('derecho', fn () => Inertia::render('derecho/index'))->name('derecho'
 Route::get('personalizar', fn () => Inertia::render('sistemas/personalizar/index'))->name('personalizar');
 Route::get('checkout', fn () => Inertia::render('sistemas/checkout/index', [
     'departamentos' => Pedido::DEPARTAMENTOS,
+    'provinciasHuanuco' => UbigeoHuanuco::provincias(),
 ]))->name('checkout');
 Route::get('pedido/{codigo}', PedidoConfirmacionController::class)->name('pedido');
 

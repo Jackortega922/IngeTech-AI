@@ -199,7 +199,11 @@ export interface Pedido {
     email: string;
     telefono: string;
     departamento: string;
-    ciudad: string;
+    // Huánuco: provincia, distrito y UBIGEO de la lista oficial. Otros departamentos: ciudad.
+    provincia: string | null;
+    distrito: string | null;
+    ubigeo: string | null;
+    ciudad: string | null;
     direccion: string;
     referencia: string | null;
     metodo_pago: string;

@@ -1,5 +1,5 @@
 import LaptopImage from '@/components/laptop-image';
-import { ESTADOS_PEDIDO, estadoPedido, soles } from '@/lib/pedidos';
+import { ESTADOS_PEDIDO, estadoPedido, lugarDeEnvio, soles } from '@/lib/pedidos';
 import type { EstadoPedido, Pedido } from '@/types/flujo';
 import { Mail, Package, Phone } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -123,9 +123,7 @@ export function PanelPedidos({ pedidos: iniciales, avisar }: { pedidos: Pedido[]
                                             </td>
                                             <td className="text-muted-foreground px-5 py-4 text-xs">
                                                 <p>{p.direccion}</p>
-                                                <p>
-                                                    {p.ciudad}, {p.departamento}
-                                                </p>
+                                                <p>{lugarDeEnvio(p)}</p>
                                             </td>
                                             <td className="px-5 py-4 text-right font-mono font-bold">{soles(p.total)}</td>
                                             <td className="px-5 py-4">

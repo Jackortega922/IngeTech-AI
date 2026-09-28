@@ -9,6 +9,7 @@ use App\Models\Pedido;
 use App\Models\PerfilUsuario;
 use App\Models\Recomendacion;
 use App\Models\User;
+use App\Support\UbigeoHuanuco;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -34,7 +35,7 @@ class PedidoTest extends TestCase
         return array_replace_recursive([
             'laptop_id' => $this->laptop->id, 'ram_gb' => 16, 'almacenamiento_gb' => 512, 'accesorio_ids' => [],
             'nombre' => 'Rosa Quispe', 'email' => 'rosa@correo.test', 'telefono' => '987654321',
-            'departamento' => 'Huánuco', 'ciudad' => 'Huánuco', 'direccion' => 'Jr. Dos de Mayo 123',
+            'departamento' => 'Huánuco', 'provincia' => 'Huánuco', 'distrito' => 'Amarilis', 'direccion' => 'Jr. Dos de Mayo 123',
             'pago' => ['marca' => 'visa', 'ultimos4' => '4242'],
             'acepta_terminos' => true,
         ], $cambios);
@@ -88,6 +89,50 @@ class PedidoTest extends TestCase
         ]))
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['telefono', 'departamento', 'acepta_terminos']);
+    }
+
+    public function test_en_huanuco_guarda_provincia_distrito_y_su_ubigeo_oficial()
+    {
+        $codigo = $this->postJson('/api/pedidos', $this->compra(['provincia' => 'Leoncio Prado', 'distrito' => 'Rupa-Rupa']))
+            ->assertCreated()
+            ->json('codigo');
+
+        $this->assertDatabaseHas('pedidos', [
+            'codigo' => $codigo, 'provincia' => 'Leoncio Prado', 'distrito' => 'Rupa-Rupa', 'ubigeo' => '100601', 'ciudad' => null,
+        ]);
+    }
+
+    public function test_en_huanuco_el_distrito_debe_ser_de_esa_provincia()
+    {
+        // Amarilis es de la provincia de Huánuco, no de Ambo.
+        $this->postJson('/api/pedidos', $this->compra(['provincia' => 'Ambo', 'distrito' => 'Amarilis']))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('distrito');
+
+        $this->postJson('/api/pedidos', $this->compra(['provincia' => null, 'distrito' => null]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['provincia', 'distrito']);
+    }
+
+    public function test_otros_departamentos_escriben_la_ciudad_a_mano()
+    {
+        $this->postJson('/api/pedidos', $this->compra(['departamento' => 'Lima', 'provincia' => null, 'distrito' => null]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('ciudad');
+
+        $codigo = $this->postJson('/api/pedidos', $this->compra([
+            'departamento' => 'Lima', 'provincia' => null, 'distrito' => null, 'ciudad' => 'Miraflores',
+        ]))->assertCreated()->json('codigo');
+
+        $this->assertDatabaseHas('pedidos', ['codigo' => $codigo, 'ciudad' => 'Miraflores', 'ubigeo' => null, 'distrito' => null]);
+    }
+
+    public function test_el_archivo_de_ubigeo_tiene_las_11_provincias_y_84_distritos_de_huanuco()
+    {
+        $provincias = UbigeoHuanuco::provincias();
+
+        $this->assertCount(11, $provincias);
+        $this->assertSame(84, array_sum(array_map(fn ($p) => count($p['distritos']), $provincias)));
     }
 
     public function test_rechaza_ram_fuera_de_lo_que_admite_la_laptop()

@@ -26,7 +26,12 @@ return new class extends Migration
             $table->string('email', 150);
             $table->string('telefono', 20);
             $table->string('departamento', 40);
-            $table->string('ciudad', 80);
+            // Huánuco tiene provincia y distrito de una lista oficial, con su UBIGEO (INEI). Los
+            // demás departamentos, por ahora, escriben la ciudad a mano en `ciudad`.
+            $table->string('provincia', 60)->nullable();
+            $table->string('distrito', 60)->nullable();
+            $table->char('ubigeo', 6)->nullable();
+            $table->string('ciudad', 80)->nullable();
             $table->string('direccion', 200);
             $table->string('referencia', 200)->nullable();
 

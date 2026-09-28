@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
 use App\Services\Tienda\ArmadoLaptop;
+use App\Support\UbigeoHuanuco;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Compra de una laptop, con o sin cuenta. El pago es simulado: el navegador valida la tarjeta
@@ -37,7 +39,10 @@ class PedidoController extends Controller
             // Celular peruano: 9 dígitos que empiezan en 9.
             'telefono' => ['required', 'regex:/^9\d{8}$/'],
             'departamento' => ['required', Rule::in(Pedido::DEPARTAMENTOS)],
-            'ciudad' => ['required', 'string', 'max:80'],
+            // Huánuco: provincia y distrito de la lista oficial. Resto: ciudad en texto libre.
+            'provincia' => ['required_if:departamento,'.UbigeoHuanuco::DEPARTAMENTO, 'nullable', 'string', 'max:60'],
+            'distrito' => ['required_if:departamento,'.UbigeoHuanuco::DEPARTAMENTO, 'nullable', 'string', 'max:60'],
+            'ciudad' => ['exclude_if:departamento,'.UbigeoHuanuco::DEPARTAMENTO, 'required', 'string', 'max:80'],
             'direccion' => ['required', 'string', 'max:200'],
             'referencia' => ['nullable', 'string', 'max:200'],
             'pago.marca' => ['required', Rule::in(['visa', 'mastercard', 'amex'])],
@@ -52,9 +57,17 @@ class PedidoController extends Controller
             return response()->json(['message' => 'Tu banco rechazó el pago (simulación). Prueba con otra tarjeta.'], 402);
         }
 
+        $ubigeo = null;
+        if ($datos['departamento'] === UbigeoHuanuco::DEPARTAMENTO) {
+            $ubigeo = UbigeoHuanuco::ubigeo($datos['provincia'], $datos['distrito']);
+            if ($ubigeo === null) {
+                throw ValidationException::withMessages(['distrito' => 'Ese distrito no pertenece a la provincia elegida.']);
+            }
+        }
+
         $user = $request->user();
 
-        $pedido = DB::transaction(function () use ($datos, $user, $armado) {
+        $pedido = DB::transaction(function () use ($datos, $user, $armado, $ubigeo) {
             $personalizacion = $armado->guardar($datos, $user);
             $envio = (float) config('tienda.costo_envio');
 
@@ -66,7 +79,10 @@ class PedidoController extends Controller
                 'email' => $datos['email'],
                 'telefono' => $datos['telefono'],
                 'departamento' => $datos['departamento'],
-                'ciudad' => $datos['ciudad'],
+                'provincia' => $ubigeo ? $datos['provincia'] : null,
+                'distrito' => $ubigeo ? $datos['distrito'] : null,
+                'ubigeo' => $ubigeo,
+                'ciudad' => $ubigeo ? null : $datos['ciudad'],
                 'direccion' => $datos['direccion'],
                 'referencia' => $datos['referencia'] ?? null,
                 'metodo_pago' => 'tarjeta_simulada',

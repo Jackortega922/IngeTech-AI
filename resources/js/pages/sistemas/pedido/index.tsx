@@ -1,6 +1,6 @@
 import ChatWidget from '@/components/chat-widget';
 import LaptopImage from '@/components/laptop-image';
-import { ESTADOS_PEDIDO, estadoPedido, soles } from '@/lib/pedidos';
+import { ESTADOS_PEDIDO, estadoPedido, lugarDeEnvio, soles } from '@/lib/pedidos';
 import { type SharedData } from '@/types';
 import type { Pedido } from '@/types/flujo';
 import { Head, Link, usePage } from '@inertiajs/react';
@@ -101,7 +101,7 @@ export default function PedidoIndex({ pedido }: { pedido: Pedido }) {
                                     <MapPin className="h-4 w-4 text-cyan-400" /> Envío a
                                 </p>
                                 <p className="mt-1 text-slate-300">
-                                    {pedido.direccion}, {pedido.ciudad}, {pedido.departamento}
+                                    {pedido.direccion}, {lugarDeEnvio(pedido)}
                                 </p>
                                 {pedido.referencia && <p className="text-xs text-slate-500">Ref.: {pedido.referencia}</p>}
                                 <p className="mt-1 text-xs text-slate-500">

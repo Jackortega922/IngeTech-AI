@@ -14,7 +14,15 @@ const COSTO_ENVIO = 0;
 
 type Errores = Record<string, string>;
 
-export default function CheckoutIndex({ departamentos }: { departamentos: string[] }) {
+// Viene de resources/data/ubigeo-huanuco.json (UBIGEO del INEI), el mismo archivo con el que
+// el servidor valida la combinación provincia/distrito.
+interface ProvinciaUbigeo {
+    ubigeo: string;
+    nombre: string;
+    distritos: { ubigeo: string; nombre: string }[];
+}
+
+export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { departamentos: string[]; provinciasHuanuco: ProvinciaUbigeo[] }) {
     const { auth } = usePage<SharedData>().props;
     const [config, setConfig] = useState<Configuracion | null>(null);
     const [seleccionada, setSeleccionada] = useState<Tarjeta | null>(null);
@@ -25,6 +33,8 @@ export default function CheckoutIndex({ departamentos }: { departamentos: string
         email: auth.user?.email ?? '',
         telefono: '',
         departamento: 'Huánuco',
+        provincia: '',
+        distrito: '',
         ciudad: '',
         direccion: '',
         referencia: '',
@@ -57,13 +67,20 @@ export default function CheckoutIndex({ departamentos }: { departamentos: string
     const accesorios = catalogos?.accesorios.filter((a) => config.accesorio_ids.includes(a.id)) ?? [];
     const numero = tarjeta.numero.replace(/\D/g, '');
     const marca = marcaDe(numero);
+    const esHuanuco = datos.departamento === 'Huánuco';
+    const provinciaElegida = provinciasHuanuco.find((p) => p.nombre === datos.provincia);
 
     function validarLocal(): Errores {
         const e: Errores = {};
         if (datos.nombre.trim().length < 3) e.nombre = 'Escribe tu nombre completo.';
         if (!/^\S+@\S+\.\S+$/.test(datos.email)) e.email = 'Correo no válido.';
         if (!/^9\d{8}$/.test(datos.telefono)) e.telefono = 'Celular de 9 dígitos que empiece en 9.';
-        if (!datos.ciudad.trim()) e.ciudad = 'Indica tu ciudad o distrito.';
+        if (esHuanuco) {
+            if (!datos.provincia) e.provincia = 'Elige tu provincia.';
+            if (!datos.distrito) e.distrito = 'Elige tu distrito.';
+        } else if (!datos.ciudad.trim()) {
+            e.ciudad = 'Indica tu ciudad o distrito.';
+        }
         if (datos.direccion.trim().length < 5) e.direccion = 'Indica la dirección de entrega.';
         if (!marca || !luhnValido(numero)) e.numero = 'Número de tarjeta no válido.';
         if (tarjeta.titular.trim().length < 3) e.titular = 'Nombre como figura en la tarjeta.';
@@ -93,6 +110,10 @@ export default function CheckoutIndex({ departamentos }: { departamentos: string
                     kit_id: config.kit_id,
                     accesorio_ids: config.accesorio_ids,
                     ...datos,
+                    // Huánuco manda provincia y distrito; el resto, la ciudad escrita a mano.
+                    provincia: esHuanuco ? datos.provincia : null,
+                    distrito: esHuanuco ? datos.distrito : null,
+                    ciudad: esHuanuco ? null : datos.ciudad,
                     referencia: datos.referencia || null,
                     // Solo marca y últimos 4: el número completo no sale del navegador.
                     pago: { marca, ultimos4: numero.slice(-4) },
@@ -165,8 +186,14 @@ export default function CheckoutIndex({ departamentos }: { departamentos: string
 
                             <Seccion titulo="2. Envío" icono={<Truck className="h-4 w-4" />}>
                                 <div className="grid gap-4 sm:grid-cols-2">
-                                    <Campo label="Departamento" error={errores.departamento}>
-                                        <select value={datos.departamento} onChange={setD('departamento')} className={input}>
+                                    <Campo label="Departamento" error={errores.departamento} className={esHuanuco ? 'sm:col-span-2' : ''}>
+                                        <select
+                                            value={datos.departamento}
+                                            onChange={(e) =>
+                                                setDatos({ ...datos, departamento: e.target.value, provincia: '', distrito: '', ciudad: '' })
+                                            }
+                                            className={input}
+                                        >
                                             {departamentos.map((d) => (
                                                 <option key={d} value={d}>
                                                     {d}
@@ -174,9 +201,44 @@ export default function CheckoutIndex({ departamentos }: { departamentos: string
                                             ))}
                                         </select>
                                     </Campo>
-                                    <Campo label="Ciudad / distrito" error={errores.ciudad}>
-                                        <input value={datos.ciudad} onChange={setD('ciudad')} autoComplete="address-level2" className={input} />
-                                    </Campo>
+                                    {esHuanuco ? (
+                                        <>
+                                            <Campo label="Provincia" error={errores.provincia}>
+                                                <select
+                                                    value={datos.provincia}
+                                                    onChange={(e) => setDatos({ ...datos, provincia: e.target.value, distrito: '' })}
+                                                    className={input}
+                                                >
+                                                    <option value="">Elige tu provincia</option>
+                                                    {provinciasHuanuco.map((p) => (
+                                                        <option key={p.ubigeo} value={p.nombre}>
+                                                            {p.nombre}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </Campo>
+                                            <Campo label="Distrito" error={errores.distrito}>
+                                                <select
+                                                    value={datos.distrito}
+                                                    onChange={setD('distrito')}
+                                                    disabled={!provinciaElegida}
+                                                    className={`${input} disabled:opacity-50`}
+                                                >
+                                                    <option value="">{provinciaElegida ? 'Elige tu distrito' : 'Primero elige la provincia'}</option>
+                                                    {provinciaElegida?.distritos.map((d) => (
+                                                        <option key={d.ubigeo} value={d.nombre}>
+                                                            {d.nombre}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </Campo>
+                                        </>
+                                    ) : (
+                                        // Por ahora solo Huánuco tiene la lista oficial de provincias y distritos.
+                                        <Campo label="Ciudad / distrito" error={errores.ciudad}>
+                                            <input value={datos.ciudad} onChange={setD('ciudad')} autoComplete="address-level2" className={input} />
+                                        </Campo>
+                                    )}
                                     <Campo label="Dirección" error={errores.direccion} className="sm:col-span-2">
                                         <input
                                             value={datos.direccion}
