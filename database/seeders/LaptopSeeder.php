@@ -11,8 +11,10 @@ use Illuminate\Database\Seeder;
  * verificados antes de producción (tarea C2).
  *
  * Catálogo estructurado por marca: Lenovo, HP, Apple, Asus y Acer, con al
- * menos 3 laptops cada una (entrada, intermedia y alta gama/gaming), más
- * las PCs de escritorio para quien elige portabilidad "escritorio".
+ * menos 3 laptops cada una (entrada, intermedia y alta gama/gaming). Por
+ * ahora el alcance es solo laptops — sin PCs de escritorio — así que el
+ * catálogo no tiene ningún equipo con tipo "escritorio" (esa opción se
+ * ocultó también del formulario de Perfil).
  *
  * imagen_url queda sin definir a propósito: no hay enlaces a fotos reales
  * verificadas todavía (misma tarea C2) — el catálogo cae al ícono
@@ -23,13 +25,14 @@ class LaptopSeeder extends Seeder
 {
     public function run(): void
     {
-        // Dell salió de la reestructuración (el catálogo ahora se organiza por las 5 marcas
-        // pedidas), y el Air de Apple se renombró para distinguirlo del de 15". Se borran
-        // explícitamente porque updateOrCreate no elimina ni renombra filas — hace match por
-        // marca+modelo, así que un modelo distinto simplemente crea una fila nueva y deja la
-        // vieja huérfana (pasó en este mismo cambio con el MacBook Air).
+        // Se borran explícitamente en vez de solo quitarlas del arreglo de abajo:
+        // updateOrCreate no elimina ni renombra filas, solo hace match por marca+modelo — así
+        // que una fila que ya no está en la lista se queda huérfana en cualquier base que la
+        // tuviera (pasó en el cambio anterior con el MacBook Air al renombrarlo).
         Laptop::where('marca', 'Dell')->where('modelo', 'Inspiron 15 3520')->delete();
         Laptop::where('marca', 'Apple')->where('modelo', 'MacBook Air M2')->delete();
+        // Por ahora el catálogo es solo laptops — se quitan las PCs de escritorio.
+        Laptop::where('tipo', 'escritorio')->delete();
 
         $equipos = [
             // ── Lenovo ──
@@ -56,12 +59,6 @@ class LaptopSeeder extends Seeder
             ['marca' => 'Acer', 'modelo' => 'Aspire 3', 'descripcion' => 'La opción más accesible de Acer: cubre lo básico de estudio y oficina sin gastar de más.', 'tipo' => 'laptop', 'cpu' => 'Intel Core i3-1215U', 'ram_gb' => 8, 'ram_ampliable_gb' => 16, 'almacenamiento_gb' => 256, 'almacenamiento_tipo' => 'SSD', 'gpu' => 'Intel UHD integrada', 'gpu_dedicada' => false, 'bateria_horas' => 7, 'precio_soles' => 1799, 'tienda' => 'PC Factory Huánuco', 'rendimiento_score' => 36],
             ['marca' => 'Acer', 'modelo' => 'Aspire 5', 'descripcion' => 'Un salto de rendimiento sobre las de entrada, con 16 GB de RAM para manejar varias apps a la vez.', 'tipo' => 'laptop', 'cpu' => 'AMD Ryzen 5 7535U', 'ram_gb' => 16, 'ram_ampliable_gb' => 24, 'almacenamiento_gb' => 512, 'almacenamiento_tipo' => 'SSD', 'gpu' => 'AMD Radeon integrada', 'gpu_dedicada' => false, 'bateria_horas' => 8, 'precio_soles' => 2399, 'tienda' => 'Plaza Vea Huánuco', 'rendimiento_score' => 55],
             ['marca' => 'Acer', 'modelo' => 'Nitro V15', 'descripcion' => 'Gaming de entrada con GPU dedicada: suficiente para diseño, edición y videojuegos actuales en calidad media-alta.', 'tipo' => 'laptop', 'cpu' => 'Intel Core i5-13420H', 'ram_gb' => 16, 'ram_ampliable_gb' => 32, 'almacenamiento_gb' => 512, 'almacenamiento_tipo' => 'SSD', 'gpu' => 'NVIDIA RTX 4050', 'gpu_dedicada' => true, 'bateria_horas' => 6, 'precio_soles' => 4799, 'tienda' => 'Compumundo Huánuco', 'rendimiento_score' => 76],
-
-            // ── PCs de escritorio (sin batería) ──
-            ['marca' => 'Ensamblado', 'modelo' => 'Oficina Plus', 'descripcion' => 'PC de escritorio económica para trabajo administrativo y ofimática, con buena relación precio-uso.', 'tipo' => 'escritorio', 'cpu' => 'Intel Core i3-12100', 'ram_gb' => 8, 'ram_ampliable_gb' => 16, 'almacenamiento_gb' => 480, 'almacenamiento_tipo' => 'SSD', 'gpu' => 'Intel UHD 730', 'gpu_dedicada' => false, 'bateria_horas' => null, 'precio_soles' => 1799, 'tienda' => 'PC Factory Huánuco', 'rendimiento_score' => 42],
-            ['marca' => 'Ensamblado', 'modelo' => 'Diseño CAD', 'descripcion' => 'Con GPU dedicada de entrada: pensada para AutoCAD, Revit y software de diseño en 2D/3D básico.', 'tipo' => 'escritorio', 'cpu' => 'Intel Core i5-12400', 'ram_gb' => 16, 'ram_ampliable_gb' => 32, 'almacenamiento_gb' => 512, 'almacenamiento_tipo' => 'SSD', 'gpu' => 'NVIDIA RTX 3050', 'gpu_dedicada' => true, 'bateria_horas' => null, 'precio_soles' => 3299, 'tienda' => 'PC Factory Huánuco', 'rendimiento_score' => 58],
-            ['marca' => 'Ensamblado', 'modelo' => 'Estación Ingeniería', 'descripcion' => 'Estación de trabajo con 32 GB de RAM y GPU dedicada: soporta simulaciones y modelado más exigente.', 'tipo' => 'escritorio', 'cpu' => 'AMD Ryzen 7 5700X', 'ram_gb' => 32, 'ram_ampliable_gb' => 64, 'almacenamiento_gb' => 1024, 'almacenamiento_tipo' => 'SSD', 'gpu' => 'NVIDIA RTX 3060', 'gpu_dedicada' => true, 'bateria_horas' => null, 'precio_soles' => 4499, 'tienda' => 'Compumundo Huánuco', 'rendimiento_score' => 72],
-            ['marca' => 'Ensamblado', 'modelo' => 'Workstation Pro', 'descripcion' => 'El equipo más potente del catálogo para escritorio: pensado para IA, renders y cargas de trabajo intensas.', 'tipo' => 'escritorio', 'cpu' => 'AMD Ryzen 9 7900X', 'ram_gb' => 32, 'ram_ampliable_gb' => 64, 'almacenamiento_gb' => 2048, 'almacenamiento_tipo' => 'SSD', 'gpu' => 'NVIDIA RTX 4070 Ti', 'gpu_dedicada' => true, 'bateria_horas' => null, 'precio_soles' => 7999, 'tienda' => 'Compumundo Huánuco', 'rendimiento_score' => 95],
         ];
 
         foreach ($equipos as $equipo) {
