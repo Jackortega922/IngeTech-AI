@@ -13,7 +13,7 @@ Route::get('hardware', fn () => Inertia::render('sistemas/hardware/index'))->nam
 Route::get('comparador', fn () => Inertia::render('sistemas/comparador/index'))->name('comparador');
 
 Route::middleware(['auth'])->group(function () {
-    // Los administradores no tienen un "dashboard de estudiante": van directo
+    // Los administradores no tienen un "dashboard de cliente": van directo
     // a su panel, para que nunca vean el flujo de recomendación por error.
     Route::get('dashboard', function (Request $request) {
         if ($request->user()->is_admin) {

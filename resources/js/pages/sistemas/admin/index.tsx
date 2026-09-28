@@ -32,7 +32,7 @@ type Sub = 'dashboard' | 'contabilidad' | 'clientes' | 'hardware' | 'software' |
 const TABS = [
     { value: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { value: 'contabilidad', label: 'Contabilidad', icon: Coins },
-    { value: 'clientes', label: 'Estudiantes', icon: Users },
+    { value: 'clientes', label: 'Clientes', icon: Users },
     { value: 'hardware', label: 'Equipos', icon: LaptopIcon },
     { value: 'software', label: 'Software', icon: Package },
     { value: 'carreras', label: 'Carreras', icon: GraduationCap },
@@ -182,7 +182,7 @@ export default function AdminIndex() {
                             <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Panel de administración</h1>
 
                             <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
-                                Gestiona el catálogo tecnológico, estudiantes, software y carreras utilizadas por el sistema.
+                                Gestiona el catálogo tecnológico, los clientes, el software y las carreras u ocupaciones que usa el sistema.
                             </p>
                         </div>
 
