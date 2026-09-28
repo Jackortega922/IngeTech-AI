@@ -45,6 +45,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            // Contacto de la tienda (config/contacto.php): footer y botón de WhatsApp.
+            'contacto' => config('contacto'),
         ]);
     }
 }

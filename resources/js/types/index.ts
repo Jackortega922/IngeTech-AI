@@ -24,10 +24,20 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+export interface Contacto {
+    whatsapp: string | null;
+    email: string | null;
+    telefono: string | null;
+    direccion: string | null;
+    horario: string | null;
+    redes: { facebook: string | null; instagram: string | null; tiktok: string | null; youtube: string | null };
+}
+
 export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
+    contacto: Contacto;
     [key: string]: unknown;
 }
 
