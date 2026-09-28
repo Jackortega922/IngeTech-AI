@@ -1,14 +1,20 @@
-import { MessageCircle, Send, X } from 'lucide-react';
+import { MessageCircle, Send, Sparkles, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 interface Mensaje {
     autor: 'usuario' | 'bot';
     texto: string;
+    // 'deepseek' si respondió el LLM; sin valor si respondió el asistente por palabras clave.
+    fuente?: 'deepseek';
 }
+
+// Se mandan los últimos mensajes para que el LLM tenga contexto de la conversación (el
+// servidor acepta hasta 10).
+const MAX_HISTORIAL = 10;
 
 const SALUDO: Mensaje = {
     autor: 'bot',
-    texto: 'Hola 👋 Soy el asistente de IngeTech AI. Pregúntame por una carrera, un software o un equipo del catálogo.',
+    texto: 'Hola 👋 Soy el asistente de IngeTech AI. Cuéntame qué vas a hacer con tu laptop y tu presupuesto, o pregúntame por un modelo del catálogo.',
 };
 
 export default function ChatWidget() {
@@ -26,6 +32,10 @@ export default function ChatWidget() {
         const texto = entrada.trim();
         if (!texto || enviando) return;
 
+        const historial = mensajes
+            .slice(1) // sin el saludo inicial
+            .slice(-MAX_HISTORIAL)
+            .map(({ autor, texto }) => ({ autor, texto }));
         setMensajes((m) => [...m, { autor: 'usuario', texto }]);
         setEntrada('');
         setEnviando(true);
@@ -35,10 +45,14 @@ export default function ChatWidget() {
             const res = await fetch('/api/chatbot', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-                body: JSON.stringify({ mensaje: texto }),
+                body: JSON.stringify({ mensaje: texto, historial }),
             });
+            if (res.status === 429) {
+                setMensajes((m) => [...m, { autor: 'bot', texto: 'Vas muy rápido 😅 Espera un minuto y vuelve a preguntarme.' }]);
+                return;
+            }
             const data = await res.json();
-            setMensajes((m) => [...m, { autor: 'bot', texto: data.respuesta ?? 'No pude procesar tu pregunta.' }]);
+            setMensajes((m) => [...m, { autor: 'bot', texto: data.respuesta ?? 'No pude procesar tu pregunta.', fuente: data.fuente }]);
         } catch {
             setMensajes((m) => [...m, { autor: 'bot', texto: 'No pude conectarme. Inténtalo de nuevo en un momento.' }]);
         } finally {
@@ -50,7 +64,7 @@ export default function ChatWidget() {
     return (
         <div className="fixed right-5 bottom-5 z-50">
             {abierto && (
-                <div className="bg-background mb-3 flex h-96 w-80 flex-col overflow-hidden rounded-2xl border shadow-2xl">
+                <div className="bg-background mb-3 flex h-[28rem] max-h-[70vh] w-80 max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border shadow-2xl">
                     <div className="flex items-center justify-between border-b bg-cyan-500 px-4 py-3 text-white">
                         <span className="font-bold">Asistente IngeTech</span>
                         <button onClick={() => setAbierto(false)} aria-label="Cerrar">
@@ -61,11 +75,16 @@ export default function ChatWidget() {
                         {mensajes.map((m, i) => (
                             <div
                                 key={i}
-                                className={`max-w-[85%] rounded-xl px-3 py-2 text-sm ${
+                                className={`max-w-[85%] rounded-xl px-3 py-2 text-sm whitespace-pre-line ${
                                     m.autor === 'usuario' ? 'ml-auto bg-cyan-500 text-white' : 'bg-muted'
                                 }`}
                             >
                                 {m.texto}
+                                {m.fuente === 'deepseek' && (
+                                    <span className="text-muted-foreground mt-1 flex items-center gap-1 text-[10px]">
+                                        <Sparkles className="h-3 w-3" /> Respuesta generada con IA (DeepSeek)
+                                    </span>
+                                )}
                             </div>
                         ))}
                         {enviando && <div className="bg-muted text-muted-foreground max-w-[85%] rounded-xl px-3 py-2 text-sm">Escribiendo…</div>}
@@ -81,12 +100,16 @@ export default function ChatWidget() {
                             value={entrada}
                             onChange={(e) => setEntrada(e.target.value)}
                             placeholder="Escribe tu pregunta…"
+                            maxLength={500}
                             className="flex-1 rounded-lg border bg-transparent px-3 py-2 text-sm focus:outline-none"
                         />
                         <button type="submit" className="rounded-lg bg-cyan-500 px-3 text-white hover:bg-cyan-600" aria-label="Enviar">
                             <Send className="h-4 w-4" />
                         </button>
                     </form>
+                    <p className="text-muted-foreground border-t px-3 py-1.5 text-center text-[10px]">
+                        No compartas datos personales (DNI, teléfono, tarjetas) en el chat.
+                    </p>
                 </div>
             )}
 
