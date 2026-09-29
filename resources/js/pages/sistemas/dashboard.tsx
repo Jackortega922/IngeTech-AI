@@ -2,9 +2,9 @@ import LaptopImage from '@/components/laptop-image';
 import AppLayout from '@/layouts/app-layout';
 import { estadoPedido, soles } from '@/lib/pedidos';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import type { Pedido } from '@/types/flujo';
-import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowRight, Cpu, Package, Sparkles, Wand2 } from 'lucide-react';
+import type { Pedido, PreferenciasCliente } from '@/types/flujo';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { ArrowRight, CheckCircle2, Cpu, HeartHandshake, Package, Sparkles, Wand2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -20,7 +20,7 @@ const pasos = [
     { icon: Wand2, titulo: 'Personalízala y cómprala', texto: 'Ajusta RAM, almacenamiento y accesorios, y paga en línea.' },
 ];
 
-export default function Dashboard() {
+export default function Dashboard({ preferencias, mensaje }: { preferencias: PreferenciasCliente | null; mensaje: string | null }) {
     const { auth } = usePage<SharedData>().props;
     const [pedidos, setPedidos] = useState<Pedido[] | null>(null);
 
@@ -36,6 +36,14 @@ export default function Dashboard() {
             <Head title="Inicio" />
 
             <div className="flex flex-1 flex-col gap-6 p-4">
+                {mensaje && (
+                    <p className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
+                        <CheckCircle2 className="h-4 w-4 shrink-0" /> {mensaje}
+                    </p>
+                )}
+
+                <TarjetaCuestionario preferencias={preferencias} />
+
                 <div className="overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent p-8">
                     {/* Ruta detrás de `auth` en routes/web.php: siempre hay sesión aquí. */}
                     <p className="text-muted-foreground text-sm">Hola, {auth.user!.name} 👋</p>
@@ -124,5 +132,62 @@ function MisPedidos({ pedidos }: { pedidos: Pedido[] | null }) {
                 </div>
             )}
         </section>
+    );
+}
+
+// Estado del cuestionario de bienvenida (Psicología): invita a responderlo si falta, o deja
+// revisarlo y borrarlo si ya está (el cliente decide sobre sus datos).
+function TarjetaCuestionario({ preferencias }: { preferencias: PreferenciasCliente | null }) {
+    const completo = !!preferencias?.completado_at;
+
+    function borrar() {
+        if (window.confirm('¿Borrar tus respuestas del cuestionario? Las recomendaciones dejarán de adaptarse a ti.')) {
+            router.delete('/bienvenida');
+        }
+    }
+
+    if (!completo) {
+        return (
+            <div className="flex flex-col gap-3 rounded-2xl border border-violet-500/30 bg-violet-500/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3">
+                    <HeartHandshake className="mt-0.5 h-6 w-6 shrink-0 text-violet-500" />
+                    <div>
+                        <p className="font-semibold">Cuéntanos cómo eres (2 minutos)</p>
+                        <p className="text-muted-foreground text-sm">
+                            {preferencias?.omitido_at ? 'Lo omitiste antes. ' : ''}Con 10 preguntas rápidas adaptamos las recomendaciones a lo que
+                            buscas.
+                        </p>
+                    </div>
+                </div>
+                <Link
+                    href="/bienvenida"
+                    className="shrink-0 rounded-xl bg-violet-500 px-5 py-2.5 text-center text-sm font-bold text-white hover:bg-violet-600"
+                >
+                    Responder
+                </Link>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col gap-3 rounded-2xl border p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+                <HeartHandshake className="mt-0.5 h-6 w-6 shrink-0 text-violet-500" />
+                <div>
+                    <p className="font-semibold">Ya te conocemos un poco mejor</p>
+                    <p className="text-muted-foreground text-sm">
+                        Tus recomendaciones se adaptan a tus respuestas. Puedes cambiarlas o borrarlas cuando quieras.
+                    </p>
+                </div>
+            </div>
+            <div className="flex shrink-0 gap-3 text-sm">
+                <Link href="/bienvenida" className="rounded-xl border px-4 py-2 font-semibold hover:border-violet-500">
+                    Revisar respuestas
+                </Link>
+                <button onClick={borrar} className="text-muted-foreground hover:text-foreground underline">
+                    Borrar
+                </button>
+            </div>
+        </div>
     );
 }

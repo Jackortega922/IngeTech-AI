@@ -1,9 +1,9 @@
 import ChatWidget from '@/components/chat-widget';
 import FlowHeader from '@/components/flujo/flow-header';
 import { flujoStorage } from '@/lib/flujo-storage';
-import type { Catalogos, Necesidad, NivelExperiencia, Perfil, Portabilidad, RespuestaMotor } from '@/types/flujo';
+import type { Catalogos, Necesidad, NivelExperiencia, Perfil, Portabilidad, PreferenciasCliente, RespuestaMotor } from '@/types/flujo';
 import { Head, router } from '@inertiajs/react';
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { AlertTriangle, Loader2, Users } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 // Por ahora el catálogo es solo laptops (sin PCs de escritorio), así que "PC de escritorio"
@@ -51,7 +51,8 @@ function calcularNecesidad(catalogos: Catalogos | null, perfil: Perfil): Necesid
     return { ram_gb: ram, cpu_score: cpu, gpu_dedicada: gpu, nivel: 'min' };
 }
 
-export default function PerfilIndex() {
+export default function PerfilIndex({ preferencias }: { preferencias: PreferenciasCliente | null }) {
+    const paraOtraPersona = preferencias?.para_quien === 'otra_persona';
     const [catalogos, setCatalogos] = useState<Catalogos | null>(null);
     const [cargando, setCargando] = useState(true);
     const [enviando, setEnviando] = useState(false);
@@ -140,7 +141,14 @@ export default function PerfilIndex() {
                 <FlowHeader pasoActual={1} />
 
                 <main className="mx-auto max-w-2xl px-6 py-14 lg:px-10">
-                    <h1 className="text-3xl font-bold">Cuéntanos sobre ti</h1>
+                    <h1 className="text-3xl font-bold">{paraOtraPersona ? 'Cuéntanos sobre quién la usará' : 'Cuéntanos sobre ti'}</h1>
+                    {/* Psicología: en el cuestionario dijo que compra para otra persona (ej. un padre para su hijo). */}
+                    {paraOtraPersona && (
+                        <p className="mt-3 flex items-start gap-2 rounded-xl border border-violet-400/30 bg-violet-400/10 px-4 py-3 text-sm text-violet-200">
+                            <Users className="mt-0.5 h-4 w-4 shrink-0" />
+                            Como la laptop es para otra persona, responde pensando en su carrera u ocupación, lo que hará con ella y su nivel.
+                        </p>
+                    )}
                     <p className="mt-2 text-slate-400">Con esto identificamos qué tan exigentes son tus actividades diarias, seas estudiante o no.</p>
 
                     {cargando ? (

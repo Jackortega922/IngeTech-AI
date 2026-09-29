@@ -37,6 +37,9 @@ priorización. Actualízalo cuando cambie el alcance.
 | B7 | Estados de carga / error / sin resultados | M | Marco | ✅ |
 | B8 | Responsive + revisión de usabilidad | S | Marco | ☐ |
 | B9 | Compra con o sin cuenta: personalizar → checkout (datos, envío, pago simulado) → confirmación con código; "Mis pedidos" en el panel del cliente y pestaña Pedidos en el admin para avanzar el estado del envío. | M | Jack | ✅ |
+| B10 | Cuestionario de bienvenida (Psicología): 10 preguntas al crear la cuenta; adapta cómo se presenta la recomendación (estilo de decisión, nivel técnico, para quién es). Editable y borrable. | M | Jack | ✅ |
+| B11 | Que las respuestas del cuestionario (movilidad, batería, molestias, años de uso, prioridades, marcas, periféricos) cambien el ranking del motor — requiere ampliar el contrato del motor. | M | Jack | ☐ |
+| B12 | Unir compras de invitado a una cuenta (código + correo) y avisos por correo al cambiar el estado del pedido — en pausa por decisión del equipo (foco en IA + disciplinas). | C | Jack | ☐ |
 
 ## Épica 3 — Catálogo, datos y documentación (Módulo C) — *Bloques I, III, IV*
 
