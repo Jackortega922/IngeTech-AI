@@ -1,13 +1,12 @@
 import LaptopImage from '@/components/laptop-image';
 import AppLayout from '@/layouts/app-layout';
-import { compararPorTarea, tareasCumplidas, type ComparacionTarea } from '@/lib/comparador';
 import { flujoStorage } from '@/lib/flujo-storage';
 import { PUERTO_ETIQUETA } from '@/lib/guia-compra';
 import GuiaCompra from '@/pages/sistemas/comparador/guia-compra';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import type { Catalogos, Laptop } from '@/types/flujo';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Check, Sparkles, Trophy, X, Zap } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Comparador', href: '/comparador' }];
@@ -76,7 +75,6 @@ export default function ComparadorIndex() {
     }, []);
 
     const equipos = useMemo(() => (catalogos?.hardware ?? []).filter((h) => ids.includes(h.id)), [catalogos, ids]);
-    const tareas = useMemo(() => compararPorTarea(equipos, catalogos?.actividades ?? []), [equipos, catalogos]);
 
     function vaciar() {
         flujoStorage.guardarComparar([]);
@@ -121,9 +119,6 @@ export default function ComparadorIndex() {
                                                     className="mb-2 h-12 w-16 rounded-lg sm:h-16 sm:w-24"
                                                 />
                                                 {e.marca} {e.modelo}
-                                                <p className="text-muted-foreground mt-1 text-xs font-normal">
-                                                    Sirve para {tareasCumplidas(tareas, e.id)} de {tareas.length} tareas
-                                                </p>
                                             </th>
                                         ))}
                                     </tr>
@@ -158,11 +153,9 @@ export default function ComparadorIndex() {
 
                         <GuiaCompra equipos={equipos} />
 
-                        <GuiaPorTarea tareas={tareas} equipos={equipos} />
-
                         <div className="flex flex-col items-start gap-3 rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-5 sm:flex-row sm:items-center sm:justify-between">
                             <p className="text-sm">
-                                Esta guía usa reglas fijas por tarea. Si combinas varias tareas, tu carrera y tu presupuesto, la{' '}
+                                Esta guía usa reglas fijas. Si le cuentas tu carrera u ocupación, tus actividades y tu presupuesto, la{' '}
                                 <strong>recomendación con IA</strong> calcula qué laptop te conviene a ti.
                             </p>
                             <Link
@@ -177,71 +170,5 @@ export default function ComparadorIndex() {
                 )}
             </div>
         </AppLayout>
-    );
-}
-
-function GuiaPorTarea({ tareas, equipos }: { tareas: ComparacionTarea[]; equipos: Laptop[] }) {
-    const nombre = (id: number | null) => {
-        const e = equipos.find((x) => x.id === id);
-        return e ? `${e.marca} ${e.modelo}` : '';
-    };
-
-    return (
-        <section className="mt-4">
-            <h2 className="text-xl font-bold">¿Cuál conviene para cada tarea?</h2>
-            <p className="text-muted-foreground mt-1 text-sm">
-                Según lo que pide cada tarea en RAM, procesador y tarjeta gráfica. "Te conviene" es la más barata que cumple: pagar más potencia de la
-                que la tarea usa no la hace mejor. Busca la tarea que vas a hacer más seguido.
-            </p>
-
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
-                {tareas.map((t) => (
-                    <article key={t.clave} className="bg-card rounded-xl border p-4">
-                        <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
-                            <h3 className="font-semibold">{t.nombre}</h3>
-                            <span className="text-muted-foreground text-xs">
-                                pide {t.requisito.ram_gb} GB · CPU {t.requisito.cpu_score}
-                                {t.requisito.gpu_dedicada ? ' · GPU dedicada' : ''}
-                            </span>
-                        </div>
-
-                        {t.conviene_id === null ? (
-                            <p className="mt-3 rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-300">
-                                Ninguna de las que elegiste llega a lo que pide esta tarea.
-                            </p>
-                        ) : (
-                            <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-                                <span className="flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-1 text-emerald-700 dark:text-emerald-300">
-                                    <Trophy className="h-3.5 w-3.5" /> Te conviene: {nombre(t.conviene_id)}
-                                </span>
-                                {t.potente_id !== null && (
-                                    <span className="flex items-center gap-1 rounded-full bg-violet-500/15 px-2.5 py-1 text-violet-700 dark:text-violet-300">
-                                        <Zap className="h-3.5 w-3.5" /> Más potencia: {nombre(t.potente_id)}
-                                    </span>
-                                )}
-                            </div>
-                        )}
-
-                        <ul className="mt-3 space-y-1.5 text-sm">
-                            {t.veredictos.map((v) => (
-                                <li key={v.laptop_id} className="flex items-start gap-2">
-                                    {v.cumple ? (
-                                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-                                    ) : (
-                                        <X className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
-                                    )}
-                                    <span>
-                                        <span className="font-medium">{nombre(v.laptop_id)}</span>
-                                        <span className="text-muted-foreground">
-                                            {v.cumple ? ' — cumple' : ` — se queda corta: ${v.faltas.join(', ')}`}
-                                        </span>
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    </article>
-                ))}
-            </div>
-        </section>
     );
 }
