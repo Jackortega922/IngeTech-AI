@@ -47,6 +47,7 @@ que aplican a cualquier asistente de IA. Este archivo solo añade lo específico
 docker compose up -d db ml-engine                          # base de datos + motor
 composer run dev                                           # servidor Laravel + colas + Vite
 php artisan migrate                                         # BD
+php artisan motor:exportar-catalogo                        # regenera ml-engine/data/laptops.json desde la BD
 
 php artisan test                                            # todas las pruebas Laravel (Pest/PHPUnit)
 php artisan test --filter=NombreDelTest                     # una sola prueba

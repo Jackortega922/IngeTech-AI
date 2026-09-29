@@ -5,7 +5,7 @@ import { flujoStorage } from '@/lib/flujo-storage';
 import { nivelCpu } from '@/lib/guia-compra';
 import type { Laptop, PreferenciasCliente, RespuestaMotorError, Tarjeta } from '@/types/flujo';
 import { Head, Link, router } from '@inertiajs/react';
-import { AlertTriangle, ChevronDown, Cpu, HardDrive, HeartHandshake, LayoutGrid, MonitorSmartphone, Scale } from 'lucide-react';
+import { AlertTriangle, Check, ChevronDown, Cpu, HardDrive, HeartHandshake, LayoutGrid, MonitorSmartphone, Scale } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 
@@ -249,6 +249,17 @@ function TarjetaLaptop({
             </h2>
             <p className="text-xs text-slate-400">{simple ? 'Laptop' : `Laptop · ${l.cpu}`}</p>
 
+            <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
+                <span className="text-2xl font-bold text-cyan-300">{t.compatibilidad_pct}%</span>
+                <span className="text-sm text-slate-300">compatible contigo</span>
+                {/* Si respondió el cuestionario: de dónde sale el % (70% técnica + 30% la persona). */}
+                {t.afinidad_pct !== null && t.afinidad_pct !== undefined && (
+                    <span className="w-full text-[11px] text-slate-500">
+                        Por lo que harás: {t.compatibilidad_tecnica_pct}% · Por cómo eres: {t.afinidad_pct}%
+                    </span>
+                )}
+            </div>
+
             <div className="mt-5 grid grid-cols-3 gap-2 text-center text-xs">
                 <SpecChip icon={<Cpu className="h-3.5 w-3.5" />} label={simple ? RENDIMIENTO_SIMPLE[nivelCpu(l)] : `Score ${l.rendimiento_score}`} />
                 <SpecChip
@@ -275,6 +286,29 @@ function TarjetaLaptop({
                     {l.bateria_horas ? ` · ${l.bateria_horas} h de batería` : ''}
                     {l.pantalla_pulgadas ? ` · ${l.pantalla_pulgadas}" ${l.pantalla_resolucion ?? ''} ${l.pantalla_hz ?? 60} Hz` : ''}
                 </p>
+            )}
+
+            {/* El "por qué" de la IA (transparencia): sus motivos principales y lo que conviene saber. */}
+            {(t.explicacion?.factores?.length ?? 0) > 0 && (
+                <div className="mt-4">
+                    <p className="text-xs font-semibold text-slate-300">¿Por qué te la recomendamos?</p>
+                    <ul className="mt-1.5 space-y-1 text-xs text-slate-400">
+                        {t.explicacion!.factores.slice(0, 3).map((f) => (
+                            <li key={f.criterio} className="flex items-start gap-1.5">
+                                <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" /> {f.criterio}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+            {(t.explicacion?.advertencias?.length ?? 0) > 0 && (
+                <ul className="mt-2 space-y-1 text-xs text-amber-200/90">
+                    {t.explicacion!.advertencias.map((a) => (
+                        <li key={a} className="flex items-start gap-1.5">
+                            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" /> {a}
+                        </li>
+                    ))}
+                </ul>
             )}
 
             <div className="mt-5 flex items-baseline justify-between border-t border-white/10 pt-4">

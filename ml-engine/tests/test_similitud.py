@@ -51,6 +51,16 @@ def test_advertencia_cuando_falta_gpu_necesaria():
     assert any("GPU" in a for a in resultados[0]["advertencias"])
 
 
+def test_no_da_como_motivo_una_gpu_que_la_laptop_no_tiene():
+    # Antes: "GPU dedicada para tareas que la necesitan" aparecía como motivo en una laptop sin
+    # GPU dedicada (con aporte 0). Lo que falta va en advertencias, no en los motivos.
+    ideal = vector_ideal_por_actividades(["ia_ml"], ACTIVIDADES_IDX)
+    sin_gpu = calcular_compatibilidad(ideal, [LAPTOP_CON_GPU, LAPTOP_SIN_GPU])[1]
+
+    assert not any("GPU" in f["criterio"] for f in sin_gpu["factores"])
+    assert any("GPU" in a for a in sin_gpu["advertencias"])
+
+
 def test_calcular_compatibilidad_con_catalogo_vacio():
     ideal = vector_ideal_por_actividades(["ia_ml"], ACTIVIDADES_IDX)
     assert calcular_compatibilidad(ideal, []) == []

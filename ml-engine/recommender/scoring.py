@@ -11,6 +11,7 @@ from typing import Any
 
 from .catalogo import cargar_actividades, cargar_laptops
 from .perfilado import VECTOR_BASE_POR_CATEGORIA, clasificar_perfil
+from .preferencias import PESO_AFINIDAD, afinidad, filtrar_marcas
 from .similitud import calcular_compatibilidad, combinar_vectores, vector_ideal_por_actividades
 
 CONTRATO_VERSION = "v0"
@@ -50,6 +51,11 @@ def recomendar(payload: dict[str, Any]) -> dict[str, Any]:
     if not candidatos:
         return _error("sin_resultados", "No hay laptops dentro del presupuesto.")
 
+    # Cuestionario de bienvenida (opcional): marcas a evitar se descartan antes de rankear.
+    preferencias = perfil.get("preferencias") or {}
+    if preferencias:
+        candidatos = filtrar_marcas(candidatos, preferencias, minimo=min(top_n, len(candidatos)))
+
     actividades_idx = cargar_actividades()
     categoria = clasificar_perfil(perfil, actividades_idx)
     ideal_actividades = vector_ideal_por_actividades(perfil["actividades"], actividades_idx)
@@ -57,6 +63,8 @@ def recomendar(payload: dict[str, Any]) -> dict[str, Any]:
     ideal = combinar_vectores(ideal_actividades, base_categoria)
 
     resultados = calcular_compatibilidad(ideal, candidatos)
+    if preferencias:
+        _aplicar_preferencias(resultados, preferencias, candidatos)
     resultados.sort(key=lambda r: r["compatibilidad_pct"], reverse=True)
     top = resultados[:top_n]
 
@@ -64,6 +72,12 @@ def recomendar(payload: dict[str, Any]) -> dict[str, Any]:
         {
             "laptop_id": r["laptop"]["id"],
             "compatibilidad_pct": r["compatibilidad_pct"],
+            # Solo si hubo preferencias: de dónde sale el % (técnica vs. la persona).
+            **(
+                {"compatibilidad_tecnica_pct": r["tecnica_pct"], "afinidad_pct": r["afinidad_pct"]}
+                if "afinidad_pct" in r
+                else {}
+            ),
             "precio_soles": r["laptop"]["precio_soles"],
             "sobrante_soles": round(presupuesto - r["laptop"]["precio_soles"], 2),
             "explicacion": {
@@ -75,3 +89,50 @@ def recomendar(payload: dict[str, Any]) -> dict[str, Any]:
     ]
 
     return {"version": CONTRATO_VERSION, "recomendaciones": recomendaciones}
+
+
+def _aplicar_preferencias(
+    resultados: list[dict[str, Any]],
+    preferencias: dict[str, Any],
+    candidatos: list[dict[str, Any]],
+) -> None:
+    """Combina la compatibilidad técnica con la afinidad a la persona (70% / 30%).
+
+    Modifica ``resultados`` en el lugar: ajusta el %, agrega los motivos que vienen del
+    cuestionario a ``factores`` y los avisos a ``advertencias``.
+    """
+    precios = [c.get("precio_soles", 0) for c in candidatos]
+    rango = (min(precios), max(precios))
+
+    for r in resultados:
+        af = afinidad(r["laptop"], preferencias, rango)
+        if af is None:
+            continue
+
+        tecnica = r["compatibilidad_pct"]
+        final = round((1 - PESO_AFINIDAD) * tecnica + PESO_AFINIDAD * af["valor"] * 100)
+
+        # Los factores técnicos pesan 70% del total; los de la persona, el 30% restante.
+        factores = [
+            {**f, "aporte": round(f["aporte"] * (1 - PESO_AFINIDAD))} for f in r["factores"]
+        ]
+        factores += [
+            {"criterio": f["criterio"], "aporte": round(PESO_AFINIDAD * 100 * f["peso_relativo"])}
+            for f in af["factores"]
+        ]
+        factores.sort(key=lambda x: x["aporte"], reverse=True)
+
+        advertencias = r["advertencias"] + af["advertencias"]
+        if af["marca_evitada"]:
+            advertencias.append(
+                "Es de una marca que prefieres evitar; la incluimos porque hay pocas opciones "
+                "en tu presupuesto."
+            )
+
+        r.update(
+            compatibilidad_pct=final,
+            tecnica_pct=tecnica,
+            afinidad_pct=round(af["valor"] * 100),
+            factores=factores,
+            advertencias=advertencias,
+        )

@@ -35,6 +35,43 @@ Formato JSON que intercambian Laravel (`app/Services/Recommender/`) y el motor P
 | `software` | string[] | catálogo cerrado, ver `ml-engine/data/software.json` |
 | `presupuesto_soles` | number | > 0 |
 | `opciones.top_n` | int | 1–10, por defecto 3 |
+| `preferencias` | object | **Opcional.** Respuestas del cuestionario de bienvenida (ver abajo). Si falta, el motor recomienda como siempre. |
+
+### `perfil.preferencias` (opcional)
+
+Viene del cuestionario de bienvenida (Psicología, `App\Support\CuestionarioBienvenida`). Laravel
+solo lo envía si el cliente completó el cuestionario, y omite las respuestas vacías.
+
+```json
+"preferencias": {
+  "movilidad": "diario",
+  "lejos_enchufe": "muchas_horas",
+  "molestias": ["se_congela", "bateria_corta"],
+  "anios_uso": "5_mas",
+  "prioridades": ["portabilidad", "precio", "rendimiento"],
+  "marcas_preferidas": ["Lenovo"],
+  "marcas_evitar": ["Acer"],
+  "perifericos": ["proyector", "camara_sd"]
+}
+```
+
+| Campo | Valores | Qué hace en el motor (`recommender/preferencias.py`) |
+|---|---|---|
+| `movilidad` | `fija` · `a_veces` · `diario` | Premia las laptops ligeras (menos de 1.5 kg si es `diario`) |
+| `lejos_enchufe` | `casi_nunca` · `a_veces` · `muchas_horas` | Premia la batería (8 h o más si es `muchas_horas`) |
+| `molestias` | `lenta_al_encender` · `se_congela` · `bateria_corta` · `pesada` · `se_calienta` · `pantalla_pequena` · `no_tengo` | Evita repetir el problema: `se_congela` pide 16 GB, `lenta_al_encender` pide SSD, etc. (`se_calienta` aún no tiene dato para medirse) |
+| `anios_uso` | `2` · `3_4` · `5_mas` | Premia RAM de sobra, RAM ampliable y buen procesador |
+| `prioridades` | orden de `precio` · `rendimiento` · `portabilidad` · `durabilidad` · `diseno` | Lo elegido primero pesa más (3 · 2 · 1.5 · 1 · 0.5) |
+| `marcas_preferidas` | marcas del catálogo | Suman afinidad |
+| `marcas_evitar` | marcas del catálogo | Se descartan antes del ranking, salvo que no queden suficientes opciones (entonces se avisa) |
+| `perifericos` | `monitor` · `proyector` · `tableta_grafica` · `muchas_usb` · `camara_sd` · `ninguno` | Revisa HDMI, USB-A y lector SD |
+
+Con preferencias, `compatibilidad_pct = 70% compatibilidad técnica (coseno) + 30% afinidad con la
+persona`. Cada preferencia que la laptop cumple se suma a `explicacion.factores`, y cada una que no
+cumple se suma a `explicacion.advertencias`.
+
+El catálogo del motor (`ml-engine/data/laptops.json`) incluye para esto `bateria_horas`,
+`pantalla_*`, `peso_kg` y `puertos`. Se regenera desde la BD con `php artisan motor:exportar-catalogo`.
 
 ## Salida (recomendación)
 
@@ -63,6 +100,8 @@ Formato JSON que intercambian Laravel (`app/Services/Recommender/`) y el motor P
 | Campo | Tipo | Nota |
 |---|---|---|
 | `compatibilidad_pct` | int | 0–100 |
+| `compatibilidad_tecnica_pct` | int | **Solo si hubo `preferencias`.** El % técnico (coseno) antes de combinar |
+| `afinidad_pct` | int | **Solo si hubo `preferencias`.** Qué tan bien encaja con cómo es la persona |
 | `explicacion.factores` | array | por qué se recomienda — se muestra al usuario (requisito de ética/transparencia) |
 | `explicacion.advertencias` | string[] | limitaciones honestas de esa opción |
 

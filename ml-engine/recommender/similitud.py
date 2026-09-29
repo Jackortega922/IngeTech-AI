@@ -95,7 +95,10 @@ def calcular_compatibilidad(
                 "aporte": round((contribuciones[f] / total_contribucion) * compatibilidad_pct),
             }
             for f in FACTORES
-            if ideal[f] > 0
+            # Solo es motivo si la actividad lo pide Y la laptop lo aporta: antes salía "GPU
+            # dedicada para tareas que la necesitan" también en laptops sin GPU dedicada (aporte
+            # 0). Lo que falta ya se reporta en advertencias.
+            if ideal[f] > 0 and contribuciones[f] > 0
         ]
         factores.sort(key=lambda x: x["aporte"], reverse=True)
 

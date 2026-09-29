@@ -10,6 +10,7 @@ use App\Models\EventoAnalitica;
 use App\Models\Laptop;
 use App\Models\PerfilUsuario;
 use App\Models\Recomendacion;
+use App\Models\User;
 use App\Services\Recommender\NecesidadCalculator;
 use App\Services\Recommender\RecommenderClient;
 use App\Services\Recommender\RecommenderException;
@@ -39,6 +40,9 @@ class RecomendacionController extends Controller
                     'actividades' => $actividades->pluck('clave')->all(),
                     'software' => $carrera->software->pluck('clave')->all(),
                     'presupuesto_soles' => $perfil['presupuesto_soles'],
+                    // Cuestionario de bienvenida (Psicología, B11): si lo respondió, el motor
+                    // ajusta el ranking a cómo es la persona. Solo viaja a nuestro propio motor.
+                    ...$this->preferenciasParaMotor($request->user()),
                 ],
                 'opciones' => $datos['opciones'] ?? [],
             ]);
@@ -91,6 +95,14 @@ class RecomendacionController extends Controller
                 'badges' => $badgesLaptop,
                 'laptop' => $laptops->get($item['laptop_id']),
                 'compatibilidad_pct' => $item['compatibilidad_pct'],
+                // De dónde sale el % cuando hubo cuestionario (técnica vs. la persona).
+                'compatibilidad_tecnica_pct' => $item['compatibilidad_tecnica_pct'] ?? null,
+                'afinidad_pct' => $item['afinidad_pct'] ?? null,
+                // El "por qué" de la IA, para mostrarlo en el resultado (transparencia, RF-ET1).
+                'explicacion' => [
+                    'factores' => $item['explicacion']['factores'] ?? [],
+                    'advertencias' => $item['explicacion']['advertencias'] ?? [],
+                ],
                 'recomendacion_id' => $recomendacion->id,
             ];
         })->values()->all();
@@ -180,5 +192,31 @@ class RecomendacionController extends Controller
         }
 
         return $query->take(3)->get()->all();
+    }
+
+    /**
+     * Respuestas del cuestionario de bienvenida en el formato del contrato del motor
+     * (perfil.preferencias). Vacío si no hay sesión o si no lo completó: el motor recomienda
+     * igual que siempre.
+     */
+    private function preferenciasParaMotor(?User $user): array
+    {
+        $p = $user?->preferencias;
+        if (! $p || ! $p->completado_at) {
+            return [];
+        }
+
+        $preferencias = array_filter([
+            'movilidad' => $p->movilidad,
+            'lejos_enchufe' => $p->lejos_enchufe,
+            'molestias' => $p->molestias,
+            'anios_uso' => $p->anios_uso,
+            'prioridades' => $p->prioridades,
+            'marcas_preferidas' => $p->marcas_preferidas,
+            'marcas_evitar' => $p->marcas_evitar,
+            'perifericos' => $p->perifericos,
+        ], fn ($v) => ! empty($v));
+
+        return $preferencias ? ['preferencias' => $preferencias] : [];
     }
 }
