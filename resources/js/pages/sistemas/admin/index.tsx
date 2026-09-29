@@ -1,5 +1,6 @@
 import { LoadingPanel } from '@/components/loading-panel';
 import AppLayout from '@/layouts/app-layout';
+import { PUERTO_ETIQUETA } from '@/lib/guia-compra';
 import { PanelContabilidad } from '@/pages/contabilidad/panel-contabilidad';
 import { PanelDashboard } from '@/pages/industrial/panel-dashboard';
 import { PanelPedidos } from '@/pages/sistemas/admin/panel-pedidos';
@@ -15,6 +16,7 @@ import {
     Image as ImageIcon,
     Laptop as LaptopIcon,
     LayoutDashboard,
+    MonitorSmartphone,
     Package,
     Plus,
     RefreshCw,
@@ -358,6 +360,11 @@ function TablaHardware({ equipos, onCambio, avisar }: { equipos: Laptop[]; onCam
                     gpu: f.gpu,
                     gpu_dedicada: f.gpu_dedicada,
                     bateria_horas: f.bateria_horas ? Number(f.bateria_horas) : null,
+                    pantalla_pulgadas: f.pantalla_pulgadas ? Number(f.pantalla_pulgadas) : null,
+                    pantalla_resolucion: f.pantalla_resolucion || null,
+                    pantalla_hz: f.pantalla_hz ? Number(f.pantalla_hz) : null,
+                    peso_kg: f.peso_kg ? Number(f.peso_kg) : null,
+                    puertos: f.puertos ?? [],
                     precio_soles: Number(f.precio_soles),
                     tienda: f.tienda,
                 });
@@ -682,7 +689,96 @@ function TablaHardware({ equipos, onCambio, avisar }: { equipos: Laptop[]; onCam
                     ))}
                 </div>
             </div>
+
+            <div className="bg-card rounded-2xl border p-5 shadow-sm">
+                <div className="mb-4 flex items-center gap-2">
+                    <MonitorSmartphone className="h-5 w-5 text-cyan-500" />
+                    <div>
+                        <h3 className="font-bold">Pantalla, peso y puertos</h3>
+                        <p className="text-muted-foreground text-xs">
+                            Los usa la guía de compra del comparador. Son datos de ficha técnica de referencia: confírmalos con el modelo exacto que
+                            vende la tienda.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="grid gap-3 lg:grid-cols-2">
+                    {filas.map((f, i) => (
+                        <div key={f.id} className="rounded-xl border p-3">
+                            <p className="text-sm font-semibold">
+                                {f.marca} {f.modelo}
+                            </p>
+                            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                <CampoCorto label="Pulgadas">
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        className={campoCorto}
+                                        value={f.pantalla_pulgadas ?? ''}
+                                        onChange={(e) => set(i, 'pantalla_pulgadas', e.target.value)}
+                                    />
+                                </CampoCorto>
+                                <CampoCorto label="Resolución">
+                                    <input
+                                        className={campoCorto}
+                                        value={f.pantalla_resolucion ?? ''}
+                                        onChange={(e) => set(i, 'pantalla_resolucion', e.target.value)}
+                                        placeholder="1920x1080"
+                                    />
+                                </CampoCorto>
+                                <CampoCorto label="Hz">
+                                    <input
+                                        type="number"
+                                        className={campoCorto}
+                                        value={f.pantalla_hz ?? ''}
+                                        onChange={(e) => set(i, 'pantalla_hz', e.target.value)}
+                                    />
+                                </CampoCorto>
+                                <CampoCorto label="Peso (kg)">
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        className={campoCorto}
+                                        value={f.peso_kg ?? ''}
+                                        onChange={(e) => set(i, 'peso_kg', e.target.value)}
+                                    />
+                                </CampoCorto>
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                                {Object.entries(PUERTO_ETIQUETA).map(([clave, etiqueta]) => (
+                                    <label key={clave} className="flex items-center gap-1.5 text-xs">
+                                        <input
+                                            type="checkbox"
+                                            className="accent-cyan-500"
+                                            checked={(f.puertos ?? []).includes(clave)}
+                                            onChange={(e) =>
+                                                set(
+                                                    i,
+                                                    'puertos',
+                                                    e.target.checked ? [...(f.puertos ?? []), clave] : (f.puertos ?? []).filter((p) => p !== clave),
+                                                )
+                                            }
+                                        />
+                                        {etiqueta}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
+    );
+}
+
+const campoCorto = 'bg-background w-full rounded-lg border px-2 py-1.5 text-sm outline-none focus:border-cyan-500';
+
+function CampoCorto({ label, children }: { label: string; children: React.ReactNode }) {
+    return (
+        <label className="block">
+            <span className="text-muted-foreground mb-0.5 block text-[11px]">{label}</span>
+            {children}
+        </label>
     );
 }
 

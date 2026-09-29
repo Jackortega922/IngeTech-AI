@@ -27,6 +27,12 @@ class HardwareController extends Controller
             'gpu' => ['nullable', 'string', 'max:150'],
             'gpu_dedicada' => ['required', 'boolean'],
             'bateria_horas' => ['nullable', 'integer', 'min:0'],
+            'pantalla_pulgadas' => ['nullable', 'numeric', 'between:10,20'],
+            'pantalla_resolucion' => ['nullable', 'regex:/^\d{3,4}x\d{3,4}$/'],
+            'pantalla_hz' => ['nullable', 'integer', 'between:30,500'],
+            'peso_kg' => ['nullable', 'numeric', 'between:0.5,6'],
+            'puertos' => ['nullable', 'array'],
+            'puertos.*' => ['string', 'distinct', Rule::in(Laptop::PUERTOS)],
             'precio_soles' => ['required', 'numeric', 'min:0'],
             'tienda' => ['nullable', 'string', 'max:150'],
         ];
