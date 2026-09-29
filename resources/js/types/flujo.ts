@@ -220,6 +220,8 @@ export interface Pedido {
     total: string | number;
     estado: EstadoPedido;
     created_at: string;
+    // Recorrido del pedido: cuándo pasó a cada estado (tabla pedido_eventos).
+    eventos: { id: number; estado: EstadoPedido; created_at: string }[];
     personalizacion: {
         ram_gb: number;
         almacenamiento_gb: number;

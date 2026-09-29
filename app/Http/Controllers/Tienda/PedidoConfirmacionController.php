@@ -17,7 +17,7 @@ class PedidoConfirmacionController extends Controller
 {
     public function __invoke(Request $request, string $codigo)
     {
-        $pedido = Pedido::with(['personalizacion.laptop', 'personalizacion.items.item'])
+        $pedido = Pedido::with(['personalizacion.laptop', 'personalizacion.items.item', 'eventos'])
             ->where('codigo', $codigo)
             ->firstOrFail();
 

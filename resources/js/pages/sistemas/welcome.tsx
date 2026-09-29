@@ -6,7 +6,22 @@ import { flujoStorage } from '@/lib/flujo-storage';
 import { type SharedData } from '@/types';
 import type { Laptop } from '@/types/flujo';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ArrowRight, BookOpen, Briefcase, Check, Cpu, Gamepad2, HardDrive, Scale, Search, ShoppingCart, Sparkles, Truck, User } from 'lucide-react';
+import {
+    ArrowRight,
+    BookOpen,
+    Briefcase,
+    Check,
+    Cpu,
+    Gamepad2,
+    HardDrive,
+    PackageSearch,
+    Scale,
+    Search,
+    ShoppingCart,
+    Sparkles,
+    Truck,
+    User,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 // Categorías por uso, derivadas de las specs (no hay columna "categoría" en la BD): así cada
@@ -101,6 +116,9 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
                             <Truck className="h-3.5 w-3.5" /> Envíos a todo el Perú
                         </span>
                         <span className="hidden sm:inline">{contacto.horario ?? 'Asesoría gratuita para elegir tu laptop'}</span>
+                        <Link href="/seguimiento" className="flex items-center gap-1.5 hover:underline">
+                            <PackageSearch className="h-3.5 w-3.5" /> Sigue tu pedido
+                        </Link>
                         {contacto.whatsapp && (
                             <a
                                 href={enlaceWhatsapp(contacto.whatsapp, 'Hola, quiero información sobre sus laptops.')}

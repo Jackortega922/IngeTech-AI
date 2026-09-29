@@ -14,6 +14,7 @@ import {
     LogIn,
     Monitor,
     Package,
+    PackageSearch,
     Recycle,
     Scale,
     Scroll,
@@ -35,6 +36,7 @@ const navVisitante: NavItem[] = [
     { title: 'Catálogo de hardware', url: '/hardware', icon: Monitor },
     { title: 'Catálogo de software', url: '/software', icon: LayoutList },
     { title: 'Comparador', url: '/comparador', icon: Scale },
+    { title: 'Seguimiento de pedido', url: '/seguimiento', icon: PackageSearch },
     { title: 'Preguntas frecuentes', url: '/preguntas', icon: CircleHelp },
     { title: 'Términos y Garantía', url: '/derecho', icon: Scroll },
 ];

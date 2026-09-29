@@ -23,7 +23,7 @@ class PedidoController extends Controller
     public function index(Request $request)
     {
         return response()->json(
-            Pedido::with(['personalizacion.laptop', 'personalizacion.items.item'])
+            Pedido::with(['personalizacion.laptop', 'personalizacion.items.item', 'eventos'])
                 ->where('user_id', $request->user()->id)
                 ->latest('id')
                 ->get()
