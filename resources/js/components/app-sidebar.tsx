@@ -32,7 +32,7 @@ import AppLogo from './app-logo';
 // poder volver a la vitrina, con o sin sesión.
 const navVisitante: NavItem[] = [
     { title: 'Tienda', url: '/', icon: Store },
-    { title: 'Catálogo de hardware', url: '/hardware', icon: Monitor },
+    { title: 'Catálogo', url: '/hardware', icon: Monitor },
     { title: 'Comparador', url: '/comparador', icon: Scale },
     { title: 'Seguimiento de pedido', url: '/seguimiento', icon: PackageSearch },
     { title: 'Preguntas frecuentes', url: '/preguntas', icon: CircleHelp },
@@ -44,7 +44,7 @@ const navCliente: NavItem[] = [
     { title: 'Mi panel', url: '/dashboard', icon: LayoutGrid },
     { title: 'Mis recomendaciones', url: '/historial', icon: Clock },
     { title: 'Mis pedidos', url: '/dashboard#pedidos', icon: Package },
-    { title: 'Catálogo de hardware', url: '/hardware', icon: Monitor },
+    { title: 'Catálogo', url: '/hardware', icon: Monitor },
     { title: 'Comparador', url: '/comparador', icon: Scale },
     { title: 'Promociones', url: '/marketing', icon: Tag },
     { title: 'Reciclaje y sostenibilidad', url: '/ing-ambiental', icon: Recycle },
