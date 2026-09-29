@@ -13,6 +13,11 @@ export default function PedidoIndex({ pedido }: { pedido: Pedido }) {
     // Línea de tiempo sin "cancelado": ese estado se muestra aparte.
     const pasos = ESTADOS_PEDIDO.filter((e) => e.value !== 'cancelado');
     const indiceActual = pasos.findIndex((e) => e.value === pedido.estado);
+    // Fecha en que pasó a cada estado (la última vez, por si el admin retrocedió y volvió a avanzar).
+    const fechaDe = (valor: string) => {
+        const ev = [...(pedido.eventos ?? [])].reverse().find((e) => e.estado === valor);
+        return ev ? new Date(ev.created_at).toLocaleString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : null;
+    };
 
     return (
         <>
@@ -31,7 +36,7 @@ export default function PedidoIndex({ pedido }: { pedido: Pedido }) {
                     <div className="text-center">
                         <CheckCircle2 className="mx-auto h-14 w-14 text-emerald-400" />
                         <h1 className="mt-4 text-3xl font-bold">¡Gracias por tu compra, {pedido.nombre.split(' ')[0]}!</h1>
-                        <p className="mt-2 text-slate-400">Tu pedido quedó registrado. Guarda este código por si escribes a la tienda:</p>
+                        <p className="mt-2 text-slate-400">Guarda este código: con él y tu correo puedes seguir tu pedido cuando quieras.</p>
                         <p className="mt-4 inline-block rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-5 py-2 font-mono text-2xl font-bold tracking-wider text-cyan-300">
                             {pedido.codigo}
                         </p>
@@ -43,15 +48,29 @@ export default function PedidoIndex({ pedido }: { pedido: Pedido }) {
                             <h2 className="font-semibold">Estado del pedido</h2>
                             <span className={`rounded-full px-3 py-1 text-xs font-bold ${estado.clase}`}>{estado.label}</span>
                         </div>
-                        {pedido.estado !== 'cancelado' && (
+                        {pedido.estado === 'cancelado' ? (
+                            <p className="mt-4 text-sm text-slate-400">
+                                Este pedido se canceló el {fechaDe('cancelado') ?? '—'}. Si tienes dudas, escríbele a la tienda.
+                            </p>
+                        ) : (
                             <ol className="mt-5 grid grid-cols-4 gap-2 text-center text-xs">
                                 {pasos.map((e, i) => (
                                     <li key={e.value}>
                                         <div className={`h-1.5 rounded-full ${i <= indiceActual ? 'bg-cyan-400' : 'bg-white/10'}`} />
                                         <span className={`mt-2 block ${i <= indiceActual ? 'text-white' : 'text-slate-500'}`}>{e.label}</span>
+                                        {i <= indiceActual && <span className="block text-[10px] text-slate-500">{fechaDe(e.value) ?? '—'}</span>}
                                     </li>
                                 ))}
                             </ol>
+                        )}
+                        {!auth.user && (
+                            <p className="mt-5 border-t border-white/10 pt-4 text-xs text-slate-400">
+                                Para volver a ver este pedido desde otro navegador, entra a{' '}
+                                <Link href="/seguimiento" className="text-cyan-400 underline">
+                                    Seguimiento de pedido
+                                </Link>{' '}
+                                con tu código y tu correo.
+                            </p>
                         )}
                     </section>
 

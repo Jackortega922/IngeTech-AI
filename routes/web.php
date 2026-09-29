@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Tienda\PedidoConfirmacionController;
+use App\Http\Controllers\Tienda\SeguimientoController;
 use App\Models\Laptop;
 use App\Models\Pedido;
 use App\Support\UbigeoHuanuco;
@@ -32,6 +33,10 @@ Route::get('checkout', fn () => Inertia::render('sistemas/checkout/index', [
     'provinciasHuanuco' => UbigeoHuanuco::provincias(),
 ]))->name('checkout');
 Route::get('pedido/{codigo}', PedidoConfirmacionController::class)->name('pedido');
+// Seguimiento para quien compró sin cuenta: código + correo. El límite frena a quien intente
+// adivinar códigos probando muchos seguidos.
+Route::get('seguimiento', [SeguimientoController::class, 'create'])->name('seguimiento');
+Route::post('seguimiento', [SeguimientoController::class, 'store'])->middleware('throttle:10,1');
 
 Route::middleware(['auth'])->group(function () {
     // Los administradores no tienen un "dashboard de cliente": van directo

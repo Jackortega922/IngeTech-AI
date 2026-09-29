@@ -114,6 +114,11 @@ export default function StoreFooter() {
                             </Link>
                         </li>
                         <li>
+                            <Link href="/seguimiento" className="transition hover:text-cyan-400">
+                                Seguimiento de pedido
+                            </Link>
+                        </li>
+                        <li>
                             <Link href="/preguntas" className="transition hover:text-cyan-400">
                                 Preguntas frecuentes
                             </Link>

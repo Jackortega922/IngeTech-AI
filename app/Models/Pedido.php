@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Pedido extends Model
@@ -51,6 +52,18 @@ class Pedido extends Model
 
     // Código que ve el cliente. Aleatorio (no el id) para que no se pueda adivinar el pedido de
     // otra persona probando números seguidos.
+    // Cada cambio de estado queda en el historial (pedido_eventos), venga de donde venga: al
+    // crearse el pedido y cada vez que el admin lo avanza.
+    protected static function booted(): void
+    {
+        static::created(fn (Pedido $p) => $p->eventos()->create(['estado' => $p->estado]));
+        static::updated(function (Pedido $p) {
+            if ($p->wasChanged('estado')) {
+                $p->eventos()->create(['estado' => $p->estado]);
+            }
+        });
+    }
+
     public static function nuevoCodigo(): string
     {
         do {
@@ -68,5 +81,10 @@ class Pedido extends Model
     public function personalizacion(): BelongsTo
     {
         return $this->belongsTo(Personalizacion::class);
+    }
+
+    public function eventos(): HasMany
+    {
+        return $this->hasMany(PedidoEvento::class)->orderBy('id');
     }
 }
