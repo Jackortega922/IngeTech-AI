@@ -18,7 +18,7 @@ priorización. Actualízalo cuando cambie el alcance.
 | A7 | ~~Motor: portar lógica de PC_EXPERT~~ — se fusionó con A8 (PC_EXPERT no era portable: reglas de piezas sueltas sin ML, dominio distinto) | M | Jack | ✅ |
 | A8 | Motor: scoring real (clasificación supervisada + similitud coseno) + explicación de factores | M | Jack | ✅ |
 | A9 | Conectar API real al motor (quitar mock) — resuelto gratis: `app.py`/`cli_entry.py` ya delegaban en `recomendar()`, solo cambió su interior | M | Jack | ✅ |
-| A14 | Sincronizar el catálogo del motor (`ml-engine/data/laptops.json`) con la BD de Laravel — eran dos catálogos distintos con los mismos IDs, así que `Laptop::find($laptop_id)` podía mostrar specs/foto de un equipo que no era el que el motor calificó. Resuelto: `ml-engine/data/laptops.json` ahora se genera desde las 14 laptops reales de `LaptopSeeder` (mismos IDs 1-14). Pendiente: automatizar esta exportación en vez de regenerarla a mano cada vez que cambie el seeder. | M | Jack | ✅ |
+| A14 | Sincronizar el catálogo del motor (`ml-engine/data/laptops.json`) con la BD de Laravel — eran dos catálogos distintos con los mismos IDs, así que `Laptop::find($laptop_id)` podía mostrar specs/foto de un equipo que no era el que el motor calificó. Resuelto: `ml-engine/data/laptops.json` ahora se genera desde las 14 laptops reales de `LaptopSeeder` (mismos IDs 1-14). Automatizado: `php artisan motor:exportar-catalogo` (B11). | M | Jack | ✅ |
 | A10 | Despliegue a Render + staging | M | Jack | ☐ |
 | A11 | Registro de eventos + endpoint de KPIs | S | Jack | ✅ |
 | A12 | Swagger/OpenAPI publicado | S | Jack | ☐ |
@@ -38,7 +38,7 @@ priorización. Actualízalo cuando cambie el alcance.
 | B8 | Responsive + revisión de usabilidad | S | Marco | ☐ |
 | B9 | Compra con o sin cuenta: personalizar → checkout (datos, envío, pago simulado) → confirmación con código; "Mis pedidos" en el panel del cliente y pestaña Pedidos en el admin para avanzar el estado del envío. | M | Jack | ✅ |
 | B10 | Cuestionario de bienvenida (Psicología): 10 preguntas al crear la cuenta; adapta cómo se presenta la recomendación (estilo de decisión, nivel técnico, para quién es). Editable y borrable. | M | Jack | ✅ |
-| B11 | Que las respuestas del cuestionario (movilidad, batería, molestias, años de uso, prioridades, marcas, periféricos) cambien el ranking del motor — requiere ampliar el contrato del motor. | M | Jack | ☐ |
+| B11 | Que las respuestas del cuestionario (movilidad, batería, molestias, años de uso, prioridades, marcas, periféricos) cambien el ranking del motor — requiere ampliar el contrato del motor. | M | Jack | ✅ — `ml-engine/recommender/preferencias.py`: 70% técnica + 30% afinidad, con factores y advertencias por preferencia. El resultado muestra el % desglosado y el "¿por qué?" de la IA. |
 | B12 | Unir compras de invitado a una cuenta (código + correo) y avisos por correo al cambiar el estado del pedido — en pausa por decisión del equipo (foco en IA + disciplinas). | C | Jack | ☐ |
 
 ## Épica 3 — Catálogo, datos y documentación (Módulo C) — *Bloques I, III, IV*

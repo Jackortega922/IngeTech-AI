@@ -11,6 +11,17 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "AMD Radeon integrada",
         "gpu_dedicada": false,
+        "bateria_horas": 8,
+        "pantalla_pulgadas": 15.6,
+        "pantalla_resolucion": "1920x1080",
+        "pantalla_hz": 60,
+        "peso_kg": 1.62,
+        "puertos": [
+            "usb_a",
+            "usb_c_carga",
+            "hdmi",
+            "lector_sd"
+        ],
         "precio_soles": 1899,
         "tienda": "Tiendas EFE Huánuco"
     },
@@ -26,6 +37,17 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "AMD Radeon integrada",
         "gpu_dedicada": false,
+        "bateria_horas": 9,
+        "pantalla_pulgadas": 14,
+        "pantalla_resolucion": "2880x1800",
+        "pantalla_hz": 90,
+        "peso_kg": 1.49,
+        "puertos": [
+            "usb_a",
+            "usb_c_carga",
+            "hdmi",
+            "lector_sd"
+        ],
         "precio_soles": 3199,
         "tienda": "Curacao (envío nacional)"
     },
@@ -41,6 +63,17 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "NVIDIA RTX 4070",
         "gpu_dedicada": true,
+        "bateria_horas": 5,
+        "pantalla_pulgadas": 16,
+        "pantalla_resolucion": "2560x1600",
+        "pantalla_hz": 165,
+        "peso_kg": 2.5,
+        "puertos": [
+            "usb_a",
+            "usb_c_carga",
+            "hdmi",
+            "ethernet"
+        ],
         "precio_soles": 6499,
         "tienda": "Hiraoka (envío nacional)"
     },
@@ -56,6 +89,17 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "Intel UHD integrada",
         "gpu_dedicada": false,
+        "bateria_horas": 7,
+        "pantalla_pulgadas": 15.6,
+        "pantalla_resolucion": "1920x1080",
+        "pantalla_hz": 60,
+        "peso_kg": 1.59,
+        "puertos": [
+            "usb_a",
+            "usb_c",
+            "hdmi",
+            "lector_sd"
+        ],
         "precio_soles": 1699,
         "tienda": "Hiraoka (envío nacional)"
     },
@@ -71,6 +115,16 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "AMD Radeon integrada",
         "gpu_dedicada": false,
+        "bateria_horas": 10,
+        "pantalla_pulgadas": 13.3,
+        "pantalla_resolucion": "1920x1200",
+        "pantalla_hz": 60,
+        "peso_kg": 0.99,
+        "puertos": [
+            "usb_a",
+            "usb_c_carga",
+            "hdmi"
+        ],
         "precio_soles": 2999,
         "tienda": "Tiendas EFE Huánuco"
     },
@@ -86,6 +140,18 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "NVIDIA RTX 4050",
         "gpu_dedicada": true,
+        "bateria_horas": 6,
+        "pantalla_pulgadas": 16.1,
+        "pantalla_resolucion": "1920x1080",
+        "pantalla_hz": 144,
+        "peso_kg": 2.29,
+        "puertos": [
+            "usb_a",
+            "usb_c",
+            "hdmi",
+            "ethernet",
+            "lector_sd"
+        ],
         "precio_soles": 4599,
         "tienda": "Hiraoka (envío nacional)"
     },
@@ -101,6 +167,15 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "GPU integrada Apple M2",
         "gpu_dedicada": false,
+        "bateria_horas": 18,
+        "pantalla_pulgadas": 13.6,
+        "pantalla_resolucion": "2560x1664",
+        "pantalla_hz": 60,
+        "peso_kg": 1.24,
+        "puertos": [
+            "usb_c_carga",
+            "thunderbolt"
+        ],
         "precio_soles": 5499,
         "tienda": "iStore (envío nacional)"
     },
@@ -116,6 +191,15 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "GPU integrada Apple M3",
         "gpu_dedicada": false,
+        "bateria_horas": 18,
+        "pantalla_pulgadas": 15.3,
+        "pantalla_resolucion": "2880x1864",
+        "pantalla_hz": 60,
+        "peso_kg": 1.51,
+        "puertos": [
+            "usb_c_carga",
+            "thunderbolt"
+        ],
         "precio_soles": 6499,
         "tienda": "iStore (envío nacional)"
     },
@@ -131,6 +215,17 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "GPU integrada Apple M3 (10 núcleos)",
         "gpu_dedicada": false,
+        "bateria_horas": 17,
+        "pantalla_pulgadas": 14.2,
+        "pantalla_resolucion": "3024x1964",
+        "pantalla_hz": 120,
+        "peso_kg": 1.55,
+        "puertos": [
+            "usb_c_carga",
+            "thunderbolt",
+            "hdmi",
+            "lector_sd"
+        ],
         "precio_soles": 7999,
         "tienda": "iStore (envío nacional)"
     },
@@ -146,6 +241,16 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "AMD Radeon integrada",
         "gpu_dedicada": false,
+        "bateria_horas": 8,
+        "pantalla_pulgadas": 15.6,
+        "pantalla_resolucion": "1920x1080",
+        "pantalla_hz": 60,
+        "peso_kg": 1.7,
+        "puertos": [
+            "usb_a",
+            "usb_c",
+            "hdmi"
+        ],
         "precio_soles": 2199,
         "tienda": "Plaza Vea Huánuco"
     },
@@ -161,6 +266,17 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "NVIDIA RTX 2050",
         "gpu_dedicada": true,
+        "bateria_horas": 6,
+        "pantalla_pulgadas": 15.6,
+        "pantalla_resolucion": "2880x1620",
+        "pantalla_hz": 120,
+        "peso_kg": 1.8,
+        "puertos": [
+            "usb_a",
+            "usb_c_carga",
+            "hdmi",
+            "lector_sd"
+        ],
         "precio_soles": 3799,
         "tienda": "Hiraoka (envío nacional)"
     },
@@ -176,6 +292,17 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "NVIDIA RTX 4060",
         "gpu_dedicada": true,
+        "bateria_horas": 5,
+        "pantalla_pulgadas": 15.6,
+        "pantalla_resolucion": "1920x1080",
+        "pantalla_hz": 144,
+        "peso_kg": 2.2,
+        "puertos": [
+            "usb_a",
+            "usb_c_carga",
+            "hdmi",
+            "ethernet"
+        ],
         "precio_soles": 4999,
         "tienda": "Curacao (envío nacional)"
     },
@@ -191,6 +318,17 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "Intel UHD integrada",
         "gpu_dedicada": false,
+        "bateria_horas": 7,
+        "pantalla_pulgadas": 15.6,
+        "pantalla_resolucion": "1920x1080",
+        "pantalla_hz": 60,
+        "peso_kg": 1.78,
+        "puertos": [
+            "usb_a",
+            "usb_c",
+            "hdmi",
+            "ethernet"
+        ],
         "precio_soles": 1799,
         "tienda": "PC Factory Huánuco"
     },
@@ -206,6 +344,17 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "AMD Radeon integrada",
         "gpu_dedicada": false,
+        "bateria_horas": 8,
+        "pantalla_pulgadas": 15.6,
+        "pantalla_resolucion": "1920x1080",
+        "pantalla_hz": 60,
+        "peso_kg": 1.76,
+        "puertos": [
+            "usb_a",
+            "usb_c_carga",
+            "hdmi",
+            "ethernet"
+        ],
         "precio_soles": 2399,
         "tienda": "Plaza Vea Huánuco"
     },
@@ -221,6 +370,17 @@
         "almacenamiento_tipo": "SSD",
         "gpu": "NVIDIA RTX 4050",
         "gpu_dedicada": true,
+        "bateria_horas": 6,
+        "pantalla_pulgadas": 15.6,
+        "pantalla_resolucion": "1920x1080",
+        "pantalla_hz": 144,
+        "peso_kg": 2.1,
+        "puertos": [
+            "usb_a",
+            "usb_c",
+            "hdmi",
+            "ethernet"
+        ],
         "precio_soles": 4799,
         "tienda": "Compumundo Huánuco"
     }

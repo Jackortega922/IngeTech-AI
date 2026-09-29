@@ -85,6 +85,11 @@ export interface Tarjeta {
     badges: string[];
     laptop: Laptop;
     compatibilidad_pct: number;
+    // Solo si el cliente respondió el cuestionario: el % se arma con 70% técnica + 30% afinidad.
+    compatibilidad_tecnica_pct?: number | null;
+    afinidad_pct?: number | null;
+    // El "por qué" de la IA: motivos (factores) y avisos honestos (advertencias).
+    explicacion?: { factores: { criterio: string; aporte: number }[]; advertencias: string[] };
     recomendacion_id: number;
 }
 
