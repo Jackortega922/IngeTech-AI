@@ -1,4 +1,4 @@
-import type { EstadoPedido } from '@/types/flujo';
+import type { EstadoPedido, Pedido } from '@/types/flujo';
 
 // Mismo orden que Pedido::ESTADOS en el backend.
 export const ESTADOS_PEDIDO: { value: EstadoPedido; label: string; clase: string }[] = [
@@ -57,3 +57,9 @@ export const TARJETAS_PRUEBA = [
     { numero: '4242 4242 4242 4242', resultado: 'aprobada' },
     { numero: '4000 0000 0000 0002', resultado: 'rechazada' },
 ];
+
+// "Amarilis, Huánuco, Huánuco" o "Miraflores, Lima": distrito y provincia si es Huánuco
+// (lista oficial), si no la ciudad escrita a mano.
+export function lugarDeEnvio(p: Pick<Pedido, 'distrito' | 'provincia' | 'ciudad' | 'departamento'>): string {
+    return [p.distrito ?? p.ciudad, p.provincia, p.departamento].filter(Boolean).join(', ');
+}
