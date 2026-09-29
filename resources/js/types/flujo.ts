@@ -230,3 +230,29 @@ export interface Pedido {
         items: { id: number; item: { id: number; nombre: string; precio_soles: string | number } | null }[];
     };
 }
+
+// Cuestionario de bienvenida (Psicología). Las preguntas vienen del backend
+// (App\Support\CuestionarioBienvenida), que es la única fuente.
+export interface PreguntaCuestionario {
+    clave: string;
+    tipo: 'unica' | 'multiple' | 'orden' | 'marcas';
+    pregunta: string;
+    ayuda: string | null;
+    opciones: Record<string, string>;
+}
+
+export interface PreferenciasCliente {
+    para_quien: 'yo' | 'otra_persona' | null;
+    movilidad: string | null;
+    lejos_enchufe: string | null;
+    molestias: string[] | null;
+    anios_uso: string | null;
+    nivel_tecnologia: 'principiante' | 'intermedio' | 'avanzado' | null;
+    prioridades: string[] | null;
+    estilo_decision: 'la_mejor' | 'comparar' | 'ver_todo' | null;
+    marcas_preferidas: string[] | null;
+    marcas_evitar: string[] | null;
+    perifericos: string[] | null;
+    completado_at: string | null;
+    omitido_at: string | null;
+}

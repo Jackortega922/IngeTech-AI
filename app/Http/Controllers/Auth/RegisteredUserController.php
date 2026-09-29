@@ -47,6 +47,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return to_route('dashboard');
+        // Primero el cuestionario de bienvenida (Psicología) para conocer al cliente; se puede omitir.
+        return to_route('bienvenida');
     }
 }

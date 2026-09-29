@@ -2,9 +2,10 @@ import ChatWidget from '@/components/chat-widget';
 import FlowHeader from '@/components/flujo/flow-header';
 import LaptopImage from '@/components/laptop-image';
 import { flujoStorage } from '@/lib/flujo-storage';
-import type { Laptop, RespuestaMotorError, Tarjeta } from '@/types/flujo';
+import { nivelCpu } from '@/lib/guia-compra';
+import type { Laptop, PreferenciasCliente, RespuestaMotorError, Tarjeta } from '@/types/flujo';
 import { Head, Link, router } from '@inertiajs/react';
-import { AlertTriangle, Cpu, HardDrive, MonitorSmartphone, Scale } from 'lucide-react';
+import { AlertTriangle, ChevronDown, Cpu, HardDrive, HeartHandshake, LayoutGrid, MonitorSmartphone, Scale } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 
@@ -14,7 +15,21 @@ const COLOR_BADGE: Record<string, string> = {
     'Mejor Rendimiento': 'bg-violet-400 text-violet-950',
 };
 
-export default function ResultadoIndex() {
+// Cómo se presenta la recomendación según el cuestionario de bienvenida (Psicología). No cambia
+// qué recomienda la IA, solo cómo se muestra y se explica.
+type Estilo = 'la_mejor' | 'comparar' | 'ver_todo';
+type Nivel = 'principiante' | 'intermedio' | 'avanzado';
+
+const MOTIVO_ESTILO: Record<Estilo, string> = {
+    la_mejor: 'nos dijiste que prefieres que te digamos cuál es la mejor para ti',
+    comparar: 'nos dijiste que prefieres comparar opciones',
+    ver_todo: 'nos dijiste que prefieres ver todas las opciones',
+};
+
+export default function ResultadoIndex({ preferencias }: { preferencias: PreferenciasCliente | null }) {
+    const estilo: Estilo | null = preferencias?.estilo_decision ?? null;
+    const nivel: Nivel = preferencias?.nivel_tecnologia ?? 'intermedio';
+    const [verOtras, setVerOtras] = useState(false);
     const [tarjetas, setTarjetas] = useState<Tarjeta[] | null>(null);
     const [errorMotor, setErrorMotor] = useState<RespuestaMotorError | null>(null);
     const [comparar, setComparar] = useState<number[]>([]);
@@ -44,6 +59,13 @@ export default function ResultadoIndex() {
 
         flujoStorage.guardarSeleccionada(t);
         router.visit('/personalizar');
+    }
+
+    // "Quiero comparar": manda todas las recomendadas al comparador de una vez.
+    function compararTodas() {
+        if (!tarjetas) return;
+        flujoStorage.guardarComparar(tarjetas.slice(0, 3).map((t) => t.laptop_id));
+        router.visit('/comparador');
     }
 
     function agregarAComparar(id: number) {
@@ -86,17 +108,86 @@ export default function ResultadoIndex() {
                             )}
                         </>
                     ) : (
-                        <div className="mt-8 grid gap-6 lg:grid-cols-3">
-                            {tarjetas.map((t) => (
-                                <TarjetaLaptop
-                                    key={t.laptop_id}
-                                    t={t}
-                                    enComparar={comparar.includes(t.laptop_id)}
-                                    onElegir={() => elegir(t)}
-                                    onComparar={() => agregarAComparar(t.laptop_id)}
-                                />
-                            ))}
-                        </div>
+                        <>
+                            {estilo && (
+                                <p className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-400">
+                                    <HeartHandshake className="h-4 w-4 text-violet-300" />
+                                    Te lo mostramos así porque {MOTIVO_ESTILO[estilo]}.
+                                    <Link href="/bienvenida" className="text-violet-300 underline decoration-violet-300/30 hover:text-violet-200">
+                                        Cambiar
+                                    </Link>
+                                </p>
+                            )}
+
+                            {estilo === 'comparar' && tarjetas.length > 1 && (
+                                <button
+                                    onClick={compararTodas}
+                                    className="mt-4 flex items-center gap-2 rounded-xl border border-cyan-400/50 bg-cyan-400/10 px-5 py-3 text-sm font-bold text-cyan-300 hover:bg-cyan-400/20"
+                                >
+                                    <Scale className="h-4 w-4" /> Comparar estas {Math.min(tarjetas.length, 3)} lado a lado
+                                </button>
+                            )}
+
+                            {estilo === 'la_mejor' ? (
+                                // Una sola recomendación clara (la de mayor compatibilidad); las demás, a pedido.
+                                <>
+                                    <p className="mt-6 text-sm font-bold tracking-wide text-cyan-300 uppercase">Nuestra recomendación para ti</p>
+                                    <div className="mt-3 max-w-md">
+                                        <TarjetaLaptop
+                                            t={tarjetas[0]}
+                                            nivel={nivel}
+                                            enComparar={comparar.includes(tarjetas[0].laptop_id)}
+                                            onElegir={() => elegir(tarjetas[0])}
+                                            onComparar={() => agregarAComparar(tarjetas[0].laptop_id)}
+                                        />
+                                    </div>
+                                    {tarjetas.length > 1 &&
+                                        (verOtras ? (
+                                            <div className="mt-6 grid gap-6 lg:grid-cols-3">
+                                                {tarjetas.slice(1).map((t) => (
+                                                    <TarjetaLaptop
+                                                        key={t.laptop_id}
+                                                        t={t}
+                                                        nivel={nivel}
+                                                        enComparar={comparar.includes(t.laptop_id)}
+                                                        onElegir={() => elegir(t)}
+                                                        onComparar={() => agregarAComparar(t.laptop_id)}
+                                                    />
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => setVerOtras(true)}
+                                                className="mt-5 flex items-center gap-1.5 text-sm text-slate-400 hover:text-white"
+                                            >
+                                                <ChevronDown className="h-4 w-4" /> Ver las otras {tarjetas.length - 1} opciones
+                                            </button>
+                                        ))}
+                                </>
+                            ) : (
+                                <div className="mt-8 grid gap-6 lg:grid-cols-3">
+                                    {tarjetas.map((t) => (
+                                        <TarjetaLaptop
+                                            key={t.laptop_id}
+                                            t={t}
+                                            nivel={nivel}
+                                            enComparar={comparar.includes(t.laptop_id)}
+                                            onElegir={() => elegir(t)}
+                                            onComparar={() => agregarAComparar(t.laptop_id)}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+
+                            {estilo === 'ver_todo' && (
+                                <Link
+                                    href="/hardware"
+                                    className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-3 text-sm font-semibold hover:border-cyan-400"
+                                >
+                                    <LayoutGrid className="h-4 w-4" /> Ver todo el catálogo de laptops
+                                </Link>
+                            )}
+                        </>
                     )}
 
                     <div className="mt-10 flex items-center gap-6">
@@ -116,7 +207,24 @@ export default function ResultadoIndex() {
     );
 }
 
-function TarjetaLaptop({ t, enComparar, onElegir, onComparar }: { t: Tarjeta; enComparar: boolean; onElegir: () => void; onComparar: () => void }) {
+// Textos sin tecnicismos para quien dijo sentirse poco cómodo con la tecnología (Psicología:
+// menos jerga = menos ansiedad al decidir).
+const RENDIMIENTO_SIMPLE = { basico: 'Rendimiento para lo básico', estandar: 'Buen rendimiento', avanzado: 'Rendimiento alto' } as const;
+
+function TarjetaLaptop({
+    t,
+    nivel,
+    enComparar,
+    onElegir,
+    onComparar,
+}: {
+    t: Tarjeta;
+    nivel: Nivel;
+    enComparar: boolean;
+    onElegir: () => void;
+    onComparar: () => void;
+}) {
+    const simple = nivel === 'principiante';
     const l = t.laptop;
     const destacada = t.badges.includes('Mejor Rendimiento') && t.badges.length > 1;
 
@@ -139,15 +247,35 @@ function TarjetaLaptop({ t, enComparar, onElegir, onComparar }: { t: Tarjeta; en
             <h2 className="mt-3 text-xl font-bold">
                 {l.marca} {l.modelo}
             </h2>
-            <p className="text-xs text-slate-400">
-                {l.tipo === 'laptop' ? 'Laptop' : 'PC de escritorio'} · {l.cpu}
-            </p>
+            <p className="text-xs text-slate-400">{simple ? 'Laptop' : `Laptop · ${l.cpu}`}</p>
 
             <div className="mt-5 grid grid-cols-3 gap-2 text-center text-xs">
-                <SpecChip icon={<Cpu className="h-3.5 w-3.5" />} label={`Score ${l.rendimiento_score}`} />
-                <SpecChip icon={<HardDrive className="h-3.5 w-3.5" />} label={`${l.ram_gb} GB · ${l.almacenamiento_gb} GB`} />
-                <SpecChip icon={<MonitorSmartphone className="h-3.5 w-3.5" />} label={l.gpu_dedicada ? 'GPU dedicada' : 'Integrada'} />
+                <SpecChip icon={<Cpu className="h-3.5 w-3.5" />} label={simple ? RENDIMIENTO_SIMPLE[nivelCpu(l)] : `Score ${l.rendimiento_score}`} />
+                <SpecChip
+                    icon={<HardDrive className="h-3.5 w-3.5" />}
+                    label={simple ? `Memoria ${l.ram_gb >= 16 ? 'de sobra' : 'suficiente'}` : `${l.ram_gb} GB · ${l.almacenamiento_gb} GB`}
+                />
+                <SpecChip
+                    icon={<MonitorSmartphone className="h-3.5 w-3.5" />}
+                    label={
+                        simple
+                            ? l.gpu_dedicada
+                                ? 'Gráficos para diseño y juegos'
+                                : 'Gráficos para el día a día'
+                            : l.gpu_dedicada
+                              ? 'GPU dedicada'
+                              : 'Integrada'
+                    }
+                />
             </div>
+            {nivel === 'avanzado' && (
+                <p className="mt-3 font-mono text-[11px] leading-relaxed text-slate-500">
+                    {l.almacenamiento_tipo} {l.almacenamiento_gb} GB · {l.gpu ?? 'GPU integrada'}
+                    {l.ram_ampliable_gb ? ` · RAM ampliable a ${l.ram_ampliable_gb} GB` : ''}
+                    {l.bateria_horas ? ` · ${l.bateria_horas} h de batería` : ''}
+                    {l.pantalla_pulgadas ? ` · ${l.pantalla_pulgadas}" ${l.pantalla_resolucion ?? ''} ${l.pantalla_hz ?? 60} Hz` : ''}
+                </p>
+            )}
 
             <div className="mt-5 flex items-baseline justify-between border-t border-white/10 pt-4">
                 <span className="font-mono text-2xl font-bold">S/ {Number(l.precio_soles).toLocaleString('es-PE')}</span>

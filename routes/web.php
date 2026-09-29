@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Tienda\BienvenidaController;
 use App\Http\Controllers\Tienda\PedidoConfirmacionController;
 use App\Http\Controllers\Tienda\SeguimientoController;
 use App\Models\Laptop;
@@ -46,11 +47,27 @@ Route::middleware(['auth'])->group(function () {
             return redirect()->route('admin');
         }
 
-        return Inertia::render('sistemas/dashboard');
+        return Inertia::render('sistemas/dashboard', [
+            'preferencias' => $request->user()->preferencias,
+            'mensaje' => session('mensaje'),
+        ]);
     })->name('dashboard');
 
-    Route::get('perfil', fn () => Inertia::render('sistemas/perfil/index'))->name('perfil');
-    Route::get('resultado', fn () => Inertia::render('sistemas/resultado/index'))->name('resultado');
+    // Cuestionario de bienvenida (Psicología): se muestra al crear la cuenta y se puede volver
+    // a responder, omitir o borrar desde el panel.
+    Route::get('bienvenida', [BienvenidaController::class, 'create'])->name('bienvenida');
+    Route::post('bienvenida', [BienvenidaController::class, 'store']);
+    Route::post('bienvenida/omitir', [BienvenidaController::class, 'omitir'])->name('bienvenida.omitir');
+    Route::delete('bienvenida', [BienvenidaController::class, 'destroy'])->name('bienvenida.borrar');
+
+    // Perfil y resultado reciben las respuestas del cuestionario para adaptar cómo se le
+    // presenta la recomendación (para quién es, cómo prefiere decidir, nivel técnico).
+    Route::get('perfil', fn (Request $request) => Inertia::render('sistemas/perfil/index', [
+        'preferencias' => $request->user()->preferencias,
+    ]))->name('perfil');
+    Route::get('resultado', fn (Request $request) => Inertia::render('sistemas/resultado/index', [
+        'preferencias' => $request->user()->preferencias,
+    ]))->name('resultado');
 
     Route::get('historial', fn () => Inertia::render('sistemas/historial/index'))->name('historial');
 

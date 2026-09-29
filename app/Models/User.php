@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -53,5 +54,11 @@ class User extends Authenticatable
     public function perfiles(): HasMany
     {
         return $this->hasMany(PerfilUsuario::class);
+    }
+
+    // Respuestas del cuestionario de bienvenida (una por cliente).
+    public function preferencias(): HasOne
+    {
+        return $this->hasOne(PreferenciaCliente::class);
     }
 }
