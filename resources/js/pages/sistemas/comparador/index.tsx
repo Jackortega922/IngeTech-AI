@@ -2,6 +2,8 @@ import LaptopImage from '@/components/laptop-image';
 import AppLayout from '@/layouts/app-layout';
 import { compararPorTarea, tareasCumplidas, type ComparacionTarea } from '@/lib/comparador';
 import { flujoStorage } from '@/lib/flujo-storage';
+import { PUERTO_ETIQUETA } from '@/lib/guia-compra';
+import GuiaCompra from '@/pages/sistemas/comparador/guia-compra';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import type { Catalogos, Laptop } from '@/types/flujo';
 import { Head, Link, usePage } from '@inertiajs/react';
@@ -36,6 +38,13 @@ const FILAS: Fila[] = [
     },
     { label: 'Gráficos', texto: (e) => `${e.gpu_dedicada ? 'Dedicada — ' : 'Integrada — '}${e.gpu ?? ''}` },
     { label: 'Batería', texto: (e) => (e.bateria_horas ? `${e.bateria_horas} h` : '—'), valor: (e) => e.bateria_horas ?? 0, gana: 'mayor' },
+    {
+        label: 'Pantalla',
+        texto: (e) => (e.pantalla_pulgadas ? `${e.pantalla_pulgadas}" · ${e.pantalla_resolucion ?? '—'} · ${e.pantalla_hz ?? 60} Hz` : '—'),
+    },
+    // Sin dato de peso no compite: se toma como el peor valor posible.
+    { label: 'Peso', texto: (e) => (e.peso_kg ? `${e.peso_kg} kg` : '—'), valor: (e) => e.peso_kg ?? 99, gana: 'menor' },
+    { label: 'Puertos', texto: (e) => (e.puertos?.length ? e.puertos.map((p) => PUERTO_ETIQUETA[p] ?? p).join(', ') : '—') },
     { label: 'Tienda de referencia', texto: (e) => e.tienda ?? '—' },
     {
         label: 'Precio',
@@ -146,6 +155,8 @@ export default function ComparadorIndex() {
                         <p className="text-muted-foreground text-xs">
                             En verde, el mejor valor de cada fila.<span className="sm:hidden"> Desliza la tabla hacia los lados para ver todas.</span>
                         </p>
+
+                        <GuiaCompra equipos={equipos} />
 
                         <GuiaPorTarea tareas={tareas} equipos={equipos} />
 

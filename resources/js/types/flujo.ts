@@ -62,6 +62,12 @@ export interface Laptop {
     gpu: string | null;
     gpu_dedicada: boolean;
     bateria_horas: number | null;
+    // Guía de compra del comparador (valores de referencia, por verificar: tarea C2).
+    pantalla_pulgadas: number | null;
+    pantalla_resolucion: string | null;
+    pantalla_hz: number | null;
+    peso_kg: number | null;
+    puertos: string[] | null;
     precio_soles: string | number;
     tienda: string | null;
     rendimiento_score: number | null;

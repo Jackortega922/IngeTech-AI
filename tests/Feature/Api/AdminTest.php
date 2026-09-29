@@ -59,6 +59,28 @@ class AdminTest extends TestCase
         $this->assertDatabaseMissing('laptops', ['id' => $id]);
     }
 
+    public function test_guarda_pantalla_peso_y_puertos_para_la_guia_de_compra()
+    {
+        $this->comoAdmin();
+
+        $payload = [
+            'marca' => 'HP', 'modelo' => 'Pavilion Aero 13', 'tipo' => 'laptop', 'cpu' => 'Ryzen 5',
+            'rendimiento_score' => 62, 'ram_gb' => 16, 'almacenamiento_gb' => 512, 'almacenamiento_tipo' => 'SSD',
+            'gpu_dedicada' => false, 'precio_soles' => 2999,
+            'pantalla_pulgadas' => 13.3, 'pantalla_resolucion' => '1920x1200', 'pantalla_hz' => 60, 'peso_kg' => 0.99,
+            'puertos' => ['usb_a', 'usb_c_carga', 'hdmi'],
+        ];
+
+        $this->postJson('/api/admin/hardware', $payload)
+            ->assertCreated()
+            ->assertJsonPath('peso_kg', 0.99)
+            ->assertJsonPath('puertos', ['usb_a', 'usb_c_carga', 'hdmi']);
+
+        $this->postJson('/api/admin/hardware', array_merge($payload, ['puertos' => ['usb_a', 'puerto_magico'], 'pantalla_resolucion' => 'full hd']))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['puertos.1', 'pantalla_resolucion']);
+    }
+
     public function test_rechaza_un_enlace_de_imagen_que_no_es_una_url_valida()
     {
         $this->comoAdmin();
