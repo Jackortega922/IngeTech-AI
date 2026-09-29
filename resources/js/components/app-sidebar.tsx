@@ -19,7 +19,6 @@ import {
     Scale,
     Scroll,
     ShoppingBag,
-    Sparkles,
     Store,
     Tag,
     UserPlus,
@@ -44,7 +43,6 @@ const navVisitante: NavItem[] = [
 const navCliente: NavItem[] = [
     { title: 'Tienda', url: '/', icon: Store },
     { title: 'Mi panel', url: '/dashboard', icon: LayoutGrid },
-    { title: 'Nueva recomendación', url: '/perfil', icon: Sparkles },
     { title: 'Mis recomendaciones', url: '/historial', icon: Clock },
     { title: 'Mis pedidos', url: '/dashboard#pedidos', icon: Package },
     { title: 'Catálogo de software', url: '/software', icon: LayoutList },
