@@ -3,6 +3,7 @@ import { AppShell } from '@/components/app-shell';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import ChatWidget from '@/components/chat-widget';
+import ThemeCustomizer from '@/components/theme-customizer';
 import { type BreadcrumbItem } from '@/types';
 
 export default function AppSidebarLayout({ children, breadcrumbs = [] }: { children: React.ReactNode; breadcrumbs?: BreadcrumbItem[] }) {
@@ -16,6 +17,8 @@ export default function AppSidebarLayout({ children, breadcrumbs = [] }: { child
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
                 {children}
             </AppContent>
+            {/* Selector de tema claro/azul marino y color de acento (rediseño de Marco). */}
+            <ThemeCustomizer />
             <ChatWidget />
         </AppShell>
     );
