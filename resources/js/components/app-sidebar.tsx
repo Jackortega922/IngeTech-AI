@@ -73,8 +73,8 @@ export function AppSidebar() {
     const mainNavItems = usuario === null ? navVisitante : usuario.is_admin ? navAdmin : navCliente;
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+        <Sidebar collapsible="icon" variant="inset" className="border-r border-slate-200/80 bg-white/95 dark:border-slate-800 dark:bg-[#07182c]">
+            <SidebarHeader className="border-b border-slate-200/70 pb-3 dark:border-slate-800">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
@@ -87,11 +87,11 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent className="it-scrollbar px-1">
                 <NavMain items={mainNavItems} />
             </SidebarContent>
 
-            <SidebarFooter>
+            <SidebarFooter className="border-t border-slate-200/70 pt-2 dark:border-slate-800">
                 {esVisitante ? (
                     <SidebarMenu>
                         <SidebarMenuItem>
