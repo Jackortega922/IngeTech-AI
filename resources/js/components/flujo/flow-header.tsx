@@ -16,11 +16,11 @@ export default function FlowHeader({ pasoActual, flujo = 'ia' }: { pasoActual: 1
     const actual = flujo === 'tienda' ? pasoActual - 2 : pasoActual;
 
     return (
-        <header className="border-b border-white/10 bg-[#07111f]/80 backdrop-blur">
+        <header className="border-b border-slate-200 bg-white/80 backdrop-blur dark:border-white/10 dark:bg-[#07111f]/80">
             <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5 lg:px-10">
-                <Link href="/" className="flex items-center gap-2.5 text-lg font-bold text-white">
+                <Link href="/" className="flex items-center gap-2.5 text-lg font-bold text-[#0c2340] dark:text-white">
                     <span className="grid h-9 w-9 place-items-center rounded-lg bg-cyan-400 text-[#07111f]">✦</span>
-                    Inge<span className="text-cyan-400">Tech</span> AI
+                    Inge<span className="text-sky-600 dark:text-cyan-400">Tech</span> AI
                 </Link>
 
                 <ol className="hidden items-center gap-2 text-sm sm:flex">
@@ -28,13 +28,15 @@ export default function FlowHeader({ pasoActual, flujo = 'ia' }: { pasoActual: 1
                         <li key={titulo} className="flex items-center gap-2">
                             <span
                                 className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
-                                    actual >= i + 1 ? 'bg-cyan-400 text-[#07111f]' : 'bg-white/10 text-slate-400'
+                                    actual >= i + 1
+                                        ? 'bg-cyan-400 text-[#07111f]'
+                                        : 'bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-400'
                                 }`}
                             >
                                 {i + 1}
                             </span>
-                            <span className={actual >= i + 1 ? 'text-white' : 'text-slate-500'}>{titulo}</span>
-                            {i < pasos.length - 1 && <span className="mx-1 h-px w-6 bg-white/15" />}
+                            <span className={actual >= i + 1 ? 'text-[#0c2340] dark:text-white' : 'text-slate-500'}>{titulo}</span>
+                            {i < pasos.length - 1 && <span className="mx-1 h-px w-6 bg-slate-200 dark:bg-white/15" />}
                         </li>
                     ))}
                 </ol>

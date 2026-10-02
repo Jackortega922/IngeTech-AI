@@ -146,15 +146,15 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
     return (
         <>
             <Head title="Finalizar compra — IngeTech AI" />
-            <div className="min-h-screen bg-[#07111f] text-white">
+            <div className="min-h-screen bg-slate-50 text-[#0c2340] dark:bg-slate-950 dark:text-white">
                 <FlowHeader pasoActual={4} flujo={flujo} />
 
                 <main className="mx-auto max-w-5xl px-6 py-12 lg:px-10">
                     <h1 className="text-3xl font-bold sm:text-4xl">Finalizar compra</h1>
-                    <p className="mt-2 text-slate-400">
+                    <p className="mt-2 text-slate-500 dark:text-slate-400">
                         {auth.user ? 'Tus datos ya están cargados; revisa la dirección de entrega.' : 'No necesitas cuenta para comprar.'}{' '}
                         {!auth.user && (
-                            <Link href="/login" className="text-cyan-400 underline">
+                            <Link href="/login" className="text-sky-600 underline dark:text-cyan-400">
                                 ¿Ya tienes cuenta? Ingresa
                             </Link>
                         )}
@@ -260,11 +260,11 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
                             </Seccion>
 
                             <Seccion titulo="3. Pago" icono={<CreditCard className="h-4 w-4" />}>
-                                <div className="mb-4 flex gap-3 rounded-xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">
+                                <div className="mb-4 flex gap-3 rounded-xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-800 dark:text-amber-200">
                                     <FlaskConical className="mt-0.5 h-4 w-4 shrink-0" />
                                     <div>
                                         <p className="font-semibold">Pago simulado: no se cobra nada.</p>
-                                        <p className="mt-1 text-xs text-amber-200/80">
+                                        <p className="mt-1 text-xs text-amber-700 dark:text-amber-200/80">
                                             Es una demostración sin pasarela de pago real. Usa una tarjeta de prueba con cualquier fecha futura y
                                             cualquier CVV:
                                         </p>
@@ -305,7 +305,7 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
                                                 className={`${input} pr-24 font-mono`}
                                             />
                                             {marca && (
-                                                <span className="absolute top-1/2 right-3 -translate-y-1/2 rounded bg-white/10 px-2 py-0.5 text-xs font-bold uppercase">
+                                                <span className="absolute top-1/2 right-3 -translate-y-1/2 rounded bg-slate-100 px-2 py-0.5 text-xs font-bold uppercase dark:bg-white/10">
                                                     {marca}
                                                 </span>
                                             )}
@@ -346,7 +346,7 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
                                 </div>
                             </Seccion>
 
-                            <label className="flex items-start gap-3 text-sm text-slate-300">
+                            <label className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
                                 <input
                                     type="checkbox"
                                     checked={acepta}
@@ -355,18 +355,20 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
                                 />
                                 <span>
                                     Acepto los{' '}
-                                    <a href="/derecho" target="_blank" className="text-cyan-400 underline">
+                                    <a href="/derecho" target="_blank" className="text-sky-600 underline dark:text-cyan-400">
                                         términos, la garantía y la política de privacidad
                                     </a>
                                     . Mis datos se usan solo para procesar y enviar este pedido.
-                                    {errores.acepta_terminos && <span className="mt-1 block text-xs text-rose-400">{errores.acepta_terminos}</span>}
+                                    {errores.acepta_terminos && (
+                                        <span className="mt-1 block text-xs text-rose-600 dark:text-rose-400">{errores.acepta_terminos}</span>
+                                    )}
                                 </span>
                             </label>
                         </div>
 
                         {/* Resumen */}
-                        <aside className="h-fit rounded-2xl border border-white/10 bg-white/[0.04] p-6 lg:sticky lg:top-6">
-                            <p className="text-sm text-slate-400">Tu pedido</p>
+                        <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-6 lg:sticky lg:top-6 dark:border-white/10 dark:bg-white/[0.04]">
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Tu pedido</p>
                             <div className="mt-3 flex items-center gap-3">
                                 <LaptopImage
                                     imagenUrl={laptop.imagen_url}
@@ -378,30 +380,32 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
                                     <p className="font-bold">
                                         {laptop.marca} {laptop.modelo}
                                     </p>
-                                    <p className="text-xs text-slate-400">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
                                         {config.ram_gb} GB RAM · {config.almacenamiento_gb} GB
                                     </p>
                                 </div>
                             </div>
                             {(kit || accesorios.length > 0) && (
-                                <ul className="mt-3 space-y-1 text-xs text-slate-400">
+                                <ul className="mt-3 space-y-1 text-xs text-slate-500 dark:text-slate-400">
                                     {kit && <li>+ {kit.nombre}</li>}
                                     {accesorios.map((a) => (
                                         <li key={a.id}>+ {a.nombre}</li>
                                     ))}
                                 </ul>
                             )}
-                            <div className="mt-5 space-y-2 border-t border-white/10 pt-4 text-sm">
+                            <div className="mt-5 space-y-2 border-t border-slate-200 pt-4 text-sm dark:border-white/10">
                                 <Fila label="Subtotal" valor={soles(config.precio_estimado)} />
                                 <Fila label="Envío" valor={COSTO_ENVIO === 0 ? 'Gratis' : soles(COSTO_ENVIO)} />
                             </div>
-                            <div className="mt-4 flex items-baseline justify-between border-t border-white/10 pt-4">
-                                <span className="text-sm text-slate-300">Total</span>
-                                <span className="font-mono text-2xl font-bold text-cyan-400">{soles(config.precio_estimado + COSTO_ENVIO)}</span>
+                            <div className="mt-4 flex items-baseline justify-between border-t border-slate-200 pt-4 dark:border-white/10">
+                                <span className="text-sm text-slate-600 dark:text-slate-300">Total</span>
+                                <span className="font-mono text-2xl font-bold text-sky-600 dark:text-cyan-400">
+                                    {soles(config.precio_estimado + COSTO_ENVIO)}
+                                </span>
                             </div>
 
                             {errorGeneral && (
-                                <p className="mt-4 flex items-start gap-2 rounded-xl border border-rose-400/30 bg-rose-400/10 px-3 py-2.5 text-xs text-rose-200">
+                                <p className="mt-4 flex items-start gap-2 rounded-xl border border-rose-400/30 bg-rose-400/10 px-3 py-2.5 text-xs text-rose-700 dark:text-rose-200">
                                     <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" /> {errorGeneral}
                                 </p>
                             )}
@@ -415,7 +419,7 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
                             </button>
                             <Link
                                 href="/personalizar"
-                                className="mt-3 block text-center text-xs text-slate-400 underline decoration-white/20 hover:text-white"
+                                className="mt-3 block text-center text-xs text-slate-500 underline decoration-slate-300 hover:text-[#0c2340] dark:text-slate-400 dark:decoration-white/20 dark:hover:text-white"
                             >
                                 ← Cambiar la configuración
                             </Link>
@@ -432,7 +436,7 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
 // semitransparente del campo salía blanca con letra blanca (ilegible). Así la dibuja oscura; el
 // fondo explícito de las opciones cubre a los navegadores que no respetan color-scheme.
 const input =
-    'w-full rounded-xl border border-white/10 bg-white/[0.06] px-3.5 py-2.5 text-sm text-white [color-scheme:dark] placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none [&_option]:bg-[#0d1d31] [&_option]:text-white';
+    'w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.06] px-3.5 py-2.5 text-sm text-[#0c2340] dark:text-white dark:[color-scheme:dark] placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none dark:[&_option]:bg-[#0d1d31] dark:[&_option]:text-white';
 
 function Seccion({ titulo, icono, children }: { titulo: string; icono?: ReactNode; children: ReactNode }) {
     return (
@@ -449,16 +453,16 @@ function Seccion({ titulo, icono, children }: { titulo: string; icono?: ReactNod
 function Campo({ label, error, className, children }: { label: string; error?: string; className?: string; children: ReactNode }) {
     return (
         <label className={`block ${className ?? ''}`}>
-            <span className="mb-1.5 block text-sm text-slate-300">{label}</span>
+            <span className="mb-1.5 block text-sm text-slate-600 dark:text-slate-300">{label}</span>
             {children}
-            {error && <span className="mt-1 block text-xs text-rose-400">{error}</span>}
+            {error && <span className="mt-1 block text-xs text-rose-600 dark:text-rose-400">{error}</span>}
         </label>
     );
 }
 
 function Fila({ label, valor }: { label: string; valor: string }) {
     return (
-        <div className="flex justify-between text-slate-300">
+        <div className="flex justify-between text-slate-600 dark:text-slate-300">
             <span>{label}</span>
             <span className="font-mono">{valor}</span>
         </div>

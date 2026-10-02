@@ -137,45 +137,51 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
     return (
         <>
             <Head title="Arma tu perfil — IngeTech AI" />
-            <div className="min-h-screen bg-[#07111f] text-white">
+            <div className="min-h-screen bg-slate-50 text-[#0c2340] dark:bg-slate-950 dark:text-white">
                 <FlowHeader pasoActual={1} />
 
                 <main className="mx-auto max-w-2xl px-6 py-14 lg:px-10">
                     <h1 className="text-3xl font-bold">{paraOtraPersona ? 'Cuéntanos sobre quién la usará' : 'Cuéntanos sobre ti'}</h1>
                     {/* Psicología: en el cuestionario dijo que compra para otra persona (ej. un padre para su hijo). */}
                     {paraOtraPersona && (
-                        <p className="mt-3 flex items-start gap-2 rounded-xl border border-violet-400/30 bg-violet-400/10 px-4 py-3 text-sm text-violet-200">
+                        <p className="mt-3 flex items-start gap-2 rounded-xl border border-violet-400/30 bg-violet-400/10 px-4 py-3 text-sm text-violet-700 dark:text-violet-200">
                             <Users className="mt-0.5 h-4 w-4 shrink-0" />
                             Como la laptop es para otra persona, responde pensando en su carrera u ocupación, lo que hará con ella y su nivel.
                         </p>
                     )}
-                    <p className="mt-2 text-slate-400">Con esto identificamos qué tan exigentes son tus actividades diarias, seas estudiante o no.</p>
+                    <p className="mt-2 text-slate-500 dark:text-slate-400">
+                        Con esto identificamos qué tan exigentes son tus actividades diarias, seas estudiante o no.
+                    </p>
 
                     {cargando ? (
-                        <div className="mt-8 h-96 animate-pulse rounded-2xl bg-white/[0.04]" />
+                        <div className="mt-8 h-96 animate-pulse rounded-2xl bg-white dark:bg-white/[0.04]" />
                     ) : (
-                        <div className="mt-8 space-y-7 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                        <div className="mt-8 space-y-7 rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
                             <label className="block">
-                                <span className="mb-1.5 block text-sm font-medium text-slate-300">Carrera u ocupación</span>
+                                <span className="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">Carrera u ocupación</span>
                                 <div className="relative">
                                     <select
                                         value={perfil.carrera_clave}
                                         onChange={(e) => setPerfil({ ...perfil, carrera_clave: e.target.value })}
-                                        className="w-full appearance-none rounded-2xl border border-cyan-400/20 bg-slate-900 px-4 py-4 pr-12 text-white shadow-lg shadow-cyan-950/20 transition outline-none hover:border-cyan-400/40 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
+                                        className="w-full appearance-none rounded-2xl border border-cyan-400/20 bg-white px-4 py-4 pr-12 text-[#0c2340] shadow-lg shadow-cyan-950/20 transition outline-none hover:border-cyan-400/40 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 dark:bg-slate-900 dark:text-white"
                                     >
                                         {!catalogos?.carreras?.length ? (
-                                            <option value="" className="bg-slate-900 text-slate-300">
+                                            <option value="" className="bg-white text-slate-600 dark:bg-slate-900 dark:text-slate-300">
                                                 No hay carreras disponibles
                                             </option>
                                         ) : (
                                             catalogos.carreras.map((c) => (
-                                                <option key={c.clave} value={c.clave} className="bg-slate-900 text-white">
+                                                <option
+                                                    key={c.clave}
+                                                    value={c.clave}
+                                                    className="bg-white text-[#0c2340] dark:bg-slate-900 dark:text-white"
+                                                >
                                                     {c.nombre} — {c.facultad}
                                                 </option>
                                             ))
                                         )}
                                     </select>
-                                    <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-cyan-400">
+                                    <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sky-600 dark:text-cyan-400">
                                         <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                             <path
                                                 fillRule="evenodd"
@@ -187,28 +193,28 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
                                 </div>
 
                                 {catalogos?.carreras?.length ? (
-                                    <div className="mt-3 flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.025] px-4 py-3">
+                                    <div className="mt-3 flex items-center justify-between rounded-xl border border-slate-100 bg-white px-4 py-3 dark:border-white/5 dark:bg-white/[0.025]">
                                         <div className="flex min-w-0 items-center gap-3">
                                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-400/10 text-lg">
                                                 💼
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="truncate text-sm font-semibold text-white">
+                                                <p className="truncate text-sm font-semibold text-[#0c2340] dark:text-white">
                                                     {carreraActual?.nombre ?? 'Carrera u ocupación seleccionada'}
                                                 </p>
                                                 <p className="truncate text-xs text-slate-500">{carreraActual?.facultad ?? 'Carrera u ocupación'}</p>
                                             </div>
                                         </div>
-                                        <span className="ml-3 shrink-0 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-300">
+                                        <span className="ml-3 shrink-0 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-sky-700 dark:text-cyan-300">
                                             {catalogos.carreras.length} opciones
                                         </span>
                                     </div>
                                 ) : (
-                                    <div className="mt-3 flex items-start gap-3 rounded-xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-sm text-amber-200">
+                                    <div className="mt-3 flex items-start gap-3 rounded-xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
                                         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                                         <div>
                                             <p className="font-semibold">No se encontraron carreras</p>
-                                            <p className="mt-0.5 text-xs text-amber-200/70">
+                                            <p className="mt-0.5 text-xs text-amber-700 dark:text-amber-200/70">
                                                 El diseño ya está preparado, pero el catálogo de carreras no está llegando desde{' '}
                                                 <code>/api/catalogos</code>.
                                             </p>
@@ -218,7 +224,7 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
                             </label>
 
                             <label className="block">
-                                <span className="mb-1.5 block text-sm font-medium text-slate-300">
+                                <span className="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">
                                     Cargo específico <span className="text-slate-500">(opcional)</span>
                                 </span>
                                 <input
@@ -227,13 +233,13 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
                                     onChange={(e) => setPerfil({ ...perfil, cargo: e.target.value })}
                                     placeholder="Ej. Contador, Chef, Gerente de ventas..."
                                     maxLength={100}
-                                    className="w-full rounded-2xl border border-cyan-400/20 bg-slate-900 px-4 py-4 text-white placeholder-slate-500 shadow-lg shadow-cyan-950/20 transition outline-none hover:border-cyan-400/40 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
+                                    className="w-full rounded-2xl border border-cyan-400/20 bg-white px-4 py-4 text-[#0c2340] placeholder-slate-500 shadow-lg shadow-cyan-950/20 transition outline-none hover:border-cyan-400/40 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 dark:bg-slate-900 dark:text-white"
                                 />
                                 <p className="mt-1.5 text-xs text-slate-500">Nos ayuda a conocerte mejor — no afecta tu recomendación.</p>
                             </label>
 
                             <div>
-                                <span className="mb-1.5 block text-sm font-medium text-slate-300">Nivel de experiencia</span>
+                                <span className="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">Nivel de experiencia</span>
                                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
                                     {NIVEL_OPCIONES.map((op) => (
                                         <button
@@ -242,8 +248,8 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
                                             onClick={() => setPerfil({ ...perfil, nivel_experiencia: op.value })}
                                             className={`rounded-xl border p-3 text-left text-sm transition ${
                                                 perfil.nivel_experiencia === op.value
-                                                    ? 'border-cyan-400 bg-cyan-400/10 text-white'
-                                                    : 'border-white/10 bg-white/[0.03] text-slate-300 hover:border-white/25'
+                                                    ? 'border-cyan-400 bg-cyan-400/10 text-[#0c2340] dark:text-white'
+                                                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-300 dark:hover:border-white/25'
                                             }`}
                                         >
                                             <span className="block font-semibold">{op.label}</span>
@@ -254,7 +260,7 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
                             </div>
 
                             <div>
-                                <span className="mb-1.5 block text-sm font-medium text-slate-300">
+                                <span className="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">
                                     ¿Haces algo de esto además de lo normal de tu carrera? (opcional)
                                 </span>
                                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -265,8 +271,8 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
                                             onClick={() => toggleActividad(a.clave)}
                                             className={`flex items-center gap-2.5 rounded-xl border px-3.5 py-2.5 text-left text-sm transition ${
                                                 perfil.actividades.includes(a.clave)
-                                                    ? 'border-cyan-400 bg-cyan-400/10 text-white'
-                                                    : 'border-white/10 bg-white/[0.03] text-slate-300 hover:border-white/25'
+                                                    ? 'border-cyan-400 bg-cyan-400/10 text-[#0c2340] dark:text-white'
+                                                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-300 dark:hover:border-white/25'
                                             }`}
                                         >
                                             <span
@@ -285,9 +291,11 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
                             </div>
 
                             <label className="block">
-                                <span className="mb-1.5 flex justify-between text-sm font-medium text-slate-300">
+                                <span className="mb-1.5 flex justify-between text-sm font-medium text-slate-600 dark:text-slate-300">
                                     <span>Presupuesto máximo</span>
-                                    <span className="font-mono text-cyan-400">S/ {perfil.presupuesto_soles.toLocaleString('es-PE')}</span>
+                                    <span className="font-mono text-sky-600 dark:text-cyan-400">
+                                        S/ {perfil.presupuesto_soles.toLocaleString('es-PE')}
+                                    </span>
                                 </span>
                                 <input
                                     type="range"
@@ -301,7 +309,7 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
                             </label>
 
                             <div>
-                                <span className="mb-1.5 block text-sm font-medium text-slate-300">Portabilidad</span>
+                                <span className="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">Portabilidad</span>
                                 <div className="grid grid-cols-3 gap-2.5">
                                     {PORTABILIDAD_OPCIONES.map((op) => (
                                         <button
@@ -310,8 +318,8 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
                                             onClick={() => setPerfil({ ...perfil, portabilidad: op.value })}
                                             className={`rounded-xl border px-3 py-2.5 text-sm transition ${
                                                 perfil.portabilidad === op.value
-                                                    ? 'border-cyan-400 bg-cyan-400/10 text-white'
-                                                    : 'border-white/10 bg-white/[0.03] text-slate-300 hover:border-white/25'
+                                                    ? 'border-cyan-400 bg-cyan-400/10 text-[#0c2340] dark:text-white'
+                                                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-300 dark:hover:border-white/25'
                                             }`}
                                         >
                                             {op.label}
@@ -323,15 +331,15 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
                     )}
 
                     {necesidad && (
-                        <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.02] p-5 text-sm text-slate-400">
-                            <p className="font-semibold text-slate-300">Software típico para esto:</p>
+                        <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-slate-400">
+                            <p className="font-semibold text-slate-600 dark:text-slate-300">Software típico para esto:</p>
                             <p className="mt-1">{softwareDeLaCarrera.map((s) => s?.nombre).join(' · ')}</p>
                             <p className="mt-3">
-                                Necesitas al menos <b className="text-cyan-400">{necesidad.ram_gb} GB RAM</b>, procesador con puntaje ≥{' '}
-                                <b className="text-cyan-400">{necesidad.cpu_score}/100</b>
+                                Necesitas al menos <b className="text-sky-600 dark:text-cyan-400">{necesidad.ram_gb} GB RAM</b>, procesador con
+                                puntaje ≥ <b className="text-sky-600 dark:text-cyan-400">{necesidad.cpu_score}/100</b>
                                 {necesidad.gpu_dedicada ? (
                                     <>
-                                        , y <b className="text-cyan-400">GPU dedicada</b>
+                                        , y <b className="text-sky-600 dark:text-cyan-400">GPU dedicada</b>
                                     </>
                                 ) : null}
                                 .
@@ -340,13 +348,13 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
                     )}
 
                     {error && (
-                        <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">
+                        <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
                             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                             <span>{error}</span>
                         </div>
                     )}
 
-                    <label className="mt-8 flex cursor-pointer items-start gap-3 text-sm text-slate-400">
+                    <label className="mt-8 flex cursor-pointer items-start gap-3 text-sm text-slate-500 dark:text-slate-400">
                         <input
                             type="checkbox"
                             checked={consentimiento}
@@ -361,7 +369,7 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
                                 href="/derecho"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-cyan-400 underline decoration-cyan-400/30 hover:text-cyan-300"
+                                className="text-sky-600 underline decoration-cyan-400/30 hover:text-sky-700 dark:text-cyan-400 dark:hover:text-cyan-300"
                             >
                                 Ver cómo tratamos tus datos
                             </a>
