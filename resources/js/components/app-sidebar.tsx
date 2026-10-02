@@ -19,7 +19,6 @@ import {
     Scale,
     Scroll,
     ShoppingBag,
-    Sparkles,
     Store,
     Tag,
     UserPlus,
@@ -33,8 +32,7 @@ import AppLogo from './app-logo';
 // poder volver a la vitrina, con o sin sesión.
 const navVisitante: NavItem[] = [
     { title: 'Tienda', url: '/', icon: Store },
-    { title: 'Catálogo de hardware', url: '/hardware', icon: Monitor },
-    { title: 'Catálogo de software', url: '/software', icon: LayoutList },
+    { title: 'Catálogo', url: '/hardware', icon: Monitor },
     { title: 'Comparador', url: '/comparador', icon: Scale },
     { title: 'Seguimiento de pedido', url: '/seguimiento', icon: PackageSearch },
     { title: 'Preguntas frecuentes', url: '/preguntas', icon: CircleHelp },
@@ -44,11 +42,9 @@ const navVisitante: NavItem[] = [
 const navCliente: NavItem[] = [
     { title: 'Tienda', url: '/', icon: Store },
     { title: 'Mi panel', url: '/dashboard', icon: LayoutGrid },
-    { title: 'Nueva recomendación', url: '/perfil', icon: Sparkles },
     { title: 'Mis recomendaciones', url: '/historial', icon: Clock },
     { title: 'Mis pedidos', url: '/dashboard#pedidos', icon: Package },
-    { title: 'Catálogo de software', url: '/software', icon: LayoutList },
-    { title: 'Catálogo de hardware', url: '/hardware', icon: Monitor },
+    { title: 'Catálogo', url: '/hardware', icon: Monitor },
     { title: 'Comparador', url: '/comparador', icon: Scale },
     { title: 'Promociones', url: '/marketing', icon: Tag },
     { title: 'Reciclaje y sostenibilidad', url: '/ing-ambiental', icon: Recycle },
