@@ -2,18 +2,36 @@ import ChatWidget from '@/components/chat-widget';
 import FlowHeader from '@/components/flujo/flow-header';
 import LaptopImage from '@/components/laptop-image';
 import { flujoStorage } from '@/lib/flujo-storage';
-import { nivelCpu } from '@/lib/guia-compra';
+import { nivelCpu, PUERTO_ETIQUETA } from '@/lib/guia-compra';
 import type { Laptop, PreferenciasCliente, RespuestaMotorError, Tarjeta } from '@/types/flujo';
 import { Head, Link, router } from '@inertiajs/react';
-import { AlertTriangle, Check, ChevronDown, Cpu, HardDrive, HeartHandshake, LayoutGrid, MonitorSmartphone, Scale } from 'lucide-react';
-import type { ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import {
+    AlertTriangle,
+    Check,
+    CheckCircle2,
+    ChevronDown,
+    Cpu,
+    HardDrive,
+    HeartHandshake,
+    LayoutGrid,
+    MonitorSmartphone,
+    Scale,
+    X,
+} from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
+
+// Diseño de la página: Marco (PR #41) — tarjetas con imagen, detalle en ventana, tema claro u
+// oscuro. Lógica: la de main — KPIs de elección, cuestionario de bienvenida (Psicología) y la
+// explicación de la IA (B11).
 
 const COLOR_BADGE: Record<string, string> = {
-    'Mejor Opción Económica': 'bg-emerald-400 text-emerald-950',
-    'Opción Equilibrada': 'bg-cyan-400 text-[#07111f]',
-    'Mejor Rendimiento': 'bg-violet-400 text-violet-950',
+    'Mejor Opción Económica': 'bg-emerald-100 text-emerald-700',
+    'Opción Equilibrada': 'bg-sky-100 text-sky-700',
+    'Mejor Rendimiento': 'bg-violet-100 text-violet-700',
 };
+
+// El comparador admite hasta 3 laptops.
+const MAX_COMPARAR = 3;
 
 // Cómo se presenta la recomendación según el cuestionario de bienvenida (Psicología). No cambia
 // qué recomienda la IA, solo cómo se muestra y se explica.
@@ -26,6 +44,8 @@ const MOTIVO_ESTILO: Record<Estilo, string> = {
     ver_todo: 'nos dijiste que prefieres ver todas las opciones',
 };
 
+const soles = (n: number | string) => `S/ ${Number(n).toLocaleString('es-PE')}`;
+
 export default function ResultadoIndex({ preferencias }: { preferencias: PreferenciasCliente | null }) {
     const estilo: Estilo | null = preferencias?.estilo_decision ?? null;
     const nivel: Nivel = preferencias?.nivel_tecnologia ?? 'intermedio';
@@ -33,6 +53,7 @@ export default function ResultadoIndex({ preferencias }: { preferencias: Prefere
     const [tarjetas, setTarjetas] = useState<Tarjeta[] | null>(null);
     const [errorMotor, setErrorMotor] = useState<RespuestaMotorError | null>(null);
     const [comparar, setComparar] = useState<number[]>([]);
+    const [detalle, setDetalle] = useState<Laptop | null>(null);
 
     useEffect(() => {
         const guardadas = flujoStorage.leerTarjetas();
@@ -64,14 +85,19 @@ export default function ResultadoIndex({ preferencias }: { preferencias: Prefere
     // "Quiero comparar": manda todas las recomendadas al comparador de una vez.
     function compararTodas() {
         if (!tarjetas) return;
-        flujoStorage.guardarComparar(tarjetas.slice(0, 3).map((t) => t.laptop_id));
+        flujoStorage.guardarComparar(tarjetas.slice(0, MAX_COMPARAR).map((t) => t.laptop_id));
         router.visit('/comparador');
     }
 
-    function agregarAComparar(id: number) {
+    // Agregar o quitar del comparador (quitar es aporte de Marco; antes solo se podía agregar).
+    function alternarComparar(id: number) {
         setComparar((prev) => {
-            if (prev.includes(id)) return prev;
-            if (prev.length >= 3) return prev;
+            if (prev.includes(id)) {
+                const next = prev.filter((x) => x !== id);
+                flujoStorage.guardarComparar(next);
+                return next;
+            }
+            if (prev.length >= MAX_COMPARAR) return prev;
             const next = [...prev, id];
             flujoStorage.guardarComparar(next);
             return next;
@@ -80,128 +106,115 @@ export default function ResultadoIndex({ preferencias }: { preferencias: Prefere
 
     if (tarjetas === null) return null;
 
+    const tarjeta = (t: Tarjeta) => (
+        <TarjetaLaptop
+            key={t.laptop_id}
+            t={t}
+            nivel={nivel}
+            enComparar={comparar.includes(t.laptop_id)}
+            compararLleno={comparar.length >= MAX_COMPARAR}
+            onElegir={() => elegir(t)}
+            onComparar={() => alternarComparar(t.laptop_id)}
+            onDetalle={() => setDetalle(t.laptop)}
+        />
+    );
+
     return (
         <>
             <Head title="Tu recomendación — IngeTech AI" />
-            <div className="min-h-screen bg-[#07111f] text-white">
+            <div className="min-h-screen bg-slate-50 text-[#0c2340] dark:bg-slate-950 dark:text-white">
                 <FlowHeader pasoActual={2} />
 
-                <main className="mx-auto max-w-6xl px-6 py-14 lg:px-10">
-                    <h1 className="text-3xl font-bold sm:text-4xl">Tu recomendación</h1>
-                    <p className="mt-2 max-w-xl text-slate-400">Clasificamos los equipos viables en tres categorías, según qué priorices.</p>
+                <main className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
+                    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                        <div>
+                            <span className="it-eyebrow">Resultado IA</span>
+                            <h1 className="mt-2 text-4xl font-black tracking-tight">Estas opciones encajan contigo.</h1>
+                            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+                                Revisa por qué te las recomendamos, compáralas y elige una para personalizar.
+                            </p>
+                        </div>
+                        {comparar.length >= 2 && (
+                            <Link href="/comparador" className="it-btn it-btn-primary">
+                                <Scale className="h-4 w-4" /> Comparar ({comparar.length}/{MAX_COMPARAR})
+                            </Link>
+                        )}
+                    </div>
 
                     {errorMotor ? (
-                        <>
-                            <div className="mt-8 flex items-start gap-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-5 py-4 text-sm text-amber-200">
+                        <div className="mt-8 rounded-3xl border border-amber-200 bg-amber-50 p-6 text-amber-800 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200">
+                            <div className="flex gap-3">
                                 <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
-                                <span>{errorMotor.mensaje}</span>
+                                <div className="min-w-0 flex-1">
+                                    <b>{errorMotor.mensaje}</b>
+                                    {errorMotor.cercanas && errorMotor.cercanas.length > 0 && (
+                                        <>
+                                            <p className="mt-4 text-sm">Las más cercanas dentro de tu presupuesto:</p>
+                                            <div className="mt-3 grid gap-4 sm:grid-cols-3">
+                                                {errorMotor.cercanas.map((l) => (
+                                                    <TarjetaSimple key={l.id} l={l} onDetalle={() => setDetalle(l)} />
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             </div>
-                            {errorMotor.cercanas && errorMotor.cercanas.length > 0 && (
-                                <>
-                                    <h2 className="mt-8 text-lg font-semibold">Las más cercanas dentro de tu presupuesto:</h2>
-                                    <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                                        {errorMotor.cercanas.map((l) => (
-                                            <TarjetaSimple key={l.id} l={l} />
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-                        </>
+                        </div>
                     ) : (
                         <>
                             {estilo && (
-                                <p className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-400">
-                                    <HeartHandshake className="h-4 w-4 text-violet-300" />
+                                <p className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500 dark:text-slate-400">
+                                    <HeartHandshake className="h-4 w-4 text-violet-500 dark:text-violet-300" />
                                     Te lo mostramos así porque {MOTIVO_ESTILO[estilo]}.
-                                    <Link href="/bienvenida" className="text-violet-300 underline decoration-violet-300/30 hover:text-violet-200">
+                                    <Link href="/bienvenida" className="font-semibold text-violet-600 underline dark:text-violet-300">
                                         Cambiar
                                     </Link>
                                 </p>
                             )}
 
                             {estilo === 'comparar' && tarjetas.length > 1 && (
-                                <button
-                                    onClick={compararTodas}
-                                    className="mt-4 flex items-center gap-2 rounded-xl border border-cyan-400/50 bg-cyan-400/10 px-5 py-3 text-sm font-bold text-cyan-300 hover:bg-cyan-400/20"
-                                >
-                                    <Scale className="h-4 w-4" /> Comparar estas {Math.min(tarjetas.length, 3)} lado a lado
+                                <button onClick={compararTodas} className="it-btn it-btn-secondary mt-4">
+                                    <Scale className="h-4 w-4" /> Comparar estas {Math.min(tarjetas.length, MAX_COMPARAR)} lado a lado
                                 </button>
                             )}
 
                             {estilo === 'la_mejor' ? (
                                 // Una sola recomendación clara (la de mayor compatibilidad); las demás, a pedido.
                                 <>
-                                    <p className="mt-6 text-sm font-bold tracking-wide text-cyan-300 uppercase">Nuestra recomendación para ti</p>
-                                    <div className="mt-3 max-w-md">
-                                        <TarjetaLaptop
-                                            t={tarjetas[0]}
-                                            nivel={nivel}
-                                            enComparar={comparar.includes(tarjetas[0].laptop_id)}
-                                            onElegir={() => elegir(tarjetas[0])}
-                                            onComparar={() => agregarAComparar(tarjetas[0].laptop_id)}
-                                        />
-                                    </div>
+                                    <p className="it-eyebrow mt-8">Nuestra recomendación para ti</p>
+                                    <div className="mt-3 max-w-md">{tarjeta(tarjetas[0])}</div>
                                     {tarjetas.length > 1 &&
                                         (verOtras ? (
-                                            <div className="mt-6 grid gap-6 lg:grid-cols-3">
-                                                {tarjetas.slice(1).map((t) => (
-                                                    <TarjetaLaptop
-                                                        key={t.laptop_id}
-                                                        t={t}
-                                                        nivel={nivel}
-                                                        enComparar={comparar.includes(t.laptop_id)}
-                                                        onElegir={() => elegir(t)}
-                                                        onComparar={() => agregarAComparar(t.laptop_id)}
-                                                    />
-                                                ))}
-                                            </div>
+                                            <div className="mt-6 grid gap-6 lg:grid-cols-3">{tarjetas.slice(1).map(tarjeta)}</div>
                                         ) : (
                                             <button
                                                 onClick={() => setVerOtras(true)}
-                                                className="mt-5 flex items-center gap-1.5 text-sm text-slate-400 hover:text-white"
+                                                className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-[var(--it-primary)] dark:text-slate-400"
                                             >
                                                 <ChevronDown className="h-4 w-4" /> Ver las otras {tarjetas.length - 1} opciones
                                             </button>
                                         ))}
                                 </>
                             ) : (
-                                <div className="mt-8 grid gap-6 lg:grid-cols-3">
-                                    {tarjetas.map((t) => (
-                                        <TarjetaLaptop
-                                            key={t.laptop_id}
-                                            t={t}
-                                            nivel={nivel}
-                                            enComparar={comparar.includes(t.laptop_id)}
-                                            onElegir={() => elegir(t)}
-                                            onComparar={() => agregarAComparar(t.laptop_id)}
-                                        />
-                                    ))}
-                                </div>
+                                <div className="mt-8 grid gap-6 lg:grid-cols-3">{tarjetas.map(tarjeta)}</div>
                             )}
 
                             {estilo === 'ver_todo' && (
-                                <Link
-                                    href="/hardware"
-                                    className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-3 text-sm font-semibold hover:border-cyan-400"
-                                >
+                                <Link href="/hardware" className="it-btn it-btn-secondary mt-6">
                                     <LayoutGrid className="h-4 w-4" /> Ver todo el catálogo de laptops
                                 </Link>
                             )}
                         </>
                     )}
 
-                    <div className="mt-10 flex items-center gap-6">
-                        <Link href="/perfil" className="text-sm text-slate-400 underline decoration-white/20 hover:text-white">
-                            ← Cambiar mi perfil
+                    <div className="mt-8">
+                        <Link href="/perfil" className="text-sm font-semibold text-slate-500 hover:text-[var(--it-primary)] dark:text-slate-400">
+                            ← Modificar mi perfil
                         </Link>
-                        {comparar.length >= 2 && (
-                            <Link href="/comparador" className="flex items-center gap-1.5 text-sm font-semibold text-cyan-400 hover:text-cyan-300">
-                                <Scale className="h-4 w-4" /> Comparar seleccionados ({comparar.length})
-                            </Link>
-                        )}
                     </div>
                 </main>
                 <ChatWidget />
+                <VentanaDetalle l={detalle} onCerrar={() => setDetalle(null)} />
             </div>
         </>
     );
@@ -209,159 +222,206 @@ export default function ResultadoIndex({ preferencias }: { preferencias: Prefere
 
 // Textos sin tecnicismos para quien dijo sentirse poco cómodo con la tecnología (Psicología:
 // menos jerga = menos ansiedad al decidir).
-const RENDIMIENTO_SIMPLE = { basico: 'Rendimiento para lo básico', estandar: 'Buen rendimiento', avanzado: 'Rendimiento alto' } as const;
+const RENDIMIENTO_SIMPLE = { basico: 'Para lo básico', estandar: 'Buen rendimiento', avanzado: 'Rendimiento alto' } as const;
 
 function TarjetaLaptop({
     t,
     nivel,
     enComparar,
+    compararLleno,
     onElegir,
     onComparar,
+    onDetalle,
 }: {
     t: Tarjeta;
     nivel: Nivel;
     enComparar: boolean;
+    compararLleno: boolean;
     onElegir: () => void;
     onComparar: () => void;
+    onDetalle: () => void;
 }) {
     const simple = nivel === 'principiante';
     const l = t.laptop;
-    const destacada = t.badges.includes('Mejor Rendimiento') && t.badges.length > 1;
 
     return (
-        <article
-            className={`flex flex-col rounded-2xl border p-6 ${
-                destacada ? 'border-cyan-400/60 bg-cyan-400/[0.06]' : 'border-white/10 bg-white/[0.03]'
-            }`}
-        >
-            <div className="flex flex-wrap gap-1.5">
-                {t.badges.map((b) => (
-                    <span key={b} className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${COLOR_BADGE[b] ?? 'bg-white/10'}`}>
-                        {b}
-                    </span>
-                ))}
+        <article className="it-card it-card-hover flex flex-col overflow-hidden">
+            <div className="relative aspect-[16/9] overflow-hidden bg-slate-100 dark:bg-slate-950">
+                <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="h-full w-full" />
+                <div className="absolute top-4 left-4 flex flex-wrap gap-1.5">
+                    {t.badges.map((b) => (
+                        <span key={b} className={`rounded-full px-2.5 py-1 text-[10px] font-black ${COLOR_BADGE[b] ?? 'bg-white text-slate-700'}`}>
+                            {b}
+                        </span>
+                    ))}
+                </div>
+                <button
+                    onClick={onDetalle}
+                    className="absolute right-3 bottom-3 rounded-xl bg-white/90 px-3 py-2 text-xs font-bold text-slate-800 backdrop-blur hover:bg-white"
+                >
+                    Ver detalle
+                </button>
             </div>
 
-            <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="mt-4 h-32 w-full rounded-xl" />
-
-            <h2 className="mt-3 text-xl font-bold">
-                {l.marca} {l.modelo}
-            </h2>
-            <p className="text-xs text-slate-400">{simple ? 'Laptop' : `Laptop · ${l.cpu}`}</p>
-
-            <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
-                <span className="text-2xl font-bold text-cyan-300">{t.compatibilidad_pct}%</span>
-                <span className="text-sm text-slate-300">compatible contigo</span>
+            <div className="flex flex-1 flex-col p-5">
+                <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                        <p className="text-xs font-bold tracking-wider text-[var(--it-primary)] uppercase dark:text-sky-300">{l.marca}</p>
+                        <h2 className="mt-1 text-xl font-black">{l.modelo}</h2>
+                        {!simple && <p className="text-xs text-slate-500 dark:text-slate-400">{l.cpu}</p>}
+                    </div>
+                    <div className="shrink-0 text-right">
+                        <b className="text-2xl">{t.compatibilidad_pct}%</b>
+                        <small className="block text-[10px] text-slate-400">compatible contigo</small>
+                    </div>
+                </div>
                 {/* Si respondió el cuestionario: de dónde sale el % (70% técnica + 30% la persona). */}
                 {t.afinidad_pct !== null && t.afinidad_pct !== undefined && (
-                    <span className="w-full text-[11px] text-slate-500">
+                    <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                         Por lo que harás: {t.compatibilidad_tecnica_pct}% · Por cómo eres: {t.afinidad_pct}%
-                    </span>
+                    </p>
                 )}
-            </div>
 
-            <div className="mt-5 grid grid-cols-3 gap-2 text-center text-xs">
-                <SpecChip icon={<Cpu className="h-3.5 w-3.5" />} label={simple ? RENDIMIENTO_SIMPLE[nivelCpu(l)] : `Score ${l.rendimiento_score}`} />
-                <SpecChip
-                    icon={<HardDrive className="h-3.5 w-3.5" />}
-                    label={simple ? `Memoria ${l.ram_gb >= 16 ? 'de sobra' : 'suficiente'}` : `${l.ram_gb} GB · ${l.almacenamiento_gb} GB`}
-                />
-                <SpecChip
-                    icon={<MonitorSmartphone className="h-3.5 w-3.5" />}
-                    label={
-                        simple
-                            ? l.gpu_dedicada
-                                ? 'Gráficos para diseño y juegos'
-                                : 'Gráficos para el día a día'
-                            : l.gpu_dedicada
-                              ? 'GPU dedicada'
-                              : 'Integrada'
-                    }
-                />
-            </div>
-            {nivel === 'avanzado' && (
-                <p className="mt-3 font-mono text-[11px] leading-relaxed text-slate-500">
-                    {l.almacenamiento_tipo} {l.almacenamiento_gb} GB · {l.gpu ?? 'GPU integrada'}
-                    {l.ram_ampliable_gb ? ` · RAM ampliable a ${l.ram_ampliable_gb} GB` : ''}
-                    {l.bateria_horas ? ` · ${l.bateria_horas} h de batería` : ''}
-                    {l.pantalla_pulgadas ? ` · ${l.pantalla_pulgadas}" ${l.pantalla_resolucion ?? ''} ${l.pantalla_hz ?? 60} Hz` : ''}
-                </p>
-            )}
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                    <Spec icon={<Cpu />} valor={simple ? RENDIMIENTO_SIMPLE[nivelCpu(l)] : `Score ${l.rendimiento_score ?? '—'}`} />
+                    <Spec
+                        icon={<HardDrive />}
+                        valor={simple ? `Memoria ${l.ram_gb >= 16 ? 'de sobra' : 'suficiente'}` : `${l.ram_gb} GB · ${l.almacenamiento_gb} GB`}
+                    />
+                    <Spec
+                        icon={<MonitorSmartphone />}
+                        valor={
+                            simple ? (l.gpu_dedicada ? 'Para diseño y juegos' : 'Para el día a día') : l.gpu_dedicada ? 'GPU dedicada' : 'Integrada'
+                        }
+                    />
+                </div>
+                {nivel === 'avanzado' && (
+                    <p className="mt-3 font-mono text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+                        {l.almacenamiento_tipo} {l.almacenamiento_gb} GB · {l.gpu ?? 'GPU integrada'}
+                        {l.ram_ampliable_gb ? ` · RAM ampliable a ${l.ram_ampliable_gb} GB` : ''}
+                        {l.bateria_horas ? ` · ${l.bateria_horas} h de batería` : ''}
+                        {l.pantalla_pulgadas ? ` · ${l.pantalla_pulgadas}" ${l.pantalla_resolucion ?? ''} ${l.pantalla_hz ?? 60} Hz` : ''}
+                    </p>
+                )}
 
-            {/* El "por qué" de la IA (transparencia): sus motivos principales y lo que conviene saber. */}
-            {(t.explicacion?.factores?.length ?? 0) > 0 && (
-                <div className="mt-4">
-                    <p className="text-xs font-semibold text-slate-300">¿Por qué te la recomendamos?</p>
-                    <ul className="mt-1.5 space-y-1 text-xs text-slate-400">
-                        {t.explicacion!.factores.slice(0, 3).map((f) => (
-                            <li key={f.criterio} className="flex items-start gap-1.5">
-                                <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" /> {f.criterio}
+                {/* El "por qué" de la IA (transparencia): sus motivos principales y lo que conviene saber. */}
+                {(t.explicacion?.factores?.length ?? 0) > 0 && (
+                    <div className="mt-4">
+                        <p className="text-xs font-bold">¿Por qué te la recomendamos?</p>
+                        <ul className="mt-1.5 space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                            {t.explicacion!.factores.slice(0, 3).map((f) => (
+                                <li key={f.criterio} className="flex items-start gap-1.5">
+                                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" /> {f.criterio}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+                {(t.explicacion?.advertencias?.length ?? 0) > 0 && (
+                    <ul className="mt-2 space-y-1 text-xs text-amber-700 dark:text-amber-300">
+                        {t.explicacion!.advertencias.map((a) => (
+                            <li key={a} className="flex items-start gap-1.5">
+                                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {a}
                             </li>
                         ))}
                     </ul>
+                )}
+
+                <div className="mt-auto pt-5">
+                    <div className="flex items-end justify-between border-t pt-4">
+                        <div>
+                            <small className="text-xs text-slate-400">Precio</small>
+                            <p className="text-2xl font-black">{soles(l.precio_soles)}</p>
+                        </div>
+                        <button
+                            onClick={onComparar}
+                            disabled={!enComparar && compararLleno}
+                            title={!enComparar && compararLleno ? `Máximo ${MAX_COMPARAR} para comparar` : undefined}
+                            className={`it-btn h-9 px-3 ${enComparar ? 'bg-[var(--it-primary-soft)] text-[var(--it-primary)]' : 'it-btn-secondary'}`}
+                        >
+                            <Scale className="h-4 w-4" />
+                            {enComparar ? 'Quitar' : 'Comparar'}
+                        </button>
+                    </div>
+                    <button onClick={onElegir} className="it-btn it-btn-primary mt-3 w-full">
+                        Personalizar esta opción <CheckCircle2 className="h-4 w-4" />
+                    </button>
                 </div>
-            )}
-            {(t.explicacion?.advertencias?.length ?? 0) > 0 && (
-                <ul className="mt-2 space-y-1 text-xs text-amber-200/90">
-                    {t.explicacion!.advertencias.map((a) => (
-                        <li key={a} className="flex items-start gap-1.5">
-                            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" /> {a}
-                        </li>
-                    ))}
-                </ul>
-            )}
-
-            <div className="mt-5 flex items-baseline justify-between border-t border-white/10 pt-4">
-                <span className="font-mono text-2xl font-bold">S/ {Number(l.precio_soles).toLocaleString('es-PE')}</span>
-                <span className="text-xs text-slate-500">{l.tienda}</span>
-            </div>
-
-            <div className="mt-5 flex gap-2">
-                <button
-                    type="button"
-                    onClick={onElegir}
-                    className="flex-1 rounded-xl bg-white px-4 py-3 text-sm font-bold text-[#07111f] transition hover:bg-cyan-300"
-                >
-                    Personalizar esta
-                </button>
-                <button
-                    type="button"
-                    onClick={onComparar}
-                    disabled={enComparar}
-                    title="Agregar al comparador"
-                    className={`rounded-xl border px-3 py-3 transition ${
-                        enComparar ? 'border-cyan-400 bg-cyan-400/10 text-cyan-400' : 'border-white/10 text-slate-300 hover:border-white/25'
-                    }`}
-                >
-                    <Scale className="h-4 w-4" />
-                </button>
             </div>
         </article>
     );
 }
 
-function TarjetaSimple({ l }: { l: Laptop }) {
+function Spec({ icon, valor }: { icon: ReactNode; valor: string }) {
     return (
-        <div className="flex gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-            <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="h-14 w-14 shrink-0 rounded-lg" />
-            <div>
-                <p className="font-semibold">
-                    {l.marca} {l.modelo}
-                </p>
-                <p className="mt-1 text-xs text-slate-400">
-                    {l.cpu} · {l.ram_gb}GB · score {l.rendimiento_score}
-                </p>
-                <p className="mt-2 font-mono text-cyan-400">S/ {Number(l.precio_soles).toLocaleString('es-PE')}</p>
-            </div>
+        <div className="rounded-xl bg-slate-50 p-2.5 text-center dark:bg-slate-800">
+            <span className="mx-auto block h-4 w-4 text-[var(--it-primary)] dark:text-sky-300 [&_svg]:h-4 [&_svg]:w-4">{icon}</span>
+            <b className="mt-1 block text-[11px] leading-tight">{valor}</b>
         </div>
     );
 }
 
-function SpecChip({ icon, label }: { icon: ReactNode; label: string }) {
+function TarjetaSimple({ l, onDetalle }: { l: Laptop; onDetalle: () => void }) {
     return (
-        <div className="flex flex-col items-center gap-1 rounded-lg bg-white/5 p-2.5 text-slate-300">
-            {icon}
-            <span className="leading-tight">{label}</span>
+        <button
+            onClick={onDetalle}
+            className="flex items-center gap-3 rounded-2xl border bg-white p-3 text-left text-[#0c2340] shadow-sm hover:shadow-md dark:bg-slate-900 dark:text-white"
+        >
+            <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="h-14 w-16 shrink-0 rounded-xl" />
+            <div>
+                <b className="text-sm">
+                    {l.marca} {l.modelo}
+                </b>
+                <p className="text-xs text-slate-500">{soles(l.precio_soles)}</p>
+            </div>
+        </button>
+    );
+}
+
+// Ventana con todas las specs (diseño de Marco), con los datos que el catálogo ya tiene.
+function VentanaDetalle({ l, onCerrar }: { l: Laptop | null; onCerrar: () => void }) {
+    if (!l) return null;
+    const datos: [string, string][] = [
+        ['Procesador', l.cpu],
+        ['RAM', `${l.ram_gb} GB${l.ram_ampliable_gb && l.ram_ampliable_gb > l.ram_gb ? ` (hasta ${l.ram_ampliable_gb} GB)` : ''}`],
+        ['Almacenamiento', `${l.almacenamiento_tipo} ${l.almacenamiento_gb} GB`],
+        ['Gráficos', l.gpu_dedicada ? (l.gpu ?? 'Dedicada') : 'Integrada'],
+        ['Rendimiento', `${l.rendimiento_score ?? '—'}/100`],
+        ['Batería', l.bateria_horas ? `${l.bateria_horas} h` : '—'],
+        ['Pantalla', l.pantalla_pulgadas ? `${l.pantalla_pulgadas}" ${l.pantalla_resolucion ?? ''} ${l.pantalla_hz ?? 60} Hz` : '—'],
+        ['Peso', l.peso_kg ? `${l.peso_kg} kg` : '—'],
+        ['Precio', soles(l.precio_soles)],
+    ];
+
+    return (
+        <div className="it-modal-backdrop" onMouseDown={onCerrar}>
+            <div className="it-modal max-w-3xl text-[#0c2340] dark:text-white" onMouseDown={(e) => e.stopPropagation()}>
+                <div className="relative aspect-[16/7] overflow-hidden bg-slate-100 dark:bg-slate-950">
+                    <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="h-full w-full" />
+                    <button onClick={onCerrar} aria-label="Cerrar" className="it-icon-btn absolute top-4 right-4 bg-white/90 text-slate-700">
+                        <X className="h-4 w-4" />
+                    </button>
+                </div>
+                <div className="overflow-y-auto p-6">
+                    <p className="it-eyebrow">Detalle</p>
+                    <h2 className="mt-1 text-2xl font-black">
+                        {l.marca} {l.modelo}
+                    </h2>
+                    <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        {datos.map(([k, v]) => (
+                            <div key={k} className="rounded-2xl border p-3">
+                                <small className="text-xs text-slate-400">{k}</small>
+                                <p className="mt-1 font-bold">{v}</p>
+                            </div>
+                        ))}
+                    </div>
+                    {l.puertos && l.puertos.length > 0 && (
+                        <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                            <b>Puertos:</b> {l.puertos.map((p) => PUERTO_ETIQUETA[p] ?? p).join(', ')}
+                        </p>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }
