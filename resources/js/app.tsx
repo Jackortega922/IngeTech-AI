@@ -27,3 +27,5 @@ createInertiaApp({
 
 // This will set light / dark mode on load...
 initializeTheme();
+const savedAccent = localStorage.getItem('ingetech:accent');
+if (savedAccent) document.documentElement.dataset.accent = savedAccent;

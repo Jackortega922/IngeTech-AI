@@ -1,4 +1,4 @@
-import type { Configuracion, Perfil, Tarjeta } from '@/types/flujo';
+import type { Perfil, Tarjeta } from '@/types/flujo';
 
 // Las pantallas del flujo son rutas Inertia independientes, así que usamos
 // sessionStorage para llevar el perfil, el resultado y la selección del
@@ -8,7 +8,7 @@ const KEY_PERFIL = 'ingetech:perfil';
 const KEY_TARJETAS = 'ingetech:tarjetas';
 const KEY_SELECCIONADA = 'ingetech:seleccionada';
 const KEY_COMPARAR = 'ingetech:comparar';
-const KEY_CONFIGURACION = 'ingetech:configuracion';
+const MAX_COMPARAR = 2;
 
 function leer<T>(key: string): T | null {
     if (typeof window === 'undefined') return null;
@@ -25,6 +25,10 @@ function escribir<T>(key: string, value: T) {
     window.sessionStorage.setItem(key, JSON.stringify(value));
 }
 
+function normalizarComparar(ids: Array<number | string>) {
+    return [...new Set(ids.map(Number).filter((id) => Number.isFinite(id) && id > 0))].slice(0, MAX_COMPARAR);
+}
+
 export const flujoStorage = {
     guardarPerfil: (perfil: Perfil) => escribir(KEY_PERFIL, perfil),
     leerPerfil: () => leer<Perfil>(KEY_PERFIL),
@@ -35,17 +39,9 @@ export const flujoStorage = {
     guardarSeleccionada: (tarjeta: Tarjeta) => escribir(KEY_SELECCIONADA, tarjeta),
     leerSeleccionada: () => leer<Tarjeta>(KEY_SELECCIONADA),
 
-    leerComparar: () => leer<number[]>(KEY_COMPARAR) ?? [],
-    guardarComparar: (ids: number[]) => escribir(KEY_COMPARAR, ids),
-
-    guardarConfiguracion: (c: Configuracion) => escribir(KEY_CONFIGURACION, c),
-    leerConfiguracion: () => leer<Configuracion>(KEY_CONFIGURACION),
-    // Tras comprar: que "atrás" no deje volver a pagar lo mismo por error.
-    limpiarCompra: () => {
-        if (typeof window === 'undefined') return;
-        window.sessionStorage.removeItem(KEY_CONFIGURACION);
-        window.sessionStorage.removeItem(KEY_SELECCIONADA);
-    },
+    // El comparador admite exactamente hasta 2 equipos y guarda IDs numéricos.
+    leerComparar: () => normalizarComparar(leer<Array<number | string>>(KEY_COMPARAR) ?? []),
+    guardarComparar: (ids: Array<number | string>) => escribir(KEY_COMPARAR, normalizarComparar(ids)),
 
     limpiar: () => {
         if (typeof window === 'undefined') return;

@@ -7,7 +7,7 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Preguntas frecuentes', href: '/
 const PREGUNTAS = [
     {
         q: '¿Cómo calcula el sistema la recomendación?',
-        a: 'A partir de tu carrera identificamos qué software se usa típicamente en ella (por ejemplo AutoCAD en Ingeniería Civil, o Docker en Sistemas), y de ahí derivamos cuánta RAM, qué procesador y si necesitas GPU dedicada. Con eso filtramos el catálogo por tu presupuesto y portabilidad, y clasificamos lo que queda en Mejor Opción Económica, Opción Equilibrada y Mejor Rendimiento.',
+        a: 'A partir de tu carrera identificamos qué software usan típicamente los estudiantes (por ejemplo AutoCAD para Civil, o Docker para Sistemas), y de ahí derivamos cuánta RAM, qué procesador y si necesitas GPU dedicada. Con eso filtramos el catálogo por tu presupuesto y portabilidad, y clasificamos lo que queda en Mejor Opción Económica, Opción Equilibrada y Mejor Rendimiento.',
     },
     {
         q: '¿Qué significa el % de compatibilidad?',
