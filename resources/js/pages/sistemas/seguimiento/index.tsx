@@ -10,25 +10,25 @@ export default function SeguimientoIndex() {
     const { data, setData, post, processing, errors } = useForm({ codigo: '', email: '' });
 
     const input =
-        'w-full rounded-xl border border-white/10 bg-white/[0.06] px-3.5 py-3 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none';
+        'w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.06] px-3.5 py-3 text-[#0c2340] dark:text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none';
 
     return (
         <>
             <Head title="Seguimiento de pedido — IngeTech AI" />
-            <div className="min-h-screen bg-[#07111f] text-white">
-                <header className="border-b border-white/10">
+            <div className="min-h-screen bg-slate-50 text-[#0c2340] dark:bg-slate-950 dark:text-white">
+                <header className="border-b border-slate-200 dark:border-white/10">
                     <div className="mx-auto flex max-w-3xl items-center px-6 py-5">
                         <Link href="/" className="flex items-center gap-2.5 text-lg font-bold">
                             <span className="grid h-9 w-9 place-items-center rounded-lg bg-cyan-400 text-[#07111f]">✦</span>
-                            Inge<span className="text-cyan-400">Tech</span> AI
+                            Inge<span className="text-sky-600 dark:text-cyan-400">Tech</span> AI
                         </Link>
                     </div>
                 </header>
 
                 <main className="mx-auto max-w-md px-6 py-14">
-                    <PackageSearch className="h-12 w-12 text-cyan-400" />
+                    <PackageSearch className="h-12 w-12 text-sky-600 dark:text-cyan-400" />
                     <h1 className="mt-4 text-3xl font-bold">Sigue tu pedido</h1>
-                    <p className="mt-2 text-slate-400">Ingresa el código que recibiste al comprar y el correo que usaste.</p>
+                    <p className="mt-2 text-slate-500 dark:text-slate-400">Ingresa el código que recibiste al comprar y el correo que usaste.</p>
 
                     <form
                         onSubmit={(e) => {
@@ -38,7 +38,7 @@ export default function SeguimientoIndex() {
                         className="mt-8 space-y-4"
                     >
                         <label className="block">
-                            <span className="mb-1.5 block text-sm text-slate-300">Código de pedido</span>
+                            <span className="mb-1.5 block text-sm text-slate-600 dark:text-slate-300">Código de pedido</span>
                             <input
                                 value={data.codigo}
                                 onChange={(e) => setData('codigo', e.target.value.toUpperCase())}
@@ -48,7 +48,7 @@ export default function SeguimientoIndex() {
                             />
                         </label>
                         <label className="block">
-                            <span className="mb-1.5 block text-sm text-slate-300">Correo de la compra</span>
+                            <span className="mb-1.5 block text-sm text-slate-600 dark:text-slate-300">Correo de la compra</span>
                             <input
                                 type="email"
                                 value={data.email}
@@ -59,7 +59,7 @@ export default function SeguimientoIndex() {
                         </label>
 
                         {(errors.codigo || errors.email) && (
-                            <p className="flex items-start gap-2 rounded-xl border border-rose-400/30 bg-rose-400/10 px-3 py-2.5 text-sm text-rose-200">
+                            <p className="flex items-start gap-2 rounded-xl border border-rose-400/30 bg-rose-400/10 px-3 py-2.5 text-sm text-rose-700 dark:text-rose-200">
                                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                                 {errors.codigo ?? errors.email}
                             </p>
@@ -74,11 +74,11 @@ export default function SeguimientoIndex() {
                         </button>
                     </form>
 
-                    <p className="mt-8 text-sm text-slate-400">
+                    <p className="mt-8 text-sm text-slate-500 dark:text-slate-400">
                         {auth.user ? (
                             <>
                                 Tus compras con esta cuenta están en{' '}
-                                <Link href="/dashboard#pedidos" className="text-cyan-400 underline">
+                                <Link href="/dashboard#pedidos" className="text-sky-600 underline dark:text-cyan-400">
                                     Mis pedidos
                                 </Link>
                                 .
@@ -86,7 +86,7 @@ export default function SeguimientoIndex() {
                         ) : (
                             <>
                                 ¿Tienes cuenta?{' '}
-                                <Link href="/login" className="text-cyan-400 underline">
+                                <Link href="/login" className="text-sky-600 underline dark:text-cyan-400">
                                     Ingresa
                                 </Link>{' '}
                                 y encuentra tus compras en "Mis pedidos".

@@ -100,14 +100,17 @@ export default function BienvenidaIndex({ preguntas, respuestas }: { preguntas: 
     return (
         <>
             <Head title="Conozcámonos — IngeTech AI" />
-            <div className="min-h-screen bg-[#07111f] text-white">
-                <header className="border-b border-white/10">
+            <div className="min-h-screen bg-slate-50 text-[#0c2340] dark:bg-slate-950 dark:text-white">
+                <header className="border-b border-slate-200 dark:border-white/10">
                     <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-5">
                         <Link href="/" className="flex items-center gap-2.5 text-lg font-bold">
                             <span className="grid h-9 w-9 place-items-center rounded-lg bg-cyan-400 text-[#07111f]">✦</span>
-                            Inge<span className="text-cyan-400">Tech</span> AI
+                            Inge<span className="text-sky-600 dark:text-cyan-400">Tech</span> AI
                         </Link>
-                        <button onClick={ahoraNo} className="text-sm text-slate-400 underline decoration-white/20 hover:text-white">
+                        <button
+                            onClick={ahoraNo}
+                            className="text-sm text-slate-500 underline decoration-slate-300 hover:text-[#0c2340] dark:text-slate-400 dark:decoration-white/20 dark:hover:text-white"
+                        >
                             Ahora no
                         </button>
                     </div>
@@ -116,20 +119,20 @@ export default function BienvenidaIndex({ preguntas, respuestas }: { preguntas: 
                 <main className="mx-auto max-w-2xl px-6 py-10">
                     {paso === -1 ? (
                         <section className="text-center">
-                            <HeartHandshake className="mx-auto h-14 w-14 text-cyan-400" />
+                            <HeartHandshake className="mx-auto h-14 w-14 text-sky-600 dark:text-cyan-400" />
                             <h1 className="mt-5 text-3xl font-bold sm:text-4xl">Queremos conocerte</h1>
-                            <p className="mx-auto mt-3 max-w-lg text-slate-400">
+                            <p className="mx-auto mt-3 max-w-lg text-slate-500 dark:text-slate-400">
                                 Son {total} preguntas rápidas (unos 2 minutos) sobre cómo usarás tu laptop y cómo prefieres decidir. Con eso te
                                 recomendamos mejor y te lo explicamos a tu medida.
                             </p>
-                            <ul className="mx-auto mt-6 max-w-md space-y-2 text-left text-sm text-slate-300">
+                            <ul className="mx-auto mt-6 max-w-md space-y-2 text-left text-sm text-slate-600 dark:text-slate-300">
                                 {[
                                     'Puedes omitir cualquier pregunta.',
                                     'Solo usamos tus respuestas para recomendarte laptops.',
                                     'Puedes cambiarlas o borrarlas cuando quieras desde tu panel.',
                                 ].map((t) => (
                                     <li key={t} className="flex items-start gap-2">
-                                        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" /> {t}
+                                        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" /> {t}
                                     </li>
                                 ))}
                             </ul>
@@ -140,7 +143,10 @@ export default function BienvenidaIndex({ preguntas, respuestas }: { preguntas: 
                                 >
                                     {respuestas?.completado_at ? 'Revisar mis respuestas' : 'Empezar'} <ArrowRight className="h-4 w-4" />
                                 </button>
-                                <button onClick={ahoraNo} className="text-sm text-slate-400 hover:text-white">
+                                <button
+                                    onClick={ahoraNo}
+                                    className="text-sm text-slate-500 hover:text-[#0c2340] dark:text-slate-400 dark:hover:text-white"
+                                >
                                     Ahora no, ir a mi panel
                                 </button>
                             </div>
@@ -149,13 +155,13 @@ export default function BienvenidaIndex({ preguntas, respuestas }: { preguntas: 
                         p && (
                             <section>
                                 {/* Progreso */}
-                                <div className="flex items-center justify-between text-xs text-slate-400">
+                                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                                     <span>
                                         Pregunta {paso + 1} de {total}
                                     </span>
                                     <span>{Math.round(((paso + 1) / total) * 100)}%</span>
                                 </div>
-                                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
                                     <div
                                         className="h-full rounded-full bg-cyan-400 transition-all"
                                         style={{ width: `${((paso + 1) / total) * 100}%` }}
@@ -163,7 +169,7 @@ export default function BienvenidaIndex({ preguntas, respuestas }: { preguntas: 
                                 </div>
 
                                 <h1 className="mt-8 text-2xl font-bold sm:text-3xl">{p.pregunta}</h1>
-                                {p.ayuda && <p className="mt-2 text-slate-400">{p.ayuda}</p>}
+                                {p.ayuda && <p className="mt-2 text-slate-500 dark:text-slate-400">{p.ayuda}</p>}
 
                                 <div className="mt-6 space-y-2.5">
                                     {p.tipo === 'marcas'
@@ -173,7 +179,7 @@ export default function BienvenidaIndex({ preguntas, respuestas }: { preguntas: 
                                               return (
                                                   <div
                                                       key={valor}
-                                                      className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3"
+                                                      className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-white/[0.03]"
                                                   >
                                                       <span className="font-medium">{etiqueta}</span>
                                                       <span className="flex gap-2 text-xs">
@@ -182,8 +188,8 @@ export default function BienvenidaIndex({ preguntas, respuestas }: { preguntas: 
                                                               onClick={() => marcarMarca(valor, 'marcas_preferidas')}
                                                               className={`flex items-center gap-1 rounded-lg border px-3 py-1.5 ${
                                                                   prefiere
-                                                                      ? 'border-emerald-400 bg-emerald-400/15 text-emerald-300'
-                                                                      : 'border-white/10 text-slate-400'
+                                                                      ? 'border-emerald-400 bg-emerald-400/15 text-emerald-700 dark:text-emerald-300'
+                                                                      : 'border-slate-200 text-slate-500 dark:border-white/10 dark:text-slate-400'
                                                               }`}
                                                           >
                                                               <ThumbsUp className="h-3.5 w-3.5" /> Prefiero
@@ -193,8 +199,8 @@ export default function BienvenidaIndex({ preguntas, respuestas }: { preguntas: 
                                                               onClick={() => marcarMarca(valor, 'marcas_evitar')}
                                                               className={`flex items-center gap-1 rounded-lg border px-3 py-1.5 ${
                                                                   evita
-                                                                      ? 'border-amber-400 bg-amber-400/15 text-amber-300'
-                                                                      : 'border-white/10 text-slate-400'
+                                                                      ? 'border-amber-400 bg-amber-400/15 text-amber-700 dark:text-amber-300'
+                                                                      : 'border-slate-200 text-slate-500 dark:border-white/10 dark:text-slate-400'
                                                               }`}
                                                           >
                                                               <ThumbsDown className="h-3.5 w-3.5" /> Evitar
@@ -222,13 +228,13 @@ export default function BienvenidaIndex({ preguntas, respuestas }: { preguntas: 
                                                       className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition ${
                                                           elegida
                                                               ? 'border-cyan-400 bg-cyan-400/10'
-                                                              : 'border-white/10 bg-white/[0.03] hover:border-white/25'
+                                                              : 'border-slate-200 bg-white hover:border-slate-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/25'
                                                       }`}
                                                   >
                                                       <span
                                                           className={`grid h-6 w-6 shrink-0 place-items-center text-xs font-bold ${
                                                               p.tipo === 'unica' ? 'rounded-full' : 'rounded-md'
-                                                          } ${elegida ? 'bg-cyan-400 text-[#07111f]' : 'border border-white/25'}`}
+                                                          } ${elegida ? 'bg-cyan-400 text-[#07111f]' : 'border border-slate-300 dark:border-white/25'}`}
                                                       >
                                                           {p.tipo === 'orden' ? puesto || '' : elegida && <Check className="h-3.5 w-3.5" />}
                                                       </span>
@@ -246,12 +252,15 @@ export default function BienvenidaIndex({ preguntas, respuestas }: { preguntas: 
                                 <div className="mt-8 flex items-center justify-between gap-3">
                                     <button
                                         onClick={() => setPaso((n) => n - 1)}
-                                        className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white"
+                                        className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-[#0c2340] dark:text-slate-400 dark:hover:text-white"
                                     >
                                         <ArrowLeft className="h-4 w-4" /> Atrás
                                     </button>
                                     <div className="flex items-center gap-3">
-                                        <button onClick={omitirPregunta} className="text-sm text-slate-400 hover:text-white">
+                                        <button
+                                            onClick={omitirPregunta}
+                                            className="text-sm text-slate-500 hover:text-[#0c2340] dark:text-slate-400 dark:hover:text-white"
+                                        >
                                             Omitir
                                         </button>
                                         <button

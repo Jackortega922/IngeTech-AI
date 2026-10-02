@@ -94,7 +94,7 @@ export default function PersonalizarIndex() {
     return (
         <>
             <Head title={`Personalizar ${laptop.modelo} — IngeTech AI`} />
-            <div className="min-h-screen bg-[#07111f] text-white">
+            <div className="min-h-screen bg-slate-50 text-[#0c2340] dark:bg-slate-950 dark:text-white">
                 <FlowHeader pasoActual={3} flujo={flujo} />
 
                 <main className="mx-auto max-w-5xl px-6 py-14 lg:px-10">
@@ -109,7 +109,7 @@ export default function PersonalizarIndex() {
                             <h1 className="text-3xl font-bold sm:text-4xl">
                                 Ajusta la {laptop.marca} {laptop.modelo}
                             </h1>
-                            <p className="mt-2 text-slate-400">
+                            <p className="mt-2 text-slate-500 dark:text-slate-400">
                                 Cambia memoria, almacenamiento o agrega accesorios — el precio se actualiza al instante.
                             </p>
                         </div>
@@ -119,8 +119,8 @@ export default function PersonalizarIndex() {
                         <div className="space-y-10">
                             {/* RAM */}
                             <section>
-                                <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-300">
-                                    <Cpu className="h-4 w-4 text-cyan-400" /> Memoria RAM
+                                <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                                    <Cpu className="h-4 w-4 text-sky-600 dark:text-cyan-400" /> Memoria RAM
                                 </h2>
                                 <div className="flex flex-wrap gap-2.5">
                                     {opcionesRam.map((v) => (
@@ -137,8 +137,8 @@ export default function PersonalizarIndex() {
 
                             {/* Almacenamiento */}
                             <section>
-                                <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-300">
-                                    <MonitorSmartphone className="h-4 w-4 text-cyan-400" /> Almacenamiento
+                                <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                                    <MonitorSmartphone className="h-4 w-4 text-sky-600 dark:text-cyan-400" /> Almacenamiento
                                 </h2>
                                 <div className="flex flex-wrap gap-2.5">
                                     {opcionesAlmacenamiento.map((v) => (
@@ -160,7 +160,9 @@ export default function PersonalizarIndex() {
                             {/* Kits */}
                             {catalogos && catalogos.kits.length > 0 && (
                                 <section>
-                                    <h2 className="mb-3 text-sm font-semibold text-slate-300">Kits (con descuento frente a comprarlo suelto)</h2>
+                                    <h2 className="mb-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                                        Kits (con descuento frente a comprarlo suelto)
+                                    </h2>
                                     <div className="space-y-2.5">
                                         <OpcionKit label="Sin kit" activo={kitId === null} onClick={() => setKitId(null)} />
                                         {catalogos.kits.map((kit: Kit) => (
@@ -180,7 +182,7 @@ export default function PersonalizarIndex() {
                             {/* Accesorios sueltos */}
                             {catalogos && catalogos.accesorios.length > 0 && (
                                 <section>
-                                    <h2 className="mb-3 text-sm font-semibold text-slate-300">Accesorios adicionales</h2>
+                                    <h2 className="mb-3 text-sm font-semibold text-slate-600 dark:text-slate-300">Accesorios adicionales</h2>
                                     <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                                         {catalogos.accesorios.map((a: Accesorio) => (
                                             <button
@@ -190,11 +192,13 @@ export default function PersonalizarIndex() {
                                                 className={`flex items-center justify-between gap-2 rounded-xl border px-4 py-3 text-left text-sm transition ${
                                                     accesorioIds.includes(a.id)
                                                         ? 'border-cyan-400 bg-cyan-400/10'
-                                                        : 'border-white/10 bg-white/[0.03] hover:border-white/25'
+                                                        : 'border-slate-200 bg-white hover:border-slate-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/25'
                                                 }`}
                                             >
                                                 <span>{a.nombre}</span>
-                                                <span className="font-mono text-xs text-slate-400">S/ {Number(a.precio_soles).toFixed(0)}</span>
+                                                <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
+                                                    S/ {Number(a.precio_soles).toFixed(0)}
+                                                </span>
                                             </button>
                                         ))}
                                     </div>
@@ -203,13 +207,13 @@ export default function PersonalizarIndex() {
                         </div>
 
                         {/* Resumen */}
-                        <aside className="h-fit rounded-2xl border border-white/10 bg-white/[0.04] p-6 lg:sticky lg:top-24">
-                            <p className="text-sm text-slate-400">Resumen</p>
+                        <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-6 lg:sticky lg:top-24 dark:border-white/10 dark:bg-white/[0.04]">
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Resumen</p>
                             <h3 className="mt-1 text-lg font-bold">
                                 {laptop.marca} {laptop.modelo}
                             </h3>
 
-                            <div className="mt-5 space-y-2.5 border-t border-white/10 pt-4 text-sm">
+                            <div className="mt-5 space-y-2.5 border-t border-slate-200 pt-4 text-sm dark:border-white/10">
                                 <FilaResumen label="Laptop base" valor={precioBase} />
                                 {deltaRam !== 0 && <FilaResumen label={`RAM ${ram} GB`} valor={deltaRam} />}
                                 {deltaAlmacenamiento !== 0 && (
@@ -221,9 +225,11 @@ export default function PersonalizarIndex() {
                                 ))}
                             </div>
 
-                            <div className="mt-5 flex items-baseline justify-between border-t border-white/10 pt-4">
-                                <span className="text-sm text-slate-300">Precio final</span>
-                                <span className="font-mono text-2xl font-bold text-cyan-400">S/ {precioFinal.toLocaleString('es-PE')}</span>
+                            <div className="mt-5 flex items-baseline justify-between border-t border-slate-200 pt-4 dark:border-white/10">
+                                <span className="text-sm text-slate-600 dark:text-slate-300">Precio final</span>
+                                <span className="font-mono text-2xl font-bold text-sky-600 dark:text-cyan-400">
+                                    S/ {precioFinal.toLocaleString('es-PE')}
+                                </span>
                             </div>
 
                             <button
@@ -239,7 +245,7 @@ export default function PersonalizarIndex() {
 
                     <Link
                         href={flujo === 'ia' ? '/resultado' : '/#productos'}
-                        className="mt-10 inline-block text-sm text-slate-400 underline decoration-white/20 hover:text-white"
+                        className="mt-10 inline-block text-sm text-slate-500 underline decoration-slate-300 hover:text-[#0c2340] dark:text-slate-400 dark:decoration-white/20 dark:hover:text-white"
                     >
                         ← {flujo === 'ia' ? 'Volver a mi recomendación' : 'Seguir viendo laptops'}
                     </Link>
@@ -256,7 +262,9 @@ function OpcionPastilla({ label, sub, activo, onClick }: { label: string; sub: s
             type="button"
             onClick={onClick}
             className={`rounded-xl border px-4 py-2.5 text-center text-sm transition ${
-                activo ? 'border-cyan-400 bg-cyan-400/10' : 'border-white/10 bg-white/[0.03] hover:border-white/25'
+                activo
+                    ? 'border-cyan-400 bg-cyan-400/10'
+                    : 'border-slate-200 bg-white hover:border-slate-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/25'
             }`}
         >
             <span className="block font-mono font-semibold">{label}</span>
@@ -283,21 +291,23 @@ function OpcionKit({
             type="button"
             onClick={onClick}
             className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3.5 text-left transition ${
-                activo ? 'border-cyan-400 bg-cyan-400/10' : 'border-white/10 bg-white/[0.03] hover:border-white/25'
+                activo
+                    ? 'border-cyan-400 bg-cyan-400/10'
+                    : 'border-slate-200 bg-white hover:border-slate-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/25'
             }`}
         >
             <span>
                 <span className="block text-sm font-semibold">{label}</span>
                 {incluye && <span className="block text-xs text-slate-500">{incluye}</span>}
             </span>
-            {precio !== undefined && <span className="shrink-0 font-mono text-sm text-cyan-300">S/ {precio.toFixed(0)}</span>}
+            {precio !== undefined && <span className="shrink-0 font-mono text-sm text-sky-700 dark:text-cyan-300">S/ {precio.toFixed(0)}</span>}
         </button>
     );
 }
 
 function FilaResumen({ label, valor }: { label: string; valor: number }) {
     return (
-        <div className="flex items-center justify-between text-slate-300">
+        <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
             <span className="truncate pr-3">{label}</span>
             <span className="shrink-0 font-mono">
                 {valor >= 0 ? '+' : '−'} S/ {Math.abs(valor).toLocaleString('es-PE')}
