@@ -1,6 +1,7 @@
 import ChatWidget from '@/components/chat-widget';
 import FlowHeader from '@/components/flujo/flow-header';
 import LaptopImage from '@/components/laptop-image';
+import { costoAnual, VIDA_UTIL_ANIOS } from '@/lib/contabilidad';
 import { flujoStorage } from '@/lib/flujo-storage';
 import { nivelCpu, PUERTO_ETIQUETA } from '@/lib/guia-compra';
 import type { Laptop, PreferenciasCliente, RespuestaMotorError, Tarjeta } from '@/types/flujo';
@@ -332,6 +333,10 @@ function TarjetaLaptop({
                         <div>
                             <small className="text-xs text-slate-400">Precio</small>
                             <p className="text-2xl font-black">{soles(l.precio_soles)}</p>
+                            {/* Contabilidad: el precio repartido en la vida útil contable (4 años). */}
+                            <small className="block text-[11px] text-slate-500 dark:text-slate-400">
+                                ≈ {soles(costoAnual(l.precio_soles))} por año de uso
+                            </small>
                         </div>
                         <button
                             onClick={onComparar}
@@ -391,6 +396,7 @@ function VentanaDetalle({ l, onCerrar }: { l: Laptop | null; onCerrar: () => voi
         ['Pantalla', l.pantalla_pulgadas ? `${l.pantalla_pulgadas}" ${l.pantalla_resolucion ?? ''} ${l.pantalla_hz ?? 60} Hz` : '—'],
         ['Peso', l.peso_kg ? `${l.peso_kg} kg` : '—'],
         ['Precio', soles(l.precio_soles)],
+        ['Costo por año de uso', `${soles(costoAnual(l.precio_soles))} (en ${VIDA_UTIL_ANIOS} años)`],
     ];
 
     return (

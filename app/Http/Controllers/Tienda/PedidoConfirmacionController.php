@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tienda;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
+use App\Support\AccesoPedido;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -21,11 +22,7 @@ class PedidoConfirmacionController extends Controller
             ->where('codigo', $codigo)
             ->firstOrFail();
 
-        $user = $request->user();
-        $puedeVer = in_array($codigo, $request->session()->get('pedidos_propios', []), true)
-            || ($user && ($user->is_admin || $pedido->user_id === $user->id));
-
-        abort_unless($puedeVer, 404);
+        abort_unless(AccesoPedido::puedeVer($request, $pedido), 404);
 
         return Inertia::render('sistemas/pedido/index', ['pedido' => $pedido]);
     }

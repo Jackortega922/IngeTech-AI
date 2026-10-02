@@ -36,6 +36,7 @@ Route::get('/mis-pedidos', [PedidoController::class, 'index'])->middleware('auth
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/contabilidad', [ContabilidadController::class, 'index']);
+    Route::get('/contabilidad/registro-ventas.csv', [ContabilidadController::class, 'exportar']);
     Route::get('/clientes', [ClienteController::class, 'index']);
     Route::get('/pedidos', [AdminPedidoController::class, 'index']);
     Route::patch('/pedidos/{pedido}', [AdminPedidoController::class, 'update']);

@@ -162,11 +162,18 @@ export interface CalidadRecomendacion {
     elecciones_por_opcion: Record<string, number>;
 }
 
+// Contabilidad: ventas reales (pedidos no cancelados), con el IGV desglosado.
 export interface ContabilidadAdmin {
-    ingreso_potencial_total: number;
+    ventas_total: number;
+    base_imponible: number;
+    igv: number;
+    igv_porcentaje: number;
+    numero_ventas: number;
     ticket_promedio: number;
-    total_recomendaciones: number;
-    por_rango_precio: Record<string, number>;
+    anulaciones: { cantidad: number; monto: number };
+    por_mes: Record<string, { ventas: number; monto: number }>;
+    por_marca: Record<string, { ventas: number; monto: number }>;
+    ultimas: { codigo: string; comprobante: string | null; fecha: string; cliente: string; laptop: string; total: number; estado: EstadoPedido }[];
 }
 
 export interface Cliente {
@@ -231,6 +238,8 @@ export interface Pedido {
     costo_envio: string | number;
     total: string | number;
     estado: EstadoPedido;
+    // Boleta de venta (simulada): serie + correlativo, ej. B001-00000012.
+    comprobante: string | null;
     created_at: string;
     // Recorrido del pedido: cuándo pasó a cada estado (tabla pedido_eventos).
     eventos: { id: number; estado: EstadoPedido; created_at: string }[];
