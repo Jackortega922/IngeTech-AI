@@ -1,11 +1,11 @@
 import DeviceIllustration from '@/components/device-illustration';
 import AppLayout from '@/layouts/app-layout';
-import { flujoStorage } from '@/lib/flujo-storage';
 import { getCatalogImage } from '@/lib/catalog-images';
+import { flujoStorage } from '@/lib/flujo-storage';
 import type { BreadcrumbItem } from '@/types';
 import type { Catalogos, Laptop } from '@/types/flujo';
 import { Head, Link } from '@inertiajs/react';
-import { Check, ChevronRight, Minus, Scale, X } from 'lucide-react';
+import { ChevronRight, Minus, Scale, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import GuiaCompra from './guia-compra';
 
@@ -90,9 +90,7 @@ export default function ComparadorIndex() {
 
     const equipos = useMemo(() => {
         if (!catalogos) return [];
-        return ids
-            .map((id) => catalogos.hardware.find((h) => Number(h.id) === Number(id)))
-            .filter(Boolean) as Laptop[];
+        return ids.map((id) => catalogos.hardware.find((h) => Number(h.id) === Number(id))).filter(Boolean) as Laptop[];
     }, [catalogos, ids]);
 
     function remove(id: number) {
@@ -129,9 +127,7 @@ export default function ComparadorIndex() {
         setIds([]);
     }
 
-    const priceDifference = equipos.length === 2
-        ? Math.abs(Number(equipos[0].precio_soles) - Number(equipos[1].precio_soles))
-        : 0;
+    const priceDifference = equipos.length === 2 ? Math.abs(Number(equipos[0].precio_soles) - Number(equipos[1].precio_soles)) : 0;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -147,8 +143,14 @@ export default function ComparadorIndex() {
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        <Link href="/hardware" className="it-btn it-btn-secondary">Catálogo <ChevronRight className="h-4 w-4" /></Link>
-                        {ids.length > 0 && <button onClick={clear} className="it-btn it-btn-ghost">Limpiar</button>}
+                        <Link href="/hardware" className="it-btn it-btn-secondary">
+                            Catálogo <ChevronRight className="h-4 w-4" />
+                        </Link>
+                        {ids.length > 0 && (
+                            <button onClick={clear} className="it-btn it-btn-ghost">
+                                Limpiar
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -165,17 +167,12 @@ export default function ComparadorIndex() {
                     <>
                         <section className="mt-8 overflow-hidden rounded-[2rem] border bg-white shadow-sm dark:bg-slate-950">
                             <div className="grid md:grid-cols-[190px_1fr_1fr]">
-                                <div className="hidden border-r bg-slate-50 p-5 dark:bg-slate-900 md:block">
-                                    <p className="text-xs font-black uppercase tracking-wider text-slate-400">Equipo</p>
+                                <div className="hidden border-r bg-slate-50 p-5 md:block dark:bg-slate-900">
+                                    <p className="text-xs font-black tracking-wider text-slate-400 uppercase">Equipo</p>
                                     <p className="mt-2 text-sm text-slate-500">2 seleccionados</p>
                                 </div>
                                 {equipos.map((e) => (
-                                    <ComparisonHeader
-                                        key={e.id}
-                                        equipo={e}
-                                        onRemove={() => remove(e.id)}
-                                        onChange={() => openSelector(e.id)}
-                                    />
+                                    <ComparisonHeader key={e.id} equipo={e} onRemove={() => remove(e.id)} onChange={() => openSelector(e.id)} />
                                 ))}
                             </div>
 
@@ -223,30 +220,44 @@ export default function ComparadorIndex() {
 
 function EmptyComparison({ selected, onAdd, onRemove }: { selected?: Laptop; onAdd: () => void; onRemove: () => void }) {
     return (
-        <section className="mt-8 rounded-[2rem] border border-dashed bg-white p-6 shadow-sm dark:bg-slate-950 sm:p-10">
+        <section className="mt-8 rounded-[2rem] border border-dashed bg-white p-6 shadow-sm sm:p-10 dark:bg-slate-950">
             {selected ? (
                 <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
                     <div className="flex items-center gap-4">
                         <EquipoThumb equipo={selected} className="h-24 w-32" />
                         <div>
-                            <p className="text-xs font-black uppercase tracking-wider text-[var(--it-primary)]">Equipo 1</p>
-                            <h2 className="mt-1 text-xl font-black">{selected.marca} {selected.modelo}</h2>
+                            <p className="text-xs font-black tracking-wider text-[var(--it-primary)] uppercase">Equipo 1</p>
+                            <h2 className="mt-1 text-xl font-black">
+                                {selected.marca} {selected.modelo}
+                            </h2>
                             <p className="mt-1 text-sm text-slate-500">Falta seleccionar un segundo equipo.</p>
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        <button onClick={onRemove} className="it-btn it-btn-secondary">Quitar</button>
-                        <button onClick={onAdd} className="it-btn it-btn-primary">Agregar equipo <Scale className="h-4 w-4" /></button>
+                        <button onClick={onRemove} className="it-btn it-btn-secondary">
+                            Quitar
+                        </button>
+                        <button onClick={onAdd} className="it-btn it-btn-primary">
+                            Agregar equipo <Scale className="h-4 w-4" />
+                        </button>
                     </div>
                 </div>
             ) : (
                 <div className="text-center">
-                    <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-sky-50 text-sky-600 dark:bg-sky-950/50 dark:text-sky-300"><Scale className="h-7 w-7" /></div>
+                    <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-sky-50 text-sky-600 dark:bg-sky-950/50 dark:text-sky-300">
+                        <Scale className="h-7 w-7" />
+                    </div>
                     <h2 className="mt-4 text-xl font-black">Aún no hay equipos para comparar</h2>
-                    <p className="mx-auto mt-2 max-w-xl text-sm text-slate-500">Selecciona 2 equipos desde el catálogo de hardware. La selección se conservará al volver a esta pantalla.</p>
+                    <p className="mx-auto mt-2 max-w-xl text-sm text-slate-500">
+                        Selecciona 2 equipos desde el catálogo de hardware. La selección se conservará al volver a esta pantalla.
+                    </p>
                     <div className="mt-5 flex justify-center gap-2">
-                        <Link href="/hardware" className="it-btn it-btn-primary">Ir al catálogo <ChevronRight className="h-4 w-4" /></Link>
-                        <button onClick={onAdd} className="it-btn it-btn-secondary">Seleccionar aquí</button>
+                        <Link href="/hardware" className="it-btn it-btn-primary">
+                            Ir al catálogo <ChevronRight className="h-4 w-4" />
+                        </Link>
+                        <button onClick={onAdd} className="it-btn it-btn-secondary">
+                            Seleccionar aquí
+                        </button>
                     </div>
                 </div>
             )}
@@ -256,18 +267,22 @@ function EmptyComparison({ selected, onAdd, onRemove }: { selected?: Laptop; onA
 
 function ComparisonHeader({ equipo, onRemove, onChange }: { equipo: Laptop; onRemove: () => void; onChange: () => void }) {
     return (
-        <div className="border-b p-4 md:border-b-0 md:border-r md:p-5 last:border-r-0">
+        <div className="border-b p-4 last:border-r-0 md:border-r md:border-b-0 md:p-5">
             <div className="flex gap-3">
                 <EquipoThumb equipo={equipo} className="h-20 w-28 shrink-0" />
                 <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-black uppercase tracking-wider text-[var(--it-primary)]">{equipo.marca}</p>
+                    <p className="text-[10px] font-black tracking-wider text-[var(--it-primary)] uppercase">{equipo.marca}</p>
                     <h2 className="mt-1 truncate font-black">{equipo.modelo}</h2>
                     <p className="mt-1 text-lg font-black">S/ {Number(equipo.precio_soles).toLocaleString('es-PE')}</p>
                 </div>
             </div>
             <div className="mt-3 flex gap-2">
-                <button onClick={onChange} className="it-btn it-btn-secondary h-9 flex-1 px-3 text-xs">Cambiar</button>
-                <button onClick={onRemove} className="it-btn it-btn-ghost h-9 px-3 text-xs">Quitar</button>
+                <button onClick={onChange} className="it-btn it-btn-secondary h-9 flex-1 px-3 text-xs">
+                    Cambiar
+                </button>
+                <button onClick={onRemove} className="it-btn it-btn-ghost h-9 px-3 text-xs">
+                    Quitar
+                </button>
             </div>
         </div>
     );
@@ -276,23 +291,23 @@ function ComparisonHeader({ equipo, onRemove, onChange }: { equipo: Laptop; onRe
 function ComparisonRow({ fila, equipos }: { fila: Fila; equipos: Laptop[] }) {
     const values = equipos.map((e) => fila.getNumeric?.(e) ?? null);
     const comparable = values.length === 2 && values.every((value) => value !== null && Number.isFinite(value));
-    const firstIsBetter = comparable && values[0] !== values[1]
-        ? fila.higherIsBetter ? values[0]! > values[1]! : values[0]! < values[1]!
-        : false;
-    const secondIsBetter = comparable && values[0] !== values[1]
-        ? fila.higherIsBetter ? values[1]! > values[0]! : values[1]! < values[0]!
-        : false;
+    const firstIsBetter = comparable && values[0] !== values[1] ? (fila.higherIsBetter ? values[0]! > values[1]! : values[0]! < values[1]!) : false;
+    const secondIsBetter = comparable && values[0] !== values[1] ? (fila.higherIsBetter ? values[1]! > values[0]! : values[1]! < values[0]!) : false;
 
     return (
         <div className="grid md:grid-cols-[190px_1fr_1fr]">
-            <div className="border-b bg-slate-50 px-4 py-3 text-xs font-bold text-slate-500 dark:bg-slate-900 md:border-r md:px-5">{fila.label}</div>
+            <div className="border-b bg-slate-50 px-4 py-3 text-xs font-bold text-slate-500 md:border-r md:px-5 dark:bg-slate-900">{fila.label}</div>
             {equipos.map((equipo, index) => {
                 const better = index === 0 ? firstIsBetter : secondIsBetter;
                 const equal = comparable && values[0] === values[1];
                 return (
                     <div key={equipo.id} className="flex items-center gap-2 border-b p-3 text-sm md:p-4">
                         <span className={`min-w-0 flex-1 ${better ? 'font-bold text-sky-700 dark:text-sky-300' : ''}`}>{fila.getValue(equipo)}</span>
-                        {better && <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-black text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">Mejor dato</span>}
+                        {better && (
+                            <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-black text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                                Mejor dato
+                            </span>
+                        )}
                         {equal && comparable && <Minus className="h-3.5 w-3.5 shrink-0 text-slate-400" />}
                     </div>
                 );
@@ -305,7 +320,11 @@ function EquipoThumb({ equipo, className = 'h-20 w-28' }: { equipo: Laptop; clas
     const image = getCatalogImage('hardware', equipo.id, equipo.imagen_url);
     return (
         <div className={`overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-900 ${className}`}>
-            {image ? <img src={image} alt={`${equipo.marca} ${equipo.modelo}`} className="h-full w-full object-cover" /> : <DeviceIllustration marca={equipo.marca} tipo={equipo.tipo} imagenUrl={null} className="h-full w-full" />}
+            {image ? (
+                <img src={image} alt={`${equipo.marca} ${equipo.modelo}`} className="h-full w-full object-cover" />
+            ) : (
+                <DeviceIllustration marca={equipo.marca} tipo={equipo.tipo} imagenUrl={null} className="h-full w-full" />
+            )}
         </div>
     );
 }
@@ -313,7 +332,7 @@ function EquipoThumb({ equipo, className = 'h-20 w-28' }: { equipo: Laptop; clas
 function MetricCard({ label, value, detail }: { label: string; value: string; detail: string }) {
     return (
         <article className="rounded-2xl border bg-white p-5 dark:bg-slate-950">
-            <p className="text-xs font-black uppercase tracking-wider text-slate-400">{label}</p>
+            <p className="text-xs font-black tracking-wider text-slate-400 uppercase">{label}</p>
             <p className="mt-2 text-xl font-black">{value}</p>
             <p className="mt-1 text-xs text-slate-500">{detail}</p>
         </article>
@@ -349,9 +368,13 @@ function SelectorModal({
                     <div>
                         <p className="it-eyebrow">SELECCIÓN DE EQUIPO</p>
                         <h2 className="mt-1 text-2xl font-black">{replaceId === null ? 'Agregar equipo' : 'Cambiar equipo'}</h2>
-                        <p className="mt-1 text-sm text-slate-500">Elige un equipo del catálogo actual, incluyendo los registrados desde administración.</p>
+                        <p className="mt-1 text-sm text-slate-500">
+                            Elige un equipo del catálogo actual, incluyendo los registrados desde administración.
+                        </p>
                     </div>
-                    <button onClick={onClose} className="it-icon-btn"><X className="h-4 w-4" /></button>
+                    <button onClick={onClose} className="it-icon-btn">
+                        <X className="h-4 w-4" />
+                    </button>
                 </div>
                 <div className="it-modal-body">
                     <div className="grid gap-4 sm:grid-cols-2">
@@ -359,16 +382,27 @@ function SelectorModal({
                             const image = getCatalogImage('hardware', equipo.id, equipo.imagen_url);
                             const current = replaceId !== null && Number(equipo.id) === Number(replaceId);
                             return (
-                                <button key={equipo.id} onClick={() => !current && onSelect(Number(equipo.id))} disabled={current} className="rounded-2xl border p-3 text-left transition hover:border-sky-300 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50">
+                                <button
+                                    key={equipo.id}
+                                    onClick={() => !current && onSelect(Number(equipo.id))}
+                                    disabled={current}
+                                    className="rounded-2xl border p-3 text-left transition hover:border-sky-300 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+                                >
                                     <div className="flex gap-3">
                                         <div className="h-20 w-28 shrink-0 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-900">
-                                            {image ? <img src={image} alt={`${equipo.marca} ${equipo.modelo}`} className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center font-black text-slate-300">IT</div>}
+                                            {image ? (
+                                                <img src={image} alt={`${equipo.marca} ${equipo.modelo}`} className="h-full w-full object-cover" />
+                                            ) : (
+                                                <div className="grid h-full place-items-center font-black text-slate-300">IT</div>
+                                            )}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-[10px] font-black uppercase tracking-wider text-[var(--it-primary)]">{equipo.marca}</p>
+                                            <p className="text-[10px] font-black tracking-wider text-[var(--it-primary)] uppercase">{equipo.marca}</p>
                                             <h3 className="truncate font-black">{equipo.modelo}</h3>
                                             <p className="mt-1 text-sm font-bold">S/ {Number(equipo.precio_soles).toLocaleString('es-PE')}</p>
-                                            <p className="mt-1 text-xs text-slate-500">{equipo.ram_gb} GB RAM · {equipo.almacenamiento_gb} GB</p>
+                                            <p className="mt-1 text-xs text-slate-500">
+                                                {equipo.ram_gb} GB RAM · {equipo.almacenamiento_gb} GB
+                                            </p>
                                         </div>
                                     </div>
                                 </button>

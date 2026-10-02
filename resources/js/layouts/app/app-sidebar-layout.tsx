@@ -3,8 +3,8 @@ import { AppShell } from '@/components/app-shell';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import ChatWidget from '@/components/chat-widget';
-import { type BreadcrumbItem } from '@/types';
 import ThemeCustomizer from '@/components/theme-customizer';
+import { type BreadcrumbItem } from '@/types';
 
 export default function AppSidebarLayout({ children, breadcrumbs = [] }: { children: React.ReactNode; breadcrumbs?: BreadcrumbItem[] }) {
     return (
