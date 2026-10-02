@@ -1,409 +1,409 @@
 {
-  "_fuente": "UBIGEO INEI, vía CONCYTEC/ubigeo-peru (equivalencia INEI-RENIEC-SUNAT). Nombres pasados de MAYÚSCULAS a formato legible con tildes.",
-  "departamento": "Huánuco",
-  "ubigeo": "10",
-  "provincias": [
-    {
-      "ubigeo": "1001",
-      "nombre": "Huánuco",
-      "distritos": [
+    "_fuente": "UBIGEO INEI, vía CONCYTEC/ubigeo-peru (equivalencia INEI-RENIEC-SUNAT). Nombres pasados de MAYÚSCULAS a formato legible con tildes.",
+    "departamento": "Huánuco",
+    "ubigeo": "10",
+    "provincias": [
         {
-          "ubigeo": "100101",
-          "nombre": "Huánuco"
+            "ubigeo": "1001",
+            "nombre": "Huánuco",
+            "distritos": [
+                {
+                    "ubigeo": "100101",
+                    "nombre": "Huánuco"
+                },
+                {
+                    "ubigeo": "100102",
+                    "nombre": "Amarilis"
+                },
+                {
+                    "ubigeo": "100103",
+                    "nombre": "Chinchao"
+                },
+                {
+                    "ubigeo": "100104",
+                    "nombre": "Churubamba"
+                },
+                {
+                    "ubigeo": "100105",
+                    "nombre": "Margos"
+                },
+                {
+                    "ubigeo": "100106",
+                    "nombre": "Quisqui (Kichki)"
+                },
+                {
+                    "ubigeo": "100107",
+                    "nombre": "San Francisco de Cayrán"
+                },
+                {
+                    "ubigeo": "100108",
+                    "nombre": "San Pedro de Chaulán"
+                },
+                {
+                    "ubigeo": "100109",
+                    "nombre": "Santa María del Valle"
+                },
+                {
+                    "ubigeo": "100110",
+                    "nombre": "Yarumayo"
+                },
+                {
+                    "ubigeo": "100111",
+                    "nombre": "Pillco Marca"
+                },
+                {
+                    "ubigeo": "100112",
+                    "nombre": "Yacus"
+                },
+                {
+                    "ubigeo": "100113",
+                    "nombre": "San Pablo de Pillao"
+                }
+            ]
         },
         {
-          "ubigeo": "100102",
-          "nombre": "Amarilis"
+            "ubigeo": "1002",
+            "nombre": "Ambo",
+            "distritos": [
+                {
+                    "ubigeo": "100201",
+                    "nombre": "Ambo"
+                },
+                {
+                    "ubigeo": "100202",
+                    "nombre": "Cayna"
+                },
+                {
+                    "ubigeo": "100203",
+                    "nombre": "Colpas"
+                },
+                {
+                    "ubigeo": "100204",
+                    "nombre": "Conchamarca"
+                },
+                {
+                    "ubigeo": "100205",
+                    "nombre": "Huácar"
+                },
+                {
+                    "ubigeo": "100206",
+                    "nombre": "San Francisco"
+                },
+                {
+                    "ubigeo": "100207",
+                    "nombre": "San Rafael"
+                },
+                {
+                    "ubigeo": "100208",
+                    "nombre": "Tomay Kichwa"
+                }
+            ]
         },
         {
-          "ubigeo": "100103",
-          "nombre": "Chinchao"
+            "ubigeo": "1003",
+            "nombre": "Dos de Mayo",
+            "distritos": [
+                {
+                    "ubigeo": "100301",
+                    "nombre": "La Unión"
+                },
+                {
+                    "ubigeo": "100307",
+                    "nombre": "Chuquis"
+                },
+                {
+                    "ubigeo": "100311",
+                    "nombre": "Marías"
+                },
+                {
+                    "ubigeo": "100313",
+                    "nombre": "Pachas"
+                },
+                {
+                    "ubigeo": "100316",
+                    "nombre": "Quivilla"
+                },
+                {
+                    "ubigeo": "100317",
+                    "nombre": "Ripán"
+                },
+                {
+                    "ubigeo": "100321",
+                    "nombre": "Shunqui"
+                },
+                {
+                    "ubigeo": "100322",
+                    "nombre": "Sillapata"
+                },
+                {
+                    "ubigeo": "100323",
+                    "nombre": "Yanas"
+                }
+            ]
         },
         {
-          "ubigeo": "100104",
-          "nombre": "Churubamba"
+            "ubigeo": "1004",
+            "nombre": "Huacaybamba",
+            "distritos": [
+                {
+                    "ubigeo": "100401",
+                    "nombre": "Huacaybamba"
+                },
+                {
+                    "ubigeo": "100402",
+                    "nombre": "Canchabamba"
+                },
+                {
+                    "ubigeo": "100403",
+                    "nombre": "Cochabamba"
+                },
+                {
+                    "ubigeo": "100404",
+                    "nombre": "Pinra"
+                }
+            ]
         },
         {
-          "ubigeo": "100105",
-          "nombre": "Margos"
+            "ubigeo": "1005",
+            "nombre": "Huamalíes",
+            "distritos": [
+                {
+                    "ubigeo": "100501",
+                    "nombre": "Llata"
+                },
+                {
+                    "ubigeo": "100502",
+                    "nombre": "Arancay"
+                },
+                {
+                    "ubigeo": "100503",
+                    "nombre": "Chavín de Pariarca"
+                },
+                {
+                    "ubigeo": "100504",
+                    "nombre": "Jacas Grande"
+                },
+                {
+                    "ubigeo": "100505",
+                    "nombre": "Jircán"
+                },
+                {
+                    "ubigeo": "100506",
+                    "nombre": "Miraflores"
+                },
+                {
+                    "ubigeo": "100507",
+                    "nombre": "Monzón"
+                },
+                {
+                    "ubigeo": "100508",
+                    "nombre": "Punchao"
+                },
+                {
+                    "ubigeo": "100509",
+                    "nombre": "Puños"
+                },
+                {
+                    "ubigeo": "100510",
+                    "nombre": "Singa"
+                },
+                {
+                    "ubigeo": "100511",
+                    "nombre": "Tantamayo"
+                }
+            ]
         },
         {
-          "ubigeo": "100106",
-          "nombre": "Quisqui (Kichki)"
+            "ubigeo": "1006",
+            "nombre": "Leoncio Prado",
+            "distritos": [
+                {
+                    "ubigeo": "100601",
+                    "nombre": "Rupa-Rupa"
+                },
+                {
+                    "ubigeo": "100602",
+                    "nombre": "Daniel Alomía Robles"
+                },
+                {
+                    "ubigeo": "100603",
+                    "nombre": "Hermilio Valdizán"
+                },
+                {
+                    "ubigeo": "100604",
+                    "nombre": "José Crespo y Castillo"
+                },
+                {
+                    "ubigeo": "100605",
+                    "nombre": "Luyando"
+                },
+                {
+                    "ubigeo": "100606",
+                    "nombre": "Mariano Dámaso Beraún"
+                },
+                {
+                    "ubigeo": "100607",
+                    "nombre": "Pucayacu"
+                },
+                {
+                    "ubigeo": "100608",
+                    "nombre": "Castillo Grande"
+                },
+                {
+                    "ubigeo": "100609",
+                    "nombre": "Pueblo Nuevo"
+                },
+                {
+                    "ubigeo": "100610",
+                    "nombre": "Santo Domingo de Anda"
+                }
+            ]
         },
         {
-          "ubigeo": "100107",
-          "nombre": "San Francisco de Cayrán"
+            "ubigeo": "1007",
+            "nombre": "Marañón",
+            "distritos": [
+                {
+                    "ubigeo": "100701",
+                    "nombre": "Huacrachuco"
+                },
+                {
+                    "ubigeo": "100702",
+                    "nombre": "Cholón"
+                },
+                {
+                    "ubigeo": "100703",
+                    "nombre": "San Buenaventura"
+                },
+                {
+                    "ubigeo": "100704",
+                    "nombre": "La Morada"
+                },
+                {
+                    "ubigeo": "100705",
+                    "nombre": "Santa Rosa de Alto Yanajanca"
+                }
+            ]
         },
         {
-          "ubigeo": "100108",
-          "nombre": "San Pedro de Chaulán"
+            "ubigeo": "1008",
+            "nombre": "Pachitea",
+            "distritos": [
+                {
+                    "ubigeo": "100801",
+                    "nombre": "Panao"
+                },
+                {
+                    "ubigeo": "100802",
+                    "nombre": "Chaglla"
+                },
+                {
+                    "ubigeo": "100803",
+                    "nombre": "Molino"
+                },
+                {
+                    "ubigeo": "100804",
+                    "nombre": "Umari"
+                }
+            ]
         },
         {
-          "ubigeo": "100109",
-          "nombre": "Santa María del Valle"
+            "ubigeo": "1009",
+            "nombre": "Puerto Inca",
+            "distritos": [
+                {
+                    "ubigeo": "100901",
+                    "nombre": "Puerto Inca"
+                },
+                {
+                    "ubigeo": "100902",
+                    "nombre": "Codo del Pozuzo"
+                },
+                {
+                    "ubigeo": "100903",
+                    "nombre": "Honoria"
+                },
+                {
+                    "ubigeo": "100904",
+                    "nombre": "Tournavista"
+                },
+                {
+                    "ubigeo": "100905",
+                    "nombre": "Yuyapichis"
+                }
+            ]
         },
         {
-          "ubigeo": "100110",
-          "nombre": "Yarumayo"
+            "ubigeo": "1010",
+            "nombre": "Lauricocha",
+            "distritos": [
+                {
+                    "ubigeo": "101001",
+                    "nombre": "Jesús"
+                },
+                {
+                    "ubigeo": "101002",
+                    "nombre": "Baños"
+                },
+                {
+                    "ubigeo": "101003",
+                    "nombre": "Jivia"
+                },
+                {
+                    "ubigeo": "101004",
+                    "nombre": "Queropalca"
+                },
+                {
+                    "ubigeo": "101005",
+                    "nombre": "Rondos"
+                },
+                {
+                    "ubigeo": "101006",
+                    "nombre": "San Francisco de Asís"
+                },
+                {
+                    "ubigeo": "101007",
+                    "nombre": "San Miguel de Cauri"
+                }
+            ]
         },
         {
-          "ubigeo": "100111",
-          "nombre": "Pillco Marca"
-        },
-        {
-          "ubigeo": "100112",
-          "nombre": "Yacus"
-        },
-        {
-          "ubigeo": "100113",
-          "nombre": "San Pablo de Pillao"
+            "ubigeo": "1011",
+            "nombre": "Yarowilca",
+            "distritos": [
+                {
+                    "ubigeo": "101101",
+                    "nombre": "Chavinillo"
+                },
+                {
+                    "ubigeo": "101102",
+                    "nombre": "Cahuac"
+                },
+                {
+                    "ubigeo": "101103",
+                    "nombre": "Chacabamba"
+                },
+                {
+                    "ubigeo": "101104",
+                    "nombre": "Aparicio Pomares"
+                },
+                {
+                    "ubigeo": "101105",
+                    "nombre": "Jacas Chico"
+                },
+                {
+                    "ubigeo": "101106",
+                    "nombre": "Obas"
+                },
+                {
+                    "ubigeo": "101107",
+                    "nombre": "Pampamarca"
+                },
+                {
+                    "ubigeo": "101108",
+                    "nombre": "Choras"
+                }
+            ]
         }
-      ]
-    },
-    {
-      "ubigeo": "1002",
-      "nombre": "Ambo",
-      "distritos": [
-        {
-          "ubigeo": "100201",
-          "nombre": "Ambo"
-        },
-        {
-          "ubigeo": "100202",
-          "nombre": "Cayna"
-        },
-        {
-          "ubigeo": "100203",
-          "nombre": "Colpas"
-        },
-        {
-          "ubigeo": "100204",
-          "nombre": "Conchamarca"
-        },
-        {
-          "ubigeo": "100205",
-          "nombre": "Huácar"
-        },
-        {
-          "ubigeo": "100206",
-          "nombre": "San Francisco"
-        },
-        {
-          "ubigeo": "100207",
-          "nombre": "San Rafael"
-        },
-        {
-          "ubigeo": "100208",
-          "nombre": "Tomay Kichwa"
-        }
-      ]
-    },
-    {
-      "ubigeo": "1003",
-      "nombre": "Dos de Mayo",
-      "distritos": [
-        {
-          "ubigeo": "100301",
-          "nombre": "La Unión"
-        },
-        {
-          "ubigeo": "100307",
-          "nombre": "Chuquis"
-        },
-        {
-          "ubigeo": "100311",
-          "nombre": "Marías"
-        },
-        {
-          "ubigeo": "100313",
-          "nombre": "Pachas"
-        },
-        {
-          "ubigeo": "100316",
-          "nombre": "Quivilla"
-        },
-        {
-          "ubigeo": "100317",
-          "nombre": "Ripán"
-        },
-        {
-          "ubigeo": "100321",
-          "nombre": "Shunqui"
-        },
-        {
-          "ubigeo": "100322",
-          "nombre": "Sillapata"
-        },
-        {
-          "ubigeo": "100323",
-          "nombre": "Yanas"
-        }
-      ]
-    },
-    {
-      "ubigeo": "1004",
-      "nombre": "Huacaybamba",
-      "distritos": [
-        {
-          "ubigeo": "100401",
-          "nombre": "Huacaybamba"
-        },
-        {
-          "ubigeo": "100402",
-          "nombre": "Canchabamba"
-        },
-        {
-          "ubigeo": "100403",
-          "nombre": "Cochabamba"
-        },
-        {
-          "ubigeo": "100404",
-          "nombre": "Pinra"
-        }
-      ]
-    },
-    {
-      "ubigeo": "1005",
-      "nombre": "Huamalíes",
-      "distritos": [
-        {
-          "ubigeo": "100501",
-          "nombre": "Llata"
-        },
-        {
-          "ubigeo": "100502",
-          "nombre": "Arancay"
-        },
-        {
-          "ubigeo": "100503",
-          "nombre": "Chavín de Pariarca"
-        },
-        {
-          "ubigeo": "100504",
-          "nombre": "Jacas Grande"
-        },
-        {
-          "ubigeo": "100505",
-          "nombre": "Jircán"
-        },
-        {
-          "ubigeo": "100506",
-          "nombre": "Miraflores"
-        },
-        {
-          "ubigeo": "100507",
-          "nombre": "Monzón"
-        },
-        {
-          "ubigeo": "100508",
-          "nombre": "Punchao"
-        },
-        {
-          "ubigeo": "100509",
-          "nombre": "Puños"
-        },
-        {
-          "ubigeo": "100510",
-          "nombre": "Singa"
-        },
-        {
-          "ubigeo": "100511",
-          "nombre": "Tantamayo"
-        }
-      ]
-    },
-    {
-      "ubigeo": "1006",
-      "nombre": "Leoncio Prado",
-      "distritos": [
-        {
-          "ubigeo": "100601",
-          "nombre": "Rupa-Rupa"
-        },
-        {
-          "ubigeo": "100602",
-          "nombre": "Daniel Alomía Robles"
-        },
-        {
-          "ubigeo": "100603",
-          "nombre": "Hermilio Valdizán"
-        },
-        {
-          "ubigeo": "100604",
-          "nombre": "José Crespo y Castillo"
-        },
-        {
-          "ubigeo": "100605",
-          "nombre": "Luyando"
-        },
-        {
-          "ubigeo": "100606",
-          "nombre": "Mariano Dámaso Beraún"
-        },
-        {
-          "ubigeo": "100607",
-          "nombre": "Pucayacu"
-        },
-        {
-          "ubigeo": "100608",
-          "nombre": "Castillo Grande"
-        },
-        {
-          "ubigeo": "100609",
-          "nombre": "Pueblo Nuevo"
-        },
-        {
-          "ubigeo": "100610",
-          "nombre": "Santo Domingo de Anda"
-        }
-      ]
-    },
-    {
-      "ubigeo": "1007",
-      "nombre": "Marañón",
-      "distritos": [
-        {
-          "ubigeo": "100701",
-          "nombre": "Huacrachuco"
-        },
-        {
-          "ubigeo": "100702",
-          "nombre": "Cholón"
-        },
-        {
-          "ubigeo": "100703",
-          "nombre": "San Buenaventura"
-        },
-        {
-          "ubigeo": "100704",
-          "nombre": "La Morada"
-        },
-        {
-          "ubigeo": "100705",
-          "nombre": "Santa Rosa de Alto Yanajanca"
-        }
-      ]
-    },
-    {
-      "ubigeo": "1008",
-      "nombre": "Pachitea",
-      "distritos": [
-        {
-          "ubigeo": "100801",
-          "nombre": "Panao"
-        },
-        {
-          "ubigeo": "100802",
-          "nombre": "Chaglla"
-        },
-        {
-          "ubigeo": "100803",
-          "nombre": "Molino"
-        },
-        {
-          "ubigeo": "100804",
-          "nombre": "Umari"
-        }
-      ]
-    },
-    {
-      "ubigeo": "1009",
-      "nombre": "Puerto Inca",
-      "distritos": [
-        {
-          "ubigeo": "100901",
-          "nombre": "Puerto Inca"
-        },
-        {
-          "ubigeo": "100902",
-          "nombre": "Codo del Pozuzo"
-        },
-        {
-          "ubigeo": "100903",
-          "nombre": "Honoria"
-        },
-        {
-          "ubigeo": "100904",
-          "nombre": "Tournavista"
-        },
-        {
-          "ubigeo": "100905",
-          "nombre": "Yuyapichis"
-        }
-      ]
-    },
-    {
-      "ubigeo": "1010",
-      "nombre": "Lauricocha",
-      "distritos": [
-        {
-          "ubigeo": "101001",
-          "nombre": "Jesús"
-        },
-        {
-          "ubigeo": "101002",
-          "nombre": "Baños"
-        },
-        {
-          "ubigeo": "101003",
-          "nombre": "Jivia"
-        },
-        {
-          "ubigeo": "101004",
-          "nombre": "Queropalca"
-        },
-        {
-          "ubigeo": "101005",
-          "nombre": "Rondos"
-        },
-        {
-          "ubigeo": "101006",
-          "nombre": "San Francisco de Asís"
-        },
-        {
-          "ubigeo": "101007",
-          "nombre": "San Miguel de Cauri"
-        }
-      ]
-    },
-    {
-      "ubigeo": "1011",
-      "nombre": "Yarowilca",
-      "distritos": [
-        {
-          "ubigeo": "101101",
-          "nombre": "Chavinillo"
-        },
-        {
-          "ubigeo": "101102",
-          "nombre": "Cahuac"
-        },
-        {
-          "ubigeo": "101103",
-          "nombre": "Chacabamba"
-        },
-        {
-          "ubigeo": "101104",
-          "nombre": "Aparicio Pomares"
-        },
-        {
-          "ubigeo": "101105",
-          "nombre": "Jacas Chico"
-        },
-        {
-          "ubigeo": "101106",
-          "nombre": "Obas"
-        },
-        {
-          "ubigeo": "101107",
-          "nombre": "Pampamarca"
-        },
-        {
-          "ubigeo": "101108",
-          "nombre": "Choras"
-        }
-      ]
-    }
-  ]
+    ]
 }
