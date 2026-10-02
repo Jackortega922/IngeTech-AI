@@ -74,6 +74,16 @@ export function PanelPedidos({ pedidos: iniciales, avisar }: { pedidos: Pedido[]
                                                 <a href={`/pedido/${p.codigo}`} className="font-mono font-semibold text-cyan-600 hover:underline">
                                                     {p.codigo}
                                                 </a>
+                                                {p.comprobante && (
+                                                    <a
+                                                        href={`/pedido/${p.codigo}/boleta`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-muted-foreground block font-mono text-xs hover:underline"
+                                                    >
+                                                        Boleta {p.comprobante}
+                                                    </a>
+                                                )}
                                                 <p className="text-muted-foreground mt-0.5 text-xs">
                                                     {new Date(p.created_at).toLocaleDateString('es-PE', {
                                                         day: '2-digit',

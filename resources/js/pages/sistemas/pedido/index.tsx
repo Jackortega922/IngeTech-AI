@@ -4,7 +4,7 @@ import { ESTADOS_PEDIDO, estadoPedido, lugarDeEnvio, soles } from '@/lib/pedidos
 import { type SharedData } from '@/types';
 import type { Pedido } from '@/types/flujo';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { CheckCircle2, CreditCard, MapPin } from 'lucide-react';
+import { CheckCircle2, CreditCard, FileText, MapPin } from 'lucide-react';
 
 export default function PedidoIndex({ pedido }: { pedido: Pedido }) {
     const { auth } = usePage<SharedData>().props;
@@ -141,6 +141,16 @@ export default function PedidoIndex({ pedido }: { pedido: Pedido }) {
                                     <span className="uppercase">{pedido.tarjeta_marca}</span> terminada en {pedido.tarjeta_ultimos4}
                                 </p>
                                 <p className="text-xs text-amber-700 dark:text-amber-300/80">Pago simulado: no se realizó ningún cobro.</p>
+                                {pedido.comprobante && (
+                                    <a
+                                        href={`/pedido/${pedido.codigo}/boleta`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-sky-600/30 px-3 py-1.5 text-xs font-bold text-sky-700 hover:bg-sky-600/10 dark:border-cyan-400/30 dark:text-cyan-300"
+                                    >
+                                        <FileText className="h-3.5 w-3.5" /> Ver boleta {pedido.comprobante}
+                                    </a>
+                                )}
                             </div>
                         </div>
                     </section>

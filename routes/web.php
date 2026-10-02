@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Tienda\BienvenidaController;
+use App\Http\Controllers\Tienda\BoletaController;
 use App\Http\Controllers\Tienda\PedidoConfirmacionController;
 use App\Http\Controllers\Tienda\SeguimientoController;
 use App\Models\Laptop;
@@ -34,6 +35,8 @@ Route::get('checkout', fn () => Inertia::render('sistemas/checkout/index', [
     'provinciasHuanuco' => UbigeoHuanuco::provincias(),
 ]))->name('checkout');
 Route::get('pedido/{codigo}', PedidoConfirmacionController::class)->name('pedido');
+// Boleta de venta (simulada) del pedido: mismo acceso que la confirmación.
+Route::get('pedido/{codigo}/boleta', BoletaController::class)->name('pedido.boleta');
 // Seguimiento para quien compró sin cuenta: código + correo. El límite frena a quien intente
 // adivinar códigos probando muchos seguidos.
 Route::get('seguimiento', [SeguimientoController::class, 'create'])->name('seguimiento');

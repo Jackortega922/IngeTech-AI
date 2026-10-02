@@ -20,6 +20,7 @@ class Pedido extends Model
 
     protected $fillable = [
         'codigo',
+        'comprobante',
         'user_id',
         'personalizacion_id',
         'nombre',
@@ -56,7 +57,13 @@ class Pedido extends Model
     // crearse el pedido y cada vez que el admin lo avanza.
     protected static function booted(): void
     {
-        static::created(fn (Pedido $p) => $p->eventos()->create(['estado' => $p->estado]));
+        static::created(function (Pedido $p) {
+            $p->eventos()->create(['estado' => $p->estado]);
+            // Boleta (simulada): el correlativo es el id, que recién existe después de crear.
+            // saveQuietly para no disparar "updated" y registrar un cambio de estado falso.
+            $p->comprobante = config('tienda.serie_boleta').'-'.str_pad((string) $p->id, 8, '0', STR_PAD_LEFT);
+            $p->saveQuietly();
+        });
         static::updated(function (Pedido $p) {
             if ($p->wasChanged('estado')) {
                 $p->eventos()->create(['estado' => $p->estado]);

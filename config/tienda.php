@@ -11,4 +11,29 @@ return [
     'soles_por_gb_almacenamiento' => 0.25,
     // Envío gratis a todo el Perú (tienda hipotética: no hay tarifas reales todavía).
     'costo_envio' => 0,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Contabilidad
+    |--------------------------------------------------------------------------
+    | Los precios del catálogo INCLUYEN IGV (como en cualquier tienda peruana: el precio que se
+    | ve es el que se paga). La base imponible se obtiene dividiendo entre (1 + igv).
+    */
+    'igv' => 0.18,
+
+    // Boleta de venta electrónica SIMULADA: serie fija y correlativo = id del pedido.
+    'serie_boleta' => 'B001',
+
+    // Emisor de la boleta. Tienda hipotética: se dejan vacíos en el .env y la boleta lo indica,
+    // en vez de inventar una razón social o un RUC.
+    'emisor' => [
+        'razon_social' => env('TIENDA_RAZON_SOCIAL'),
+        'ruc' => env('TIENDA_RUC'),
+        'direccion' => env('TIENDA_DIRECCION'),
+    ],
+
+    // Vida útil contable de una laptop: la depreciación de "equipos de procesamiento de datos"
+    // es como máximo 25% anual (Reglamento de la Ley del Impuesto a la Renta, art. 22), es decir,
+    // 4 años. Se usa para el "costo por año de uso" que se muestra junto a la recomendación.
+    'vida_util_anios' => 4,
 ];
