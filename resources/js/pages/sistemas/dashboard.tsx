@@ -4,20 +4,36 @@ import { estadoPedido, soles } from '@/lib/pedidos';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import type { Pedido, PreferenciasCliente } from '@/types/flujo';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ArrowRight, CheckCircle2, Cpu, HeartHandshake, Package, Sparkles, Wand2 } from 'lucide-react';
+import {
+    ArrowRight,
+    Bot,
+    CheckCircle2,
+    ChevronRight,
+    Clock3,
+    HeartHandshake,
+    History,
+    Laptop,
+    Package,
+    ShieldCheck,
+    Sparkles,
+    Wand2,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Inicio',
-        href: '/dashboard',
-    },
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Inicio', href: '/dashboard' }];
+
+// Diseño del panel: Marco (PR #41). Se conservan de main el mensaje de confirmación, la tarjeta
+// del cuestionario de bienvenida (Psicología) y "Mis pedidos".
+const pasos = [
+    { icon: Sparkles, n: '01', titulo: 'Cuéntanos qué haces', texto: 'Indica tu uso, los programas que usas, tu presupuesto y portabilidad.' },
+    { icon: Bot, n: '02', titulo: 'La IA cruza tus datos', texto: 'Comparamos tus necesidades con las especificaciones del catálogo.' },
+    { icon: Wand2, n: '03', titulo: 'Personaliza y compra', texto: 'Compara opciones, ajusta tu laptop y cómprala en línea.' },
 ];
 
-const pasos = [
-    { icon: Sparkles, titulo: 'Cuéntanos de ti', texto: 'Tu carrera, actividades y software que usas.' },
-    { icon: Cpu, titulo: 'Recibe tu recomendación', texto: 'Laptops con % de compatibilidad y por qué te sirven.' },
-    { icon: Wand2, titulo: 'Personalízala y cómprala', texto: 'Ajusta RAM, almacenamiento y accesorios, y paga en línea.' },
+const accesos = [
+    { href: '/hardware', icon: Laptop, titulo: 'Explorar laptops', texto: 'Catálogo con ficha técnica y precios.' },
+    { href: '/historial', icon: History, titulo: 'Mi historial', texto: 'Tus recomendaciones guardadas.' },
+    { href: '/dashboard#pedidos', icon: Package, titulo: 'Mis pedidos', texto: 'Estado de tus compras y boletas.' },
 ];
 
 export default function Dashboard({ preferencias, mensaje }: { preferencias: PreferenciasCliente | null; mensaje: string | null }) {
@@ -33,47 +49,94 @@ export default function Dashboard({ preferencias, mensaje }: { preferencias: Pre
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Inicio" />
-
-            <div className="flex flex-1 flex-col gap-6 p-4">
+            <Head title="Inicio — IngeTech AI" />
+            <main className="it-container space-y-7 py-7 sm:py-9">
                 {mensaje && (
                     <p className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
                         <CheckCircle2 className="h-4 w-4 shrink-0" /> {mensaje}
                     </p>
                 )}
 
+                <section className="relative overflow-hidden rounded-[2rem] border border-[#173a63]/10 bg-white shadow-xl dark:bg-slate-900">
+                    <div className="absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_center,rgba(23,58,99,.16),transparent_65%)]" />
+                    <div className="absolute top-10 right-10 h-32 w-32 rounded-full border border-slate-200/70 dark:border-slate-700" />
+                    <div className="relative grid lg:grid-cols-[1fr_360px]">
+                        <div className="p-7 sm:p-10 lg:p-12">
+                            <span className="it-badge border-[var(--it-primary)]/15 bg-[var(--it-primary-soft)] text-[var(--it-primary)]">
+                                <Sparkles className="mr-1.5 h-3.5 w-3.5" /> IA para elegir mejor
+                            </span>
+                            {/* Ruta detrás de `auth` en routes/web.php: siempre hay sesión aquí. */}
+                            <p className="mt-7 text-sm font-semibold text-slate-500">Bienvenido, {auth.user!.name}</p>
+                            <h1 className="mt-2 max-w-3xl text-4xl font-black tracking-tight text-[#0c2340] sm:text-5xl dark:text-white">
+                                Encuentra la laptop que encaja contigo.
+                            </h1>
+                            <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-500 dark:text-slate-400">
+                                IngeTech AI transforma tus actividades y programas en una recomendación clara, explicable y fácil de comparar.
+                            </p>
+                            <div className="mt-8 flex flex-wrap gap-3">
+                                <Link href="/perfil" className="it-btn it-btn-primary rounded-xl">
+                                    Nueva recomendación <ArrowRight className="h-4 w-4" />
+                                </Link>
+                                <Link href="/hardware" className="it-btn it-btn-secondary rounded-xl">
+                                    Explorar catálogo
+                                </Link>
+                            </div>
+                        </div>
+                        <div className="hidden border-l bg-[#0c2340] p-8 text-white lg:block">
+                            <p className="text-xs font-bold tracking-[.2em] text-sky-300 uppercase">Tu flujo</p>
+                            <div className="mt-8 space-y-6">
+                                {pasos.map((paso) => (
+                                    <div key={paso.n} className="flex gap-4">
+                                        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/10">
+                                            <paso.icon className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-slate-400">{paso.n}</p>
+                                            <h3 className="mt-1 font-bold">{paso.titulo}</h3>
+                                            <p className="mt-1 text-xs leading-5 text-slate-400">{paso.texto}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <TarjetaCuestionario preferencias={preferencias} />
 
-                <div className="overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent p-8">
-                    {/* Ruta detrás de `auth` en routes/web.php: siempre hay sesión aquí. */}
-                    <p className="text-muted-foreground text-sm">Hola, {auth.user!.name} 👋</p>
-                    <h1 className="mt-1 text-2xl font-bold sm:text-3xl">¿Buscamos tu próxima laptop?</h1>
-                    <p className="text-muted-foreground mt-2 max-w-xl">
-                        Responde unas preguntas sobre tu carrera y lo que necesitas hacer, y te recomendamos la mejor opción para tu presupuesto.
-                    </p>
-                    <Link
-                        href="/perfil"
-                        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-6 py-3 font-bold text-white transition hover:bg-cyan-600"
-                    >
-                        Nueva recomendación <ArrowRight className="h-4 w-4" />
-                    </Link>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-3">
-                    {pasos.map((paso, i) => (
-                        <div key={paso.titulo} className="rounded-xl border p-5">
-                            <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400">
-                                <paso.icon className="h-5 w-5" />
-                                <span className="text-xs font-bold">Paso {i + 1}</span>
-                            </div>
-                            <h3 className="mt-3 font-semibold">{paso.titulo}</h3>
-                            <p className="text-muted-foreground mt-1 text-sm">{paso.texto}</p>
+                <section className="grid gap-5 lg:grid-cols-[1fr_320px]">
+                    <div className="it-card p-6 sm:p-7">
+                        <p className="it-eyebrow">Accesos rápidos</p>
+                        <h2 className="mt-1 text-2xl font-black text-[#0c2340] dark:text-white">Tu centro de compras</h2>
+                        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                            {accesos.map((item) => (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className="group rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[var(--it-primary)]/30 hover:shadow-lg"
+                                >
+                                    <item.icon className="h-5 w-5 text-[var(--it-primary)] dark:text-sky-300" />
+                                    <h3 className="mt-4 font-bold">{item.titulo}</h3>
+                                    <p className="mt-1 text-xs leading-5 text-slate-500">{item.texto}</p>
+                                    <ChevronRight className="mt-4 h-4 w-4 text-slate-300 transition group-hover:translate-x-1 group-hover:text-[var(--it-primary)]" />
+                                </Link>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </div>
+                    <aside className="rounded-3xl bg-[#0c2340] p-7 text-white shadow-lg">
+                        <ShieldCheck className="h-7 w-7 text-sky-300" />
+                        <h2 className="mt-5 text-xl font-black">Recomendaciones con contexto</h2>
+                        <p className="mt-2 text-sm leading-6 text-slate-300">
+                            El resultado considera tus necesidades, cómo eres (si respondiste el cuestionario) y el catálogo de la tienda.
+                        </p>
+                        <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-sky-200">
+                            <Clock3 className="h-4 w-4" /> Flujo guiado de pocos minutos
+                        </div>
+                    </aside>
+                </section>
 
                 <MisPedidos pedidos={pedidos} />
-            </div>
+            </main>
         </AppLayout>
     );
 }
