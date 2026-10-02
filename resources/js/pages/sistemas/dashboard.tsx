@@ -46,7 +46,7 @@ export default function Dashboard() {
                         <div className="hidden border-l bg-[#0c2340] p-8 text-white lg:block">
                             <p className="text-xs font-bold tracking-[.2em] text-sky-300 uppercase">Tu flujo</p>
                             <div className="mt-8 space-y-6">
-                                {steps.map((step, i) => (
+                                {steps.map((step) => (
                                     <div key={step.n} className="flex gap-4">
                                         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/10">
                                             <step.icon className="h-5 w-5" />

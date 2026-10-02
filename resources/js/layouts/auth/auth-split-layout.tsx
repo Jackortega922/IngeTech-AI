@@ -1,7 +1,7 @@
 import AppLogoIcon from '@/components/app-logo-icon';
-import { type SharedData } from '@/types';
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { BrainCircuit, CheckCircle2, Cpu, Sparkles, Star, Zap } from 'lucide-react';
+
 
 interface AuthLayoutProps {
     children: React.ReactNode;
@@ -10,7 +10,7 @@ interface AuthLayoutProps {
 }
 
 export default function AuthSplitLayout({ children }: AuthLayoutProps) {
-    const { name } = usePage<SharedData>().props;
+
     return (
         <div className="min-h-screen bg-slate-50 lg:grid lg:grid-cols-[1.08fr_.92fr] dark:bg-slate-950">
             <aside className="relative hidden min-h-screen overflow-hidden bg-[#071a30] p-10 text-white lg:flex lg:flex-col">

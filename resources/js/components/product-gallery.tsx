@@ -36,15 +36,15 @@ export default function ProductGallery({ itemId, primary, onPrimaryChange, compa
         }
     }, [itemId, primary]);
 
-    useEffect(() => {
-        if (!images.length) return;
-        try {
-            localStorage.setItem(keyFor(itemId), JSON.stringify(images.slice(0, 8)));
-        } catch {
-            /* quota exceeded */
-        }
-        if (!primary || !images.includes(primary)) onPrimaryChange(images[0]);
-    }, [images]);
+useEffect(() => {
+    if (!images.length) return;
+    try {
+        localStorage.setItem(keyFor(itemId), JSON.stringify(images.slice(0, 8)));
+    } catch {
+        /* quota exceeded */
+    }
+    if (!primary || !images.includes(primary)) onPrimaryChange(images[0]);
+}, [images, itemId, primary, onPrimaryChange]);
 
     const current = images[index] || primary || null;
 
