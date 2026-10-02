@@ -10,6 +10,7 @@ use App\Models\EventoAnalitica;
 use App\Models\Laptop;
 use App\Models\PerfilUsuario;
 use App\Models\Recomendacion;
+use App\Models\Software;
 use App\Models\User;
 use App\Services\Recommender\NecesidadCalculator;
 use App\Services\Recommender\RecommenderClient;
@@ -24,10 +25,16 @@ class RecomendacionController extends Controller
         $perfil = $datos['perfil'];
         $usuarioId = $request->user()?->id;
 
-        // Ya validado por RecomendarRequest (Rule::exists), así que siempre existe.
-        $carrera = Carrera::with('software')->where('clave', $perfil['carrera_clave'])->firstOrFail();
+        // La carrera es opcional (público general). Si viene, RecomendarRequest ya validó que existe.
+        $carrera = empty($perfil['carrera_clave'])
+            ? null
+            : Carrera::with('software')->where('clave', $perfil['carrera_clave'])->firstOrFail();
         $actividades = Actividad::whereIn('clave', $perfil['actividades'] ?? [])->get();
-        $necesidad = NecesidadCalculator::calcular($carrera->software, $actividades, $perfil['nivel_experiencia']);
+        // Los programas que la persona eligió; si no mandó la lista, los típicos de su carrera.
+        $software = array_key_exists('software', $perfil)
+            ? Software::whereIn('clave', $perfil['software'])->get()
+            : ($carrera?->software ?? collect());
+        $necesidad = NecesidadCalculator::calcular($software, $actividades, $perfil['nivel_experiencia']);
 
         try {
             // El motor (real o mock) solo conoce el contrato v0 documentado en
@@ -35,10 +42,10 @@ class RecomendacionController extends Controller
             // conceptos de esta capa de Laravel, no cruzan hacia el motor.
             $respuesta = $recommender->recomendar([
                 'perfil' => [
-                    'carrera' => $carrera->nombre,
+                    'carrera' => $carrera?->nombre ?? '',
                     'nivel_experiencia' => $perfil['nivel_experiencia'],
                     'actividades' => $actividades->pluck('clave')->all(),
-                    'software' => $carrera->software->pluck('clave')->all(),
+                    'software' => $software->pluck('clave')->all(),
                     'presupuesto_soles' => $perfil['presupuesto_soles'],
                     // Cuestionario de bienvenida (Psicología, B11): si lo respondió, el motor
                     // ajusta el ranking a cómo es la persona. Solo viaja a nuestro propio motor.
@@ -54,7 +61,7 @@ class RecomendacionController extends Controller
             ], 502);
         }
 
-        $perfilUsuario = $this->guardarPerfil($perfil, $carrera, $usuarioId, $actividades);
+        $perfilUsuario = $this->guardarPerfil($perfil, $carrera, $usuarioId, $actividades, $software);
 
         $recomendaciones = collect($respuesta['recomendaciones'] ?? []);
         if ($perfil['portabilidad'] !== 'cualquiera') {
@@ -116,19 +123,20 @@ class RecomendacionController extends Controller
         ]);
     }
 
-    private function guardarPerfil(array $perfil, Carrera $carrera, ?int $usuarioId, Collection $actividades): PerfilUsuario
+    private function guardarPerfil(array $perfil, ?Carrera $carrera, ?int $usuarioId, Collection $actividades, Collection $software): PerfilUsuario
     {
         return PerfilUsuario::create([
             'user_id' => $usuarioId,
-            'carrera_id' => $carrera->id,
-            'carrera' => $carrera->nombre,
+            'carrera_id' => $carrera?->id,
+            'carrera' => $carrera?->nombre,
             // El campo es opcional en el formulario; una cadena vacía se guarda como null en
             // vez de "" para no confundir "no contestó" con "contestó algo vacío".
             'cargo' => trim((string) ($perfil['cargo'] ?? '')) ?: null,
+            'tipo_uso' => $perfil['tipo_uso'] ?? null,
             'portabilidad' => $perfil['portabilidad'],
             'nivel_experiencia' => $perfil['nivel_experiencia'],
             'actividades' => $actividades->pluck('nombre')->all(),
-            'software' => $carrera->software->pluck('clave')->all(),
+            'software' => $software->pluck('clave')->all(),
             'presupuesto_soles' => $perfil['presupuesto_soles'],
             // RecomendarRequest ya rechazó la petición si no se aceptó, así que llegar hasta
             // aquí significa que el consentimiento se dio en este momento.
@@ -142,7 +150,7 @@ class RecomendacionController extends Controller
             'recomendacion_id' => $recomendacionId,
             'tipo' => 'consulta_recomendacion',
             'payload' => [
-                'carrera_clave' => $perfil['carrera_clave'],
+                'carrera_clave' => $perfil['carrera_clave'] ?? null,
                 'presupuesto_soles' => $perfil['presupuesto_soles'],
                 'portabilidad' => $perfil['portabilidad'],
                 'resultado' => $resultado,

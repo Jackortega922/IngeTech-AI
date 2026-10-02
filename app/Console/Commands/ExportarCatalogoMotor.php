@@ -3,11 +3,13 @@
 namespace App\Console\Commands;
 
 use App\Models\Laptop;
+use App\Models\Software;
 use Illuminate\Console\Command;
 
 /**
- * Regenera ml-engine/data/laptops.json desde la tabla `laptops`, para que el motor califique
- * exactamente las mismas laptops (mismos IDs, precios y specs) que muestra Laravel.
+ * Regenera ml-engine/data/laptops.json y software.json desde la BD, para que el motor califique
+ * exactamente las mismas laptops (mismos IDs, precios y specs) y conozca los mismos programas, con
+ * sus requisitos, que maneja Laravel.
  *
  * Antes esto se hacía a mano con tinker cada vez que cambiaba el seeder (tarea A14). Correrlo
  * después de `db:seed` o de editar el catálogo en el admin:
@@ -16,7 +18,9 @@ use Illuminate\Console\Command;
  */
 class ExportarCatalogoMotor extends Command
 {
-    protected $signature = 'motor:exportar-catalogo {--ruta= : Archivo de destino (por defecto ml-engine/data/laptops.json)}';
+    protected $signature = 'motor:exportar-catalogo
+        {--ruta= : Archivo de laptops (por defecto ml-engine/data/laptops.json)}
+        {--ruta-software= : Archivo de programas (por defecto ml-engine/data/software.json)}';
 
     protected $description = 'Exporta el catálogo de laptops al formato que lee el motor de recomendación';
 
@@ -50,6 +54,25 @@ class ExportarCatalogoMotor extends Command
         file_put_contents($ruta, json_encode($laptops, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n");
 
         $this->info("Exportadas {$laptops->count()} laptops a {$ruta}");
+
+        // Programas con sus requisitos: el motor los usa para saber cuánta RAM, CPU y GPU pide
+        // lo que el cliente dice que usa (no solo sus actividades).
+        $software = Software::orderBy('clave')->get()->map(fn (Software $s) => [
+            'clave' => $s->clave,
+            'etiqueta' => $s->nombre,
+            'categoria' => $s->categoria,
+            'min_ram_gb' => $s->min_ram_gb,
+            'min_cpu_score' => $s->min_cpu_score,
+            'min_gpu_dedicada' => (bool) $s->min_gpu_dedicada,
+            'rec_ram_gb' => $s->rec_ram_gb,
+            'rec_cpu_score' => $s->rec_cpu_score,
+            'rec_gpu_dedicada' => (bool) $s->rec_gpu_dedicada,
+        ])->values();
+
+        $rutaSoftware = $this->option('ruta-software') ?: base_path('ml-engine/data/software.json');
+        file_put_contents($rutaSoftware, json_encode($software, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n");
+
+        $this->info("Exportados {$software->count()} programas a {$rutaSoftware}");
 
         return self::SUCCESS;
     }
