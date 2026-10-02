@@ -1,5 +1,6 @@
 import ChatWidget from '@/components/chat-widget';
 import LaptopImage from '@/components/laptop-image';
+import HeroCarousel from '@/components/tienda/hero-carousel';
 import StoreFooter from '@/components/tienda/store-footer';
 import WhatsappButton, { enlaceWhatsapp, WhatsappIcon } from '@/components/tienda/whatsapp-button';
 import { flujoStorage } from '@/lib/flujo-storage';
@@ -7,7 +8,6 @@ import { type SharedData } from '@/types';
 import type { Laptop } from '@/types/flujo';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
-    ArrowRight,
     BookOpen,
     Briefcase,
     Check,
@@ -204,67 +204,40 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
                     </div>
                 </header>
 
-                {/* Hero */}
-                <section className="relative overflow-hidden">
-                    <div className="absolute -top-20 -left-40 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
-                    <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-6 py-14 lg:grid-cols-[1.2fr_1fr] lg:px-10 lg:py-20">
-                        <div>
-                            <p className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1.5 text-sm text-cyan-300">
-                                <Sparkles className="h-4 w-4" /> Te decimos cuál te conviene, no solo cuánto cuesta
-                            </p>
-                            <h1 className="mt-5 text-4xl leading-[1.05] font-black tracking-tight sm:text-6xl">
-                                Laptops para estudiar, trabajar y crear. <span className="text-cyan-400">Elegidas con inteligencia.</span>
-                            </h1>
-                            <p className="mt-5 max-w-xl text-lg text-slate-400">
-                                {laptops.length} modelos de {marcas.join(', ')} con precios desde{' '}
-                                {laptops.length > 0 ? soles(Math.min(...laptops.map((l) => Number(l.precio_soles)))) : '—'}. Y si no sabes cuál
-                                elegir, nuestra IA te recomienda la ideal según lo que haces.
-                            </p>
-                            <div className="mt-8 flex flex-wrap gap-3">
-                                <button
-                                    onClick={irAProductos}
-                                    className="flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 font-bold text-[#07111f] hover:bg-cyan-300"
-                                >
-                                    Ver laptops <ArrowRight className="h-4 w-4" />
-                                </button>
-                                <Link
-                                    href={iaHref}
-                                    className="flex items-center gap-2 rounded-xl border border-cyan-400/50 px-6 py-3.5 font-semibold text-cyan-300 hover:bg-cyan-400/10"
-                                >
-                                    <Sparkles className="h-4 w-4" /> Recomiéndame una
-                                </Link>
-                            </div>
-                        </div>
+                {/* Carrusel de bienvenida (diseño de Marco) */}
+                <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-10">
+                    <HeroCarousel onVerLaptops={irAProductos} onGamer={() => filtrarUso('creativo')} iaHref={iaHref} />
+                </div>
 
-                        {/* Categorías por uso */}
-                        <div className="grid gap-3">
-                            {USOS.map((u) => {
-                                const deUso = laptops.filter((l) => usoDe(l) === u.value);
-                                const desde = deUso.length ? Math.min(...deUso.map((l) => Number(l.precio_soles))) : null;
-                                return (
-                                    <button
-                                        key={u.value}
-                                        onClick={() => filtrarUso(u.value)}
-                                        className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition hover:border-cyan-400/60"
-                                    >
-                                        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-cyan-400/10 text-cyan-400">
-                                            <u.icon className="h-6 w-6" />
-                                        </span>
-                                        <span className="flex-1">
-                                            <span className="block font-bold">{u.titulo}</span>
-                                            <span className="block text-sm text-slate-400">{u.texto}</span>
-                                        </span>
-                                        <span className="text-right text-xs text-slate-400">
-                                            {deUso.length} modelos
-                                            {desde !== null && (
-                                                <span className="block font-mono text-sm font-bold text-cyan-300">desde {soles(desde)}</span>
-                                            )}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
+                {/* Categorías por uso: filtran la vitrina con el catálogo real */}
+                <section className="mx-auto grid max-w-7xl gap-3 px-4 py-8 sm:grid-cols-3 sm:px-6 lg:px-10">
+                    {USOS.map((u) => {
+                        const deUso = laptops.filter((l) => usoDe(l) === u.value);
+                        const desde = deUso.length ? Math.min(...deUso.map((l) => Number(l.precio_soles))) : null;
+                        return (
+                            <button
+                                key={u.value}
+                                onClick={() => filtrarUso(u.value)}
+                                className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition hover:border-cyan-400/60"
+                            >
+                                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-cyan-400/10 text-cyan-400">
+                                    <u.icon className="h-6 w-6" />
+                                </span>
+                                <span className="flex-1">
+                                    <span className="block font-bold">{u.titulo}</span>
+                                    <span className="block text-xs text-slate-400">
+                                        {deUso.length} modelos
+                                        {desde !== null && (
+                                            <>
+                                                {' '}
+                                                · desde <b className="font-mono text-cyan-300">{soles(desde)}</b>
+                                            </>
+                                        )}
+                                    </span>
+                                </span>
+                            </button>
+                        );
+                    })}
                 </section>
 
                 {/* Productos */}
