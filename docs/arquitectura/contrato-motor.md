@@ -29,10 +29,10 @@ Formato JSON que intercambian Laravel (`app/Services/Recommender/`) y el motor P
 
 | Campo | Tipo | Valores |
 |---|---|---|
-| `carrera` | string | libre (se normaliza en el motor) |
+| `carrera` | string | libre; puede venir vacío (`""`): la carrera es opcional para el público general |
 | `nivel_experiencia` | string | `basico` · `intermedio` · `avanzado` |
-| `actividades` | string[] | catálogo cerrado, ver `ml-engine/data/actividades.json` |
-| `software` | string[] | catálogo cerrado, ver `ml-engine/data/software.json` |
+| `actividades` | string[] | catálogo cerrado, ver `ml-engine/data/actividades.json`. Puede ir vacío si viene `software` |
+| `software` | string[] | programas que la persona dice usar (o los de su carrera), catálogo `ml-engine/data/software.json` con sus requisitos. El motor toma el más exigente por factor (RAM, CPU, GPU) y lo combina con las actividades. Puede ir vacío si vienen `actividades` |
 | `presupuesto_soles` | number | > 0 |
 | `opciones.top_n` | int | 1–10, por defecto 3 |
 | `preferencias` | object | **Opcional.** Respuestas del cuestionario de bienvenida (ver abajo). Si falta, el motor recomienda como siempre. |
@@ -72,6 +72,10 @@ cumple se suma a `explicacion.advertencias`.
 
 El catálogo del motor (`ml-engine/data/laptops.json`) incluye para esto `bateria_horas`,
 `pantalla_*`, `peso_kg` y `puertos`. Se regenera desde la BD con `php artisan motor:exportar-catalogo`.
+
+Se exige **al menos `actividades` o `software`**; si faltan los dos, el motor responde
+`perfil_invalido`. `ml-engine/data/laptops.json` y `software.json` se regeneran desde la BD con
+`php artisan motor:exportar-catalogo`.
 
 ## Salida (recomendación)
 

@@ -9,10 +9,16 @@ from __future__ import annotations
 
 from typing import Any
 
-from .catalogo import cargar_actividades, cargar_laptops
+from .catalogo import cargar_actividades, cargar_laptops, cargar_software
 from .perfilado import VECTOR_BASE_POR_CATEGORIA, clasificar_perfil
 from .preferencias import PESO_AFINIDAD, afinidad, filtrar_marcas
-from .similitud import calcular_compatibilidad, combinar_vectores, vector_ideal_por_actividades
+from .similitud import (
+    calcular_compatibilidad,
+    combinar_vectores,
+    maximo_vectores,
+    vector_ideal_por_actividades,
+    vector_ideal_por_software,
+)
 
 CONTRATO_VERSION = "v0"
 
@@ -33,8 +39,10 @@ def recomendar(payload: dict[str, Any]) -> dict[str, Any]:
     """Recibe ``{"perfil": {...}, "opciones": {...}}`` y devuelve la respuesta del contrato."""
     perfil = payload.get("perfil") or {}
 
-    if not perfil.get("actividades"):
-        return _error("perfil_invalido", "El perfil no incluye actividades.")
+    # Basta con actividades O programas: alguien puede saber qué programas usa sin marcar
+    # ninguna actividad (y al revés).
+    if not perfil.get("actividades") and not perfil.get("software"):
+        return _error("perfil_invalido", "El perfil no incluye actividades ni programas.")
 
     presupuesto = _a_numero(perfil.get("presupuesto_soles"))
     if presupuesto is None or presupuesto <= 0:
@@ -58,9 +66,20 @@ def recomendar(payload: dict[str, Any]) -> dict[str, Any]:
 
     actividades_idx = cargar_actividades()
     categoria = clasificar_perfil(perfil, actividades_idx)
-    ideal_actividades = vector_ideal_por_actividades(perfil["actividades"], actividades_idx)
-    base_categoria = VECTOR_BASE_POR_CATEGORIA.get(categoria, ideal_actividades)
-    ideal = combinar_vectores(ideal_actividades, base_categoria)
+    ideal_actividades = vector_ideal_por_actividades(
+        perfil.get("actividades") or [], actividades_idx
+    )
+    ideal_programas = vector_ideal_por_software(perfil.get("software") or [], cargar_software())
+    # Lo más exigente entre lo que harás (actividades) y lo que usarás (programas).
+    ideal_uso = maximo_vectores(ideal_actividades, ideal_programas)
+    if perfil.get("actividades"):
+        base_categoria = VECTOR_BASE_POR_CATEGORIA.get(categoria, ideal_uso)
+        ideal = combinar_vectores(ideal_uso, base_categoria)
+    else:
+        # Sin actividades, el clasificador (entrenado con perfiles que siempre las tienen)
+        # adivina una categoría al azar y esa categoría pesaría la mitad del resultado. Se
+        # recomienda solo por lo que piden los programas.
+        ideal = ideal_uso
 
     resultados = calcular_compatibilidad(ideal, candidatos)
     if preferencias:

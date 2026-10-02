@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\Carrera;
 use App\Models\Laptop;
 use App\Models\PreferenciaCliente;
+use App\Models\Software;
 use App\Models\User;
 use App\Services\Recommender\RecommenderClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -109,15 +110,27 @@ class PreferenciasEnMotorTest extends TestCase
     public function test_el_comando_exporta_el_catalogo_con_los_datos_del_cuestionario()
     {
         $this->laptop->update(['peso_kg' => 0.99, 'bateria_horas' => 10, 'puertos' => ['usb_a', 'hdmi']]);
+        Software::create([
+            'clave' => 'autocad', 'nombre' => 'AutoCAD', 'categoria' => 'Diseño / CAD',
+            'min_ram_gb' => 8, 'min_cpu_score' => 40, 'min_gpu_dedicada' => true,
+            'rec_ram_gb' => 16, 'rec_cpu_score' => 60, 'rec_gpu_dedicada' => true,
+        ]);
+        // Las DOS rutas a archivos temporales: sin --ruta-software, la prueba sobrescribía el
+        // ml-engine/data/software.json real con la BD de pruebas (vacía) y dejaba al motor sin
+        // programas.
         $ruta = tempnam(sys_get_temp_dir(), 'laptops');
+        $rutaSoftware = tempnam(sys_get_temp_dir(), 'software');
 
-        $this->artisan('motor:exportar-catalogo', ['--ruta' => $ruta])->assertSuccessful();
+        $this->artisan('motor:exportar-catalogo', ['--ruta' => $ruta, '--ruta-software' => $rutaSoftware])->assertSuccessful();
 
         $exportado = json_decode(file_get_contents($ruta), true);
+        $programas = json_decode(file_get_contents($rutaSoftware), true);
         unlink($ruta);
+        unlink($rutaSoftware);
         $this->assertSame($this->laptop->id, $exportado[0]['id']);
         $this->assertSame(62, $exportado[0]['cpu_score']);
         $this->assertSame(0.99, $exportado[0]['peso_kg']);
         $this->assertSame(['usb_a', 'hdmi'], $exportado[0]['puertos']);
+        $this->assertSame(['clave' => 'autocad', 'rec_ram_gb' => 16, 'rec_gpu_dedicada' => true], array_intersect_key($programas[0], array_flip(['clave', 'rec_ram_gb', 'rec_gpu_dedicada'])));
     }
 }

@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\Carrera;
 use App\Models\Laptop;
 use App\Models\PerfilUsuario;
+use App\Models\Software;
 use App\Services\Recommender\RecommenderClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -12,6 +13,8 @@ use Tests\TestCase;
 class RecomendacionesTest extends TestCase
 {
     use RefreshDatabase;
+
+    public ?array $enviadoAlMotor = null;
 
     private function perfilValido(): array
     {
@@ -178,14 +181,60 @@ class RecomendacionesTest extends TestCase
         $this->assertNotNull(PerfilUsuario::sole()->consentimiento_at);
     }
 
-    public function test_rechaza_un_perfil_sin_carrera()
+    // La carrera es opcional (público general), pero el motor necesita saber qué hará la
+    // persona: al menos un programa o una actividad.
+    public function test_sin_carrera_ni_programas_ni_actividades_se_rechaza()
     {
         $payload = $this->perfilValido();
         $payload['perfil']['carrera_clave'] = '';
+        $payload['perfil']['software'] = [];
 
         $this->postJson('/api/recomendaciones', $payload)
             ->assertUnprocessable()
-            ->assertJsonValidationErrors('perfil.carrera_clave');
+            ->assertJsonValidationErrors('perfil.software');
+    }
+
+    public function test_sin_carrera_pero_con_programas_recomienda_y_los_envia_al_motor()
+    {
+        Software::create([
+            'clave' => 'office', 'nombre' => 'Office', 'categoria' => 'Ofimática',
+            'min_ram_gb' => 4, 'min_cpu_score' => 20, 'min_gpu_dedicada' => false,
+            'rec_ram_gb' => 8, 'rec_cpu_score' => 30, 'rec_gpu_dedicada' => false,
+        ]);
+        $prueba = $this;
+        $this->app->instance(RecommenderClient::class, new class($prueba) implements RecommenderClient
+        {
+            public function __construct(private $prueba) {}
+
+            public function recomendar(array $payload): array
+            {
+                $this->prueba->enviadoAlMotor = $payload;
+
+                return ['version' => 'v0', 'error' => 'sin_resultados', 'mensaje' => 'Nada en tu presupuesto.'];
+            }
+        });
+
+        $payload = $this->perfilValido();
+        $payload['perfil']['carrera_clave'] = null;
+        $payload['perfil']['software'] = ['office'];
+        $payload['perfil']['tipo_uso'] = 'oficina';
+
+        $this->postJson('/api/recomendaciones', $payload)->assertUnprocessable()->assertJsonPath('error', 'sin_resultados');
+
+        $this->assertSame(['office'], $this->enviadoAlMotor['perfil']['software']);
+        $this->assertSame('', $this->enviadoAlMotor['perfil']['carrera']);
+        $this->assertDatabaseHas('perfiles_usuario', ['carrera_id' => null, 'tipo_uso' => 'oficina']);
+    }
+
+    public function test_rechaza_programas_y_tipos_de_uso_que_no_existen()
+    {
+        $payload = $this->perfilValido();
+        $payload['perfil']['software'] = ['programa_inventado'];
+        $payload['perfil']['tipo_uso'] = 'astronauta';
+
+        $this->postJson('/api/recomendaciones', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['perfil.software.0', 'perfil.tipo_uso']);
     }
 
     public function test_responde_en_json_aunque_el_cliente_no_pida_json_explicitamente()

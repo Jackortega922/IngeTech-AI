@@ -19,8 +19,8 @@ FACTORES = ("ram", "cpu", "gpu")
 PESO_MAXIMO = 3  # escala documentada en ml-engine/data/README.md (0-3 por actividad)
 
 ETIQUETAS_FACTOR = {
-    "ram": "Memoria RAM suficiente para tus actividades",
-    "cpu": "Procesador adecuado para tus actividades",
+    "ram": "Memoria RAM suficiente para tus programas y actividades",
+    "cpu": "Procesador adecuado para tus programas y actividades",
     "gpu": "GPU dedicada para tareas que la necesitan",
 }
 
@@ -39,6 +39,37 @@ def vector_ideal_por_actividades(
         crudo["cpu"] += actividad.get("peso_cpu", 0)
         crudo["gpu"] += actividad.get("peso_gpu", 0)
     return {f: min(crudo[f] / PESO_MAXIMO, 1.0) for f in FACTORES}
+
+
+# Topes para pasar los requisitos de un programa a la escala 0-1 del vector ideal.
+RAM_TOPE_GB = 32
+CPU_TOPE_SCORE = 100
+
+
+def vector_ideal_por_software(
+    software_perfil: list[str],
+    software_idx: dict[str, dict[str, Any]],
+) -> dict[str, float]:
+    """Lo que piden los programas que usa la persona, en escala [0, 1] por factor.
+
+    Usa los requisitos *recomendados* de cada programa (``ml-engine/data/software.json``,
+    exportado desde la BD) y se queda con el más exigente por factor: si usa Office y AutoCAD,
+    manda AutoCAD. Programas desconocidos se ignoran.
+    """
+    vector = {"ram": 0.0, "cpu": 0.0, "gpu": 0.0}
+    for clave in software_perfil:
+        sw = software_idx.get(clave)
+        if not sw:
+            continue
+        vector["ram"] = max(vector["ram"], min(sw.get("rec_ram_gb", 0) / RAM_TOPE_GB, 1.0))
+        vector["cpu"] = max(vector["cpu"], min(sw.get("rec_cpu_score", 0) / CPU_TOPE_SCORE, 1.0))
+        vector["gpu"] = max(vector["gpu"], 1.0 if sw.get("rec_gpu_dedicada") else 0.0)
+    return vector
+
+
+def maximo_vectores(a: dict[str, float], b: dict[str, float]) -> dict[str, float]:
+    """Por factor, lo más exigente de los dos (actividades vs. programas)."""
+    return {f: max(a.get(f, 0.0), b.get(f, 0.0)) for f in FACTORES}
 
 
 def combinar_vectores(a: dict[str, float], b: dict[str, float]) -> dict[str, float]:

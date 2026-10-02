@@ -7,11 +7,18 @@ export type TipoEquipo = 'laptop' | 'escritorio';
 export type NivelRequisito = 'min' | 'rec';
 export type NivelExperiencia = 'basico' | 'intermedio' | 'avanzado';
 
+// "¿Qué describe mejor tu uso?" (idea de Marco). Mismos valores que PerfilUsuario::TIPOS_USO.
+export type TipoUso = 'estudiante' | 'profesional' | 'gamer' | 'creador' | 'oficina' | 'otro';
+
 export interface Perfil {
+    // Opcional: '' = no la indicó (el público general no siempre tiene carrera).
     carrera_clave: string;
     cargo: string;
+    tipo_uso: TipoUso | '';
     nivel_experiencia: NivelExperiencia | '';
     actividades: string[];
+    // Claves de los programas que dice usar (precargados con los de su carrera, editables).
+    software: string[];
     presupuesto_soles: number;
     portabilidad: Portabilidad;
 }

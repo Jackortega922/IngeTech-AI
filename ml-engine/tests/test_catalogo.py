@@ -30,3 +30,15 @@ def test_json_invalido_devuelve_lista_vacia(tmp_path, monkeypatch):
     (tmp_path / "laptops.json").write_text("{esto no es json valido", encoding="utf-8")
     monkeypatch.setattr(catalogo, "DATA_DIR", tmp_path)
     assert catalogo.cargar_laptops() == []
+
+
+def test_el_catalogo_de_programas_trae_sus_requisitos():
+    # Si software.json queda vacío o sin requisitos (pasó cuando una prueba de Laravel lo
+    # sobrescribía), el motor deja de entender los programas sin dar ningún error.
+    from recommender.catalogo import cargar_software
+
+    programas = cargar_software()
+    assert len(programas) >= 10
+    assert all(
+        {"rec_ram_gb", "rec_cpu_score", "rec_gpu_dedicada"} <= set(p) for p in programas.values()
+    )

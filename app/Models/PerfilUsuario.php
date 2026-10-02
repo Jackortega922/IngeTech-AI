@@ -13,11 +13,15 @@ class PerfilUsuario extends Model
 
     protected $table = 'perfiles_usuario';
 
+    // "¿Qué describe mejor tu uso?" del formulario de perfil (opcional).
+    public const TIPOS_USO = ['estudiante', 'profesional', 'gamer', 'creador', 'oficina', 'otro'];
+
     protected $fillable = [
         'user_id',
         'carrera_id',
         'carrera',
         'cargo',
+        'tipo_uso',
         'portabilidad',
         'nivel_experiencia',
         'actividades',

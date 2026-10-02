@@ -13,10 +13,18 @@ ACTIVIDADES_IDX = {
 }
 
 LAPTOP_CON_GPU = {
-    "id": 1, "ram_gb": 16, "cpu_score": 5000, "gpu_dedicada": True, "precio_soles": 4000,
+    "id": 1,
+    "ram_gb": 16,
+    "cpu_score": 5000,
+    "gpu_dedicada": True,
+    "precio_soles": 4000,
 }
 LAPTOP_SIN_GPU = {
-    "id": 2, "ram_gb": 16, "cpu_score": 5000, "gpu_dedicada": False, "precio_soles": 4000,
+    "id": 2,
+    "ram_gb": 16,
+    "cpu_score": 5000,
+    "gpu_dedicada": False,
+    "precio_soles": 4000,
 }
 
 
@@ -64,3 +72,30 @@ def test_no_da_como_motivo_una_gpu_que_la_laptop_no_tiene():
 def test_calcular_compatibilidad_con_catalogo_vacio():
     ideal = vector_ideal_por_actividades(["ia_ml"], ACTIVIDADES_IDX)
     assert calcular_compatibilidad(ideal, []) == []
+
+
+SOFTWARE_IDX = {
+    "office": {"clave": "office", "rec_ram_gb": 8, "rec_cpu_score": 30, "rec_gpu_dedicada": False},
+    "autocad": {
+        "clave": "autocad",
+        "rec_ram_gb": 16,
+        "rec_cpu_score": 60,
+        "rec_gpu_dedicada": True,
+    },
+}
+
+
+def test_vector_por_software_usa_el_programa_mas_exigente():
+    from recommender.similitud import vector_ideal_por_software
+
+    solo_office = vector_ideal_por_software(["office"], SOFTWARE_IDX)
+    con_autocad = vector_ideal_por_software(["office", "autocad"], SOFTWARE_IDX)
+
+    assert solo_office == {"ram": 0.25, "cpu": 0.3, "gpu": 0.0}
+    # AutoCAD manda: pide más RAM, más CPU y GPU dedicada.
+    assert con_autocad == {"ram": 0.5, "cpu": 0.6, "gpu": 1.0}
+    assert vector_ideal_por_software(["desconocido"], SOFTWARE_IDX) == {
+        "ram": 0.0,
+        "cpu": 0.0,
+        "gpu": 0.0,
+    }
