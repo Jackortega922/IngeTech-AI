@@ -19,7 +19,7 @@ priorización. Actualízalo cuando cambie el alcance.
 | A8 | Motor: scoring real (clasificación supervisada + similitud coseno) + explicación de factores | M | Jack | ✅ |
 | A9 | Conectar API real al motor (quitar mock) — resuelto gratis: `app.py`/`cli_entry.py` ya delegaban en `recomendar()`, solo cambió su interior | M | Jack | ✅ |
 | A14 | Sincronizar el catálogo del motor (`ml-engine/data/laptops.json`) con la BD de Laravel — eran dos catálogos distintos con los mismos IDs, así que `Laptop::find($laptop_id)` podía mostrar specs/foto de un equipo que no era el que el motor calificó. Resuelto: `ml-engine/data/laptops.json` ahora se genera desde las 14 laptops reales de `LaptopSeeder` (mismos IDs 1-14). Automatizado: `php artisan motor:exportar-catalogo` (B11). | M | Jack | ✅ |
-| A10 | Despliegue a Render + staging | M | Jack | ☐ |
+| A10 | Despliegue a Render + staging — desplegado en https://ingetech-ai.onrender.com (Render + Postgres en Neon, guía en [docs/despliegue.md](../despliegue.md)). En pausa por decisión del equipo: se desarrolla en local y se vuelve a desplegar al cerrar el proyecto | M | Jack | ✅ |
 | A11 | Registro de eventos + endpoint de KPIs | S | Jack | ✅ |
 | A12 | Swagger/OpenAPI publicado | S | Jack | ☐ |
 | A13 | Asistente conversacional complementario (LLM vía API, ej. DeepSeek) — **no reemplaza el motor de scoring**, es una función aparte (ver [ADR 0005](../adr/0005-llm-complementario-no-motor.md)) | C | Jack | ✅ — `app/Services/Asistente/DeepseekAsistente.php`, anclado al catálogo real; sin `DEEPSEEK_API_KEY` o si falla, responde el asistente por palabras clave. |
@@ -68,7 +68,7 @@ historia puntual de aquí, se reasigna esa fila y se avisa en el grupo.
 | D4 | Memoria Técnica | M | equipo | ☐ |
 | D5 | Póster / artículo | S | equipo | ☐ |
 | D6 | Ensayo de la sustentación (live demo) | M | equipo | ☐ |
-| D7 | Panel Jira/Trello + acta de gobernanza del equipo (evidencia Unidad II de PIT, Examen Parcial sesión 17) | M | equipo | ☐ |
+| D7 | ~~Panel Jira/Trello~~ + acta de gobernanza del equipo — el acta ya se presentó; el tablero se descartó porque el docente no lo evalúa | M | equipo | ✅ |
 | D8 | Encuesta de usabilidad (SUS) sobre el flujo de usuario | S | equipo | ☐ |
 | D9 | Artículo científico en formato IEEE | S | equipo | ☐ |
 | D10 | Análisis de licencias (Open Source vs. propietario) del stack usado | C | Jack | ☐ |
