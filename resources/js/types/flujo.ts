@@ -7,11 +7,17 @@ export type TipoEquipo = 'laptop' | 'escritorio';
 export type NivelRequisito = 'min' | 'rec';
 export type NivelExperiencia = 'basico' | 'intermedio' | 'avanzado';
 
+export type TipoUsuario = 'estudiante' | 'profesional' | 'gamer' | 'creador' | 'oficina' | 'otro' | '';
+
 export interface Perfil {
+    /** Opcional: solo se usa como referencia si el usuario decide indicar su carrera. */
     carrera_clave: string;
-    cargo: string;
+    /** Nuevo: cualquier persona puede describir su perfil sin depender de una carrera. */
+    tipo_usuario: TipoUsuario;
     nivel_experiencia: NivelExperiencia | '';
     actividades: string[];
+    /** Software que la persona usa o planea usar, elegido libremente del catálogo. */
+    software_ids: number[];
     presupuesto_soles: number;
     portabilidad: Portabilidad;
 }
@@ -30,6 +36,8 @@ export interface Software {
     clave: string;
     nombre: string;
     descripcion: string | null;
+    /** URL o data-URL del ícono/imagen del software. */
+    imagen_url?: string | null;
     categoria: string;
     min_ram_gb: number;
     min_cpu_score: number;
@@ -52,7 +60,8 @@ export interface Laptop {
     marca: string;
     modelo: string;
     descripcion: string | null;
-    imagen_url: string | null;
+    /** URL o data-URL de la imagen del equipo, usada en catálogo, resultado y comparador. */
+    imagen_url?: string | null;
     tipo: TipoEquipo;
     cpu: string;
     ram_gb: number;
@@ -62,12 +71,6 @@ export interface Laptop {
     gpu: string | null;
     gpu_dedicada: boolean;
     bateria_horas: number | null;
-    // Guía de compra del comparador (valores de referencia, por verificar: tarea C2).
-    pantalla_pulgadas: number | null;
-    pantalla_resolucion: string | null;
-    pantalla_hz: number | null;
-    peso_kg: number | null;
-    puertos: string[] | null;
     precio_soles: string | number;
     tienda: string | null;
     rendimiento_score: number | null;
@@ -85,11 +88,6 @@ export interface Tarjeta {
     badges: string[];
     laptop: Laptop;
     compatibilidad_pct: number;
-    // Solo si el cliente respondió el cuestionario: el % se arma con 70% técnica + 30% afinidad.
-    compatibilidad_tecnica_pct?: number | null;
-    afinidad_pct?: number | null;
-    // El "por qué" de la IA: motivos (factores) y avisos honestos (advertencias).
-    explicacion?: { factores: { criterio: string; aporte: number }[]; advertencias: string[] };
     recomendacion_id: number;
 }
 
@@ -140,19 +138,6 @@ export interface DashboardAdmin {
     total_consultas: number;
     por_carrera: Record<string, number>;
     por_presupuesto: Record<string, number>;
-    calidad: CalidadRecomendacion;
-}
-
-// KPIs de Ingeniería Industrial (docs/gestion/kpis.md). Las tasas llegan en null cuando todavía
-// no hay muestra para calcularlas.
-export interface CalidadRecomendacion {
-    consultas_con_resultado: number;
-    cobertura_pct: number | null;
-    compatibilidad_promedio: number | null;
-    perfiles_con_eleccion: number;
-    tasa_eleccion_pct: number | null;
-    tiempo_decision_mediana_seg: number | null;
-    elecciones_por_opcion: Record<string, number>;
 }
 
 export interface ContabilidadAdmin {
@@ -168,8 +153,8 @@ export interface Cliente {
     email: string;
     created_at: string;
     perfiles_count: number;
-    carrera: string | null;
-    cargo: string | null;
+    /** Rol dentro del sistema; usado en el panel de administración › Roles. */
+    is_admin?: boolean;
 }
 
 export interface HistorialItem {
@@ -186,78 +171,4 @@ export interface HistorialItem {
         explicacion: { badges: string[] };
         laptop: Laptop;
     }[];
-}
-
-// Lo que se eligió en /personalizar y viaja al checkout. El precio aquí es solo para mostrar:
-// el servidor lo recalcula al registrar el pedido.
-export interface Configuracion {
-    laptop_id: number;
-    recomendacion_id: number | null;
-    ram_gb: number;
-    almacenamiento_gb: number;
-    kit_id: number | null;
-    accesorio_ids: number[];
-    precio_estimado: number;
-}
-
-export type EstadoPedido = 'pagado' | 'preparando' | 'enviado' | 'entregado' | 'cancelado';
-
-export interface Pedido {
-    id: number;
-    codigo: string;
-    user_id: number | null;
-    nombre: string;
-    email: string;
-    telefono: string;
-    departamento: string;
-    // Huánuco: provincia, distrito y UBIGEO de la lista oficial. Otros departamentos: ciudad.
-    provincia: string | null;
-    distrito: string | null;
-    ubigeo: string | null;
-    ciudad: string | null;
-    direccion: string;
-    referencia: string | null;
-    metodo_pago: string;
-    tarjeta_marca: string | null;
-    tarjeta_ultimos4: string | null;
-    subtotal: string | number;
-    costo_envio: string | number;
-    total: string | number;
-    estado: EstadoPedido;
-    created_at: string;
-    // Recorrido del pedido: cuándo pasó a cada estado (tabla pedido_eventos).
-    eventos: { id: number; estado: EstadoPedido; created_at: string }[];
-    personalizacion: {
-        ram_gb: number;
-        almacenamiento_gb: number;
-        recomendacion_id: number | null;
-        laptop: Laptop;
-        items: { id: number; item: { id: number; nombre: string; precio_soles: string | number } | null }[];
-    };
-}
-
-// Cuestionario de bienvenida (Psicología). Las preguntas vienen del backend
-// (App\Support\CuestionarioBienvenida), que es la única fuente.
-export interface PreguntaCuestionario {
-    clave: string;
-    tipo: 'unica' | 'multiple' | 'orden' | 'marcas';
-    pregunta: string;
-    ayuda: string | null;
-    opciones: Record<string, string>;
-}
-
-export interface PreferenciasCliente {
-    para_quien: 'yo' | 'otra_persona' | null;
-    movilidad: string | null;
-    lejos_enchufe: string | null;
-    molestias: string[] | null;
-    anios_uso: string | null;
-    nivel_tecnologia: 'principiante' | 'intermedio' | 'avanzado' | null;
-    prioridades: string[] | null;
-    estilo_decision: 'la_mejor' | 'comparar' | 'ver_todo' | null;
-    marcas_preferidas: string[] | null;
-    marcas_evitar: string[] | null;
-    perifericos: string[] | null;
-    completado_at: string | null;
-    omitido_at: string | null;
 }

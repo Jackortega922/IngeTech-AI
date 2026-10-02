@@ -1,466 +1,431 @@
 import ChatWidget from '@/components/chat-widget';
-import LaptopImage from '@/components/laptop-image';
-import StoreFooter from '@/components/tienda/store-footer';
-import WhatsappButton, { enlaceWhatsapp, WhatsappIcon } from '@/components/tienda/whatsapp-button';
-import { flujoStorage } from '@/lib/flujo-storage';
-import { type SharedData } from '@/types';
-import type { Laptop } from '@/types/flujo';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import {
     ArrowRight,
-    BookOpen,
-    Briefcase,
-    Check,
+    CheckCircle2,
+    ChevronLeft,
+    ChevronRight,
     Cpu,
     Gamepad2,
-    HardDrive,
-    PackageSearch,
-    Scale,
-    Search,
-    ShoppingCart,
+    Laptop,
+    MessageCircle,
+    ShieldCheck,
     Sparkles,
-    Truck,
-    User,
+    WandSparkles,
+    Zap,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
-// Categorías por uso, derivadas de las specs (no hay columna "categoría" en la BD): así cada
-// laptop nueva que se cargue en el admin cae sola en su categoría.
-type Uso = 'estudio' | 'productividad' | 'creativo';
+type Slide = {
+    eyebrow: string;
+    title: string;
+    text: string;
+    image: string; // imagen de fondo del slide
+    cardImage?: string; // imagen opcional para la card flotante (si no se define, usa `image`)
+    position: string;
+    cta: string;
+    href: string;
+    accent: string;
+    tag: string;
+};
 
-const USOS: { value: Uso; titulo: string; texto: string; icon: typeof BookOpen }[] = [
-    { value: 'estudio', titulo: 'Estudio y oficina', texto: 'Clases virtuales, documentos y navegación.', icon: BookOpen },
-    { value: 'productividad', titulo: 'Productividad y programación', texto: 'Multitarea, código y apps pesadas.', icon: Briefcase },
-    { value: 'creativo', titulo: 'Diseño, ingeniería y gaming', texto: 'Con tarjeta gráfica dedicada.', icon: Gamepad2 },
+const SLIDES: Slide[] = [
+    {
+        eyebrow: 'PC & LAPTOPS',
+        title: 'Equipos que impulsan tus ideas.',
+        text: 'Encuentra una configuración para estudiar, programar, diseñar, trabajar o jugar, con una experiencia pensada para comparar sin complicaciones.',
+        image: '/images/home/fondo.png',
+        position: 'left top',
+        cta: 'Ver equipos',
+        href: '/hardware',
+        accent: 'from-sky-500/30 via-[#061322] to-[#061322]',
+        tag: 'Rendimiento + diseño',
+    },
+    {
+        eyebrow: 'LÍNEA LAPTOPS',
+        title: 'Rendimiento en cada lugar.',
+        text: 'Explora equipos portátiles y descubre qué RAM, CPU, GPU y almacenamiento encajan con tus actividades y software.',
+        image: '/images/home/victus.png',
+        position: '50% 12%',
+        cta: 'Explorar laptops',
+        href: '/hardware',
+        accent: 'from-cyan-400/20 via-[#eef8ff] to-white',
+        tag: 'Portabilidad + potencia',
+    },
+    {
+        eyebrow: 'PC GAMER',
+        title: 'Juega sin límites.',
+        text: 'Compara rendimiento, gráficos y memoria para encontrar una configuración que esté a la altura de tus juegos y proyectos exigentes.',
+        image: '/images/home/laptop.png',
+        position: 'right bottom',
+        cta: 'Ver PCs gamer',
+        href: '/hardware',
+        accent: 'from-violet-500/35 via-[#09051c] to-[#061322]',
+        tag: 'GPU + alto rendimiento',
+    },
 ];
 
-function usoDe(l: Laptop): Uso {
-    if (l.gpu_dedicada) return 'creativo';
-    return (l.rendimiento_score ?? 0) >= 60 ? 'productividad' : 'estudio';
-}
+const benefits = [
+    {
+        icon: WandSparkles,
+        title: 'Recomendación inteligente',
+        text: 'El flujo cruza actividades, software, presupuesto y características técnicas para ayudarte a encontrar opciones compatibles.',
+    },
+    {
+        icon: Cpu,
+        title: 'Catálogo administrable',
+        text: 'Los equipos y programas que gestione el administrador alimentan el catálogo que consulta el usuario.',
+    },
+    {
+        icon: ShieldCheck,
+        title: 'Compara antes de decidir',
+        text: 'Revisa imágenes, especificaciones, precios y alternativas antes de personalizar tu configuración.',
+    },
+];
 
-const soles = (n: number | string) => `S/ ${Number(n).toLocaleString('es-PE')}`;
+function HeroCarousel() {
+    const [index, setIndex] = useState(0);
+    const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-export default function Welcome({ laptops }: { laptops: Laptop[] }) {
-    const { auth, contacto } = usePage<SharedData>().props;
-    const [busqueda, setBusqueda] = useState('');
-    const [marca, setMarca] = useState<string | null>(null);
-    const [uso, setUso] = useState<Uso | null>(null);
-    const [orden, setOrden] = useState<'precio_asc' | 'precio_desc' | 'rendimiento'>('precio_asc');
-    const [comparar, setComparar] = useState<number[]>([]);
-
-    const marcas = useMemo(() => Array.from(new Set(laptops.map((l) => l.marca))), [laptops]);
+    const reset = (next: number) => {
+        setIndex(next);
+        if (timer.current) clearInterval(timer.current);
+        timer.current = setInterval(() => setIndex((i) => (i + 1) % SLIDES.length), 7000);
+    };
 
     useEffect(() => {
-        setComparar(flujoStorage.leerComparar());
-        // El footer enlaza "Laptops Lenovo" como /?marca=Lenovo#productos.
-        const m = new URLSearchParams(window.location.search).get('marca');
-        if (m) setMarca(m);
+        reset(0);
+        return () => {
+            if (timer.current) clearInterval(timer.current);
+        };
     }, []);
 
-    const visibles = useMemo(() => {
-        const q = busqueda.trim().toLowerCase();
-        const lista = laptops.filter(
-            (l) =>
-                (!marca || l.marca === marca) &&
-                (!uso || usoDe(l) === uso) &&
-                (!q || `${l.marca} ${l.modelo} ${l.cpu} ${l.gpu ?? ''}`.toLowerCase().includes(q)),
-        );
-        return lista.sort((a, b) =>
-            orden === 'rendimiento'
-                ? (b.rendimiento_score ?? 0) - (a.rendimiento_score ?? 0)
-                : (Number(a.precio_soles) - Number(b.precio_soles)) * (orden === 'precio_asc' ? 1 : -1),
-        );
-    }, [laptops, busqueda, marca, uso, orden]);
-
-    function irAProductos() {
-        document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function filtrarMarca(m: string | null) {
-        setMarca(m);
-        irAProductos();
-    }
-
-    function filtrarUso(u: Uso) {
-        setUso(u);
-        irAProductos();
-    }
-
-    function toggleComparar(id: number) {
-        setComparar((prev) => {
-            const next = prev.includes(id) ? prev.filter((x) => x !== id) : prev.length >= 3 ? prev : [...prev, id];
-            flujoStorage.guardarComparar(next);
-            return next;
-        });
-    }
-
-    // Comprar no pide cuenta: se elige la configuración en /personalizar y se paga en /checkout.
-    function personalizar(l: Laptop) {
-        flujoStorage.guardarSeleccionada({ laptop_id: l.id, laptop: l, badges: [], compatibilidad_pct: 0, recomendacion_id: 0 });
-        router.visit('/personalizar');
-    }
-
-    const cuentaHref = auth.user ? (auth.user.is_admin ? '/admin' : '/dashboard') : '/login';
-    const iaHref = auth.user ? '/perfil' : '/register';
+    const slide = SLIDES[index];
+    const lightSlide = index === 1;
+    const cardImage = slide.cardImage ?? slide.image;
 
     return (
-        <>
-            <Head title="Laptops con recomendación inteligente" />
+        <section
+            className={`relative overflow-hidden rounded-[2.6rem] border shadow-[0_35px_100px_rgba(2,12,27,.25)] ${lightSlide ? 'border-sky-100 bg-white' : 'border-white/10 bg-[#061322]'} min-h-[620px]`}
+        >
+            <div className={`absolute inset-0 bg-gradient-to-br ${slide.accent}`} />
+            <div className="it-home-grid absolute inset-0 opacity-70" />
+            <div
+                className={`absolute inset-0 ${lightSlide ? 'bg-gradient-to-r from-white via-white/85 to-white/30' : 'bg-gradient-to-r from-[#030c18]/95 via-[#061322]/80 to-[#061322]/25'}`}
+            />
 
-            <div className="min-h-screen bg-[#07111f] text-white">
-                {/* Barra superior */}
-                <div className="bg-cyan-400 text-[#07111f]">
-                    <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-6 gap-y-1 px-6 py-2 text-xs font-semibold sm:justify-between lg:px-10">
-                        <span className="flex items-center gap-1.5">
-                            <Truck className="h-3.5 w-3.5" /> Envíos a todo el Perú
+            {/* Imagen de fondo del slide activo */}
+            <img
+                src={slide.image}
+                alt=""
+                className={`absolute inset-0 h-full w-full object-cover transition duration-700 ${lightSlide ? 'opacity-25 mix-blend-multiply' : 'opacity-30 mix-blend-screen'}`}
+                style={{ objectPosition: slide.position }}
+            />
+
+            <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-sky-400/15 blur-3xl" />
+
+            <div className="relative grid min-h-[620px] lg:grid-cols-[1.03fr_.97fr]">
+                <div className={`flex flex-col justify-center p-7 sm:p-12 lg:p-16 ${lightSlide ? 'text-[#0c2340]' : 'text-white'}`}>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span
+                            className={`it-badge w-fit ${lightSlide ? 'border-sky-200 bg-sky-50 text-sky-700' : 'border-white/10 bg-white/10 text-sky-200'}`}
+                        >
+                            <Sparkles className="mr-1.5 h-3.5 w-3.5" /> {slide.eyebrow}
                         </span>
-                        <span className="hidden sm:inline">{contacto.horario ?? 'Asesoría gratuita para elegir tu laptop'}</span>
-                        <Link href="/seguimiento" className="flex items-center gap-1.5 hover:underline">
-                            <PackageSearch className="h-3.5 w-3.5" /> Sigue tu pedido
+                        <span
+                            className={`rounded-full border px-3 py-1 text-[10px] font-bold ${lightSlide ? 'border-slate-200 bg-white/80 text-slate-500' : 'border-white/10 bg-white/5 text-slate-400'}`}
+                        >
+                            {slide.tag}
+                        </span>
+                    </div>
+
+                    <h1 className="mt-6 max-w-3xl text-5xl leading-[.95] font-black tracking-[-.045em] sm:text-6xl lg:text-[4.7rem]">
+                        {slide.title}
+                    </h1>
+
+                    <p className={`mt-6 max-w-xl text-base leading-8 sm:text-lg ${lightSlide ? 'text-slate-600' : 'text-slate-300'}`}>{slide.text}</p>
+
+                    <div className="mt-9 flex flex-wrap gap-3">
+                        <Link
+                            href={slide.href}
+                            className="it-btn h-12 rounded-2xl bg-sky-500 px-6 text-white shadow-xl shadow-sky-500/20 hover:-translate-y-0.5 hover:bg-sky-600"
+                        >
+                            {slide.cta}
+                            <ArrowRight className="h-4 w-4" />
                         </Link>
-                        {contacto.whatsapp && (
-                            <a
-                                href={enlaceWhatsapp(contacto.whatsapp, 'Hola, quiero información sobre sus laptops.')}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1.5 hover:underline"
-                            >
-                                <WhatsappIcon className="h-3.5 w-3.5" /> +{contacto.whatsapp}
-                            </a>
-                        )}
+                        <Link
+                            href="/register"
+                            className={`it-btn h-12 rounded-2xl border px-6 ${lightSlide ? 'border-slate-200 bg-white/80 text-[#0c2340] hover:bg-white' : 'border-white/15 bg-white/5 text-white hover:bg-white/10'}`}
+                        >
+                            Crear mi recomendación
+                        </Link>
+                    </div>
+
+                    <div className={`mt-8 grid max-w-xl grid-cols-3 gap-3 text-xs ${lightSlide ? 'text-slate-500' : 'text-slate-400'}`}>
+                        <span className="flex items-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Catálogo vivo
+                        </span>
+                        <span className="flex items-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-sky-400" /> Comparador
+                        </span>
+                        <span className="flex items-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-violet-400" /> IA guiada
+                        </span>
                     </div>
                 </div>
 
-                {/* Encabezado */}
-                <header className="sticky top-0 z-40 border-b border-white/10 bg-[#07111f]/95 backdrop-blur">
-                    <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-4 lg:px-10">
-                        <Link href="/" className="flex shrink-0 items-center gap-2 text-xl font-bold">
-                            <span className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-400 text-lg text-[#07111f]">✦</span>
-                            <span className="hidden sm:inline">
-                                Inge<span className="text-cyan-400">Tech</span> AI
-                            </span>
-                        </Link>
+                <div className="relative hidden items-center justify-center p-10 lg:flex">
+                    <div className="absolute top-16 right-14 h-72 w-72 rounded-full border border-sky-300/15 bg-sky-300/5 blur-[1px]" />
 
-                        <label className="relative flex-1">
-                            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-500" />
-                            <input
-                                value={busqueda}
-                                onChange={(e) => setBusqueda(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && irAProductos()}
-                                placeholder="¿Qué laptop estás buscando?"
-                                className="w-full rounded-xl border border-white/10 bg-white/[0.06] py-2.5 pr-3 pl-9 text-sm placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+                    <div
+                        className={`relative w-full max-w-[470px] overflow-hidden rounded-[2rem] border p-3 shadow-2xl backdrop-blur-xl ${lightSlide ? 'border-white/80 bg-white/70' : 'border-white/15 bg-white/[.07]'}`}
+                    >
+                        <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-slate-100">
+                            {/* Imagen de la card flotante (sincronizada con el slide) */}
+                            <img
+                                src={cardImage}
+                                alt="Catálogo IngeTech AI"
+                                className="h-full w-full object-cover transition duration-700"
+                                style={{ objectPosition: slide.position }}
                             />
-                        </label>
-
-                        <nav className="flex shrink-0 items-center gap-2 text-sm">
-                            <Link
-                                href="/comparador"
-                                className="relative hidden rounded-lg p-2.5 text-slate-300 hover:text-cyan-400 md:block"
-                                title="Comparador"
-                            >
-                                <Scale className="h-5 w-5" />
-                                {comparar.length > 0 && (
-                                    <span className="absolute -top-0.5 -right-0.5 grid h-4 w-4 place-items-center rounded-full bg-cyan-400 text-[10px] font-bold text-[#07111f]">
-                                        {comparar.length}
-                                    </span>
-                                )}
-                            </Link>
-                            <Link
-                                href={cuentaHref}
-                                className="flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2.5 text-slate-200 hover:border-cyan-400"
-                            >
-                                <User className="h-4 w-4" />
-                                <span className="hidden sm:inline">{auth.user ? 'Mi cuenta' : 'Ingresar'}</span>
-                            </Link>
-                            <Link
-                                href={iaHref}
-                                className="hidden items-center gap-2 rounded-lg bg-cyan-400 px-4 py-2.5 font-bold text-[#07111f] hover:bg-cyan-300 lg:flex"
-                            >
-                                <Sparkles className="h-4 w-4" /> Recomiéndame con IA
-                            </Link>
-                        </nav>
-                    </div>
-
-                    {/* Marcas */}
-                    <div className="border-t border-white/5">
-                        <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-6 py-2 text-sm lg:px-10">
-                            <button
-                                onClick={() => filtrarMarca(null)}
-                                className={`shrink-0 rounded-lg px-3 py-1.5 ${marca === null ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'}`}
-                            >
-                                Todas las laptops
-                            </button>
-                            {marcas.map((m) => (
-                                <button
-                                    key={m}
-                                    onClick={() => filtrarMarca(m)}
-                                    className={`shrink-0 rounded-lg px-3 py-1.5 ${marca === m ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'}`}
-                                >
-                                    {m}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </header>
-
-                {/* Hero */}
-                <section className="relative overflow-hidden">
-                    <div className="absolute -top-20 -left-40 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
-                    <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-6 py-14 lg:grid-cols-[1.2fr_1fr] lg:px-10 lg:py-20">
-                        <div>
-                            <p className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1.5 text-sm text-cyan-300">
-                                <Sparkles className="h-4 w-4" /> Te decimos cuál te conviene, no solo cuánto cuesta
-                            </p>
-                            <h1 className="mt-5 text-4xl leading-[1.05] font-black tracking-tight sm:text-6xl">
-                                Laptops para estudiar, trabajar y crear. <span className="text-cyan-400">Elegidas con inteligencia.</span>
-                            </h1>
-                            <p className="mt-5 max-w-xl text-lg text-slate-400">
-                                {laptops.length} modelos de {marcas.join(', ')} con precios desde{' '}
-                                {laptops.length > 0 ? soles(Math.min(...laptops.map((l) => Number(l.precio_soles)))) : '—'}. Y si no sabes cuál
-                                elegir, nuestra IA te recomienda la ideal según lo que haces.
-                            </p>
-                            <div className="mt-8 flex flex-wrap gap-3">
-                                <button
-                                    onClick={irAProductos}
-                                    className="flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 font-bold text-[#07111f] hover:bg-cyan-300"
-                                >
-                                    Ver laptops <ArrowRight className="h-4 w-4" />
-                                </button>
-                                <Link
-                                    href={iaHref}
-                                    className="flex items-center gap-2 rounded-xl border border-cyan-400/50 px-6 py-3.5 font-semibold text-cyan-300 hover:bg-cyan-400/10"
-                                >
-                                    <Sparkles className="h-4 w-4" /> Recomiéndame una
-                                </Link>
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#061322]/80 via-transparent to-transparent" />
+                            <div className="absolute right-4 bottom-4 left-4 flex items-end justify-between text-white">
+                                <div>
+                                    <p className="text-[10px] font-black tracking-[.2em] text-sky-200 uppercase">IngeTech AI</p>
+                                    <p className="mt-1 text-xl font-black">Tecnología que encaja contigo.</p>
+                                </div>
+                                <div className="grid h-11 w-11 place-items-center rounded-2xl bg-white/10 backdrop-blur">
+                                    <Zap className="h-5 w-5 text-amber-300" />
+                                </div>
                             </div>
                         </div>
-
-                        {/* Categorías por uso */}
-                        <div className="grid gap-3">
-                            {USOS.map((u) => {
-                                const deUso = laptops.filter((l) => usoDe(l) === u.value);
-                                const desde = deUso.length ? Math.min(...deUso.map((l) => Number(l.precio_soles))) : null;
-                                return (
-                                    <button
-                                        key={u.value}
-                                        onClick={() => filtrarUso(u.value)}
-                                        className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition hover:border-cyan-400/60"
-                                    >
-                                        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-cyan-400/10 text-cyan-400">
-                                            <u.icon className="h-6 w-6" />
-                                        </span>
-                                        <span className="flex-1">
-                                            <span className="block font-bold">{u.titulo}</span>
-                                            <span className="block text-sm text-slate-400">{u.texto}</span>
-                                        </span>
-                                        <span className="text-right text-xs text-slate-400">
-                                            {deUso.length} modelos
-                                            {desde !== null && (
-                                                <span className="block font-mono text-sm font-bold text-cyan-300">desde {soles(desde)}</span>
-                                            )}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </section>
-
-                {/* Productos */}
-                <section id="productos" className="scroll-mt-32 border-t border-white/10 bg-[#091827]">
-                    <div className="mx-auto max-w-7xl px-6 py-14 lg:px-10">
-                        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                            <div>
-                                <h2 className="text-3xl font-bold">{marca ? `Laptops ${marca}` : 'Nuestras laptops'}</h2>
-                                <p className="mt-1 text-slate-400">
-                                    {visibles.length} de {laptops.length} modelos
-                                    {uso && ` · ${USOS.find((u) => u.value === uso)?.titulo}`}
-                                </p>
-                            </div>
-                            <div className="flex flex-wrap items-center gap-2 text-sm">
-                                {USOS.map((u) => (
-                                    <button
-                                        key={u.value}
-                                        onClick={() => setUso(uso === u.value ? null : u.value)}
-                                        className={`rounded-full border px-3 py-1.5 ${
-                                            uso === u.value
-                                                ? 'border-cyan-400 bg-cyan-400/10 text-cyan-300'
-                                                : 'border-white/10 text-slate-300 hover:border-white/30'
-                                        }`}
-                                    >
-                                        {u.titulo}
-                                    </button>
-                                ))}
-                                <select
-                                    value={orden}
-                                    onChange={(e) => setOrden(e.target.value as typeof orden)}
-                                    className="rounded-full border border-white/10 bg-[#07111f] px-3 py-1.5 text-slate-300 [color-scheme:dark]"
-                                    aria-label="Ordenar"
-                                >
-                                    <option value="precio_asc">Menor precio</option>
-                                    <option value="precio_desc">Mayor precio</option>
-                                    <option value="rendimiento">Más potentes</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        {visibles.length === 0 ? (
-                            <div className="mt-8 rounded-2xl border border-dashed border-white/15 p-10 text-center text-slate-400">
-                                No encontramos laptops con esos filtros.{' '}
-                                <button
-                                    onClick={() => {
-                                        setBusqueda('');
-                                        setMarca(null);
-                                        setUso(null);
-                                    }}
-                                    className="text-cyan-400 underline"
-                                >
-                                    Ver todas
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                                {visibles.map((l) => (
-                                    <TarjetaProducto
-                                        key={l.id}
-                                        l={l}
-                                        enComparar={comparar.includes(l.id)}
-                                        compararLleno={comparar.length >= 3}
-                                        whatsapp={contacto.whatsapp}
-                                        onComparar={() => toggleComparar(l.id)}
-                                        onPersonalizar={() => personalizar(l)}
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </section>
-
-                {/* La IA como valor agregado */}
-                <section className="border-t border-white/10">
-                    <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 py-16 lg:grid-cols-2 lg:px-10">
-                        <div>
-                            <p className="text-sm font-bold tracking-[0.2em] text-cyan-400 uppercase">¿No sabes cuál elegir?</p>
-                            <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Deja que la IA te recomiende la laptop ideal</h2>
-                            <p className="mt-4 text-slate-400">
-                                Muchas personas pagan de más por potencia que no usan, o se quedan cortas para su software. Cuéntanos a qué te dedicas
-                                y qué haces, y te mostramos qué laptops te sirven, con su porcentaje de compatibilidad y el porqué.
-                            </p>
-                            <Link
-                                href={iaHref}
-                                className="mt-7 inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-6 py-3.5 font-bold text-[#07111f] hover:bg-cyan-300"
-                            >
-                                <Sparkles className="h-4 w-4" /> {auth.user ? 'Pedir mi recomendación' : 'Crear cuenta gratis y probar'}
-                            </Link>
-                        </div>
-                        <ol className="grid gap-3">
-                            {[
-                                ['Cuéntanos de ti', 'Tu carrera u ocupación, tus actividades y tu presupuesto.'],
-                                ['Recibe tu recomendación', 'Laptops ordenadas por compatibilidad, con la explicación de por qué.'],
-                                ['Personaliza y cotiza', 'Ajusta RAM, almacenamiento y accesorios; un asesor te contacta.'],
-                            ].map(([titulo, texto], i) => (
-                                <li key={titulo} className="flex gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-cyan-400 font-bold text-[#07111f]">
-                                        {i + 1}
-                                    </span>
-                                    <div>
-                                        <p className="font-bold">{titulo}</p>
-                                        <p className="mt-0.5 text-sm text-slate-400">{texto}</p>
-                                    </div>
-                                </li>
-                            ))}
-                        </ol>
-                    </div>
-                </section>
-
-                <StoreFooter />
-
-                {/* Barra de comparación: aparece al elegir 2 o más */}
-                {comparar.length >= 2 && (
-                    <div className="fixed bottom-5 left-1/2 z-40 -translate-x-1/2">
-                        <Link
-                            href="/comparador"
-                            className="flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-[#07111f] shadow-2xl hover:bg-cyan-300"
+                        <div
+                            className={`mt-3 grid grid-cols-3 gap-2 text-center text-[10px] font-bold ${lightSlide ? 'text-slate-600' : 'text-slate-300'}`}
                         >
-                            <Scale className="h-4 w-4" /> Comparar ({comparar.length})
+                            <span className="rounded-xl bg-black/5 px-3 py-2">CPU</span>
+                            <span className="rounded-xl bg-black/5 px-3 py-2">RAM</span>
+                            <span className="rounded-xl bg-black/5 px-3 py-2">GPU</span>
+                        </div>
+                    </div>
+
+                    <div className="absolute bottom-12 left-2 rounded-2xl border border-white/10 bg-[#0b2442]/95 px-4 py-3 text-white shadow-xl backdrop-blur-xl">
+                        <p className="text-[10px] font-bold text-sky-200">COMPATIBILIDAD</p>
+                        <div className="mt-1 flex items-end gap-1">
+                            <b className="text-3xl">94</b>
+                            <span className="mb-1 text-xs text-slate-400">%</span>
+                        </div>
+                    </div>
+                    <div className="absolute top-24 right-0 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-xs text-white shadow-xl backdrop-blur-xl">
+                        <div className="flex items-center gap-2">
+                            <Sparkles className="h-4 w-4 text-sky-300" />
+                            <span className="font-bold">Recomendación lista</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button
+                aria-label="Anterior"
+                onClick={() => reset((index - 1 + SLIDES.length) % SLIDES.length)}
+                className={`absolute top-1/2 left-4 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border shadow-lg backdrop-blur transition hover:scale-105 ${lightSlide ? 'border-slate-200 bg-white/90 text-[#0c2340]' : 'border-white/10 bg-black/30 text-white'}`}
+            >
+                <ChevronLeft />
+            </button>
+            <button
+                aria-label="Siguiente"
+                onClick={() => reset((index + 1) % SLIDES.length)}
+                className={`absolute top-1/2 right-4 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border shadow-lg backdrop-blur transition hover:scale-105 ${lightSlide ? 'border-slate-200 bg-white/90 text-[#0c2340]' : 'border-white/10 bg-black/30 text-white'}`}
+            >
+                <ChevronRight />
+            </button>
+
+            <div className="absolute bottom-7 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-black/25 px-3 py-2 backdrop-blur-xl">
+                {SLIDES.map((item, i) => (
+                    <button
+                        key={item.title}
+                        aria-label={`Slide ${i + 1}`}
+                        onClick={() => reset(i)}
+                        className={`h-1.5 rounded-full transition-all ${i === index ? 'w-10 bg-sky-300' : 'w-2 bg-white/40'}`}
+                    />
+                ))}
+            </div>
+        </section>
+    );
+}
+
+export default function Welcome() {
+    const [assistant, setAssistant] = useState(false);
+
+    return (
+        <>
+            <Head title="IngeTech AI — Inicio" />
+            <main className="min-h-screen overflow-hidden bg-[#061322] text-white">
+                <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 lg:px-10">
+                    <Link href="/" className="flex items-center gap-3 text-xl font-black">
+                        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-[#0c2340] shadow-lg">IT</span>
+                        <span className="text-sky-300"> IngeTech</span> AI
+                    </Link>
+                    <div className="hidden items-center gap-7 text-sm text-slate-300 md:flex">
+                        <a href="#categorias" className="transition hover:text-white">
+                            Categorías
+                        </a>
+                        <a href="#como-funciona" className="transition hover:text-white">
+                            Cómo funciona
+                        </a>
+                        <a href="#beneficios" className="transition hover:text-white">
+                            Beneficios
+                        </a>
+                        <button onClick={() => setAssistant(true)} className="flex items-center gap-2 transition hover:text-white">
+                            <MessageCircle className="h-4 w-4" /> Asistente
+                        </button>
+                        <Link href="/login" className="rounded-xl border border-white/15 px-5 py-2.5 font-semibold transition hover:bg-white/10">
+                            Ingresar
                         </Link>
                     </div>
-                )}
+                    <Link href="/register" className="rounded-xl bg-white px-4 py-2.5 text-xs font-black text-[#0c2340] md:hidden">
+                        Crear cuenta
+                    </Link>
+                </nav>
 
-                <WhatsappButton />
-                <ChatWidget />
-            </div>
+                <div className="mx-auto max-w-7xl px-4 py-5 sm:px-5 lg:px-10 lg:py-8">
+                    <HeroCarousel />
+                </div>
+
+                <section id="categorias" className="mx-auto max-w-7xl px-5 py-12 lg:px-10">
+                    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                        <div>
+                            <p className="text-xs font-black tracking-[.2em] text-sky-300 uppercase">Explora por necesidad</p>
+                            <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Una portada con más vida y más producto.</h2>
+                        </div>
+                        <Link href="/hardware" className="it-btn w-fit rounded-xl border border-white/15 bg-white/5 text-white hover:bg-white/10">
+                            Ver catálogo completo <ArrowRight className="h-4 w-4" />
+                        </Link>
+                    </div>
+                    <div className="mt-7 grid gap-4 md:grid-cols-3">
+                        <CategoryCard
+                            icon={<Laptop />}
+                            title="Laptops"
+                            text="Portabilidad, batería y potencia para estudiar y trabajar."
+                            tone="cyan"
+                        />
+                        <CategoryCard
+                            icon={<Gamepad2 />}
+                            title="PC Gamer"
+                            text="Gráficos y rendimiento para juegos y creación de contenido."
+                            tone="violet"
+                        />
+                        <CategoryCard
+                            icon={<Cpu />}
+                            title="Trabajo y estudio"
+                            text="Equipos equilibrados para oficina, programación y proyectos."
+                            tone="blue"
+                        />
+                    </div>
+                </section>
+
+                <section id="como-funciona" className="border-y border-white/10 bg-white/[.03]">
+                    <div className="mx-auto max-w-7xl px-5 py-16 lg:px-10">
+                        <p className="text-xs font-black tracking-[.2em] text-sky-300 uppercase">Cómo funciona</p>
+                        <h2 className="mt-3 max-w-3xl text-3xl font-black tracking-tight sm:text-5xl">
+                            De tu necesidad a una configuración concreta.
+                        </h2>
+                        <div className="mt-9 grid gap-4 md:grid-cols-3">
+                            {['Perfil', 'Recomendación', 'Personalización'].map((title, i) => (
+                                <article
+                                    key={title}
+                                    className="group rounded-[1.7rem] border border-white/10 bg-white/[.04] p-7 transition duration-300 hover:-translate-y-1 hover:bg-white/[.07]"
+                                >
+                                    <span className="grid h-12 w-12 place-items-center rounded-2xl bg-sky-400/10 font-black text-sky-300">
+                                        0{i + 1}
+                                    </span>
+                                    <h3 className="mt-6 text-xl font-bold">{title}</h3>
+                                    <p className="mt-2 text-sm leading-7 text-slate-400">
+                                        {
+                                            [
+                                                'Selecciona actividades, software, presupuesto y portabilidad.',
+                                                'Recibe equipos compatibles y compara sus características.',
+                                                'Ajusta memoria, almacenamiento y accesorios según tu caso.',
+                                            ][i]
+                                        }
+                                    </p>
+                                    <ArrowRight className="mt-6 h-5 w-5 text-sky-300 opacity-0 transition group-hover:opacity-100" />
+                                </article>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <section id="beneficios" className="bg-white text-[#0c2340]">
+                    <div className="mx-auto max-w-7xl px-5 py-16 lg:px-10">
+                        <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+                            <div>
+                                <p className="text-xs font-black tracking-[.2em] text-sky-700 uppercase">Diseñado para crecer</p>
+                                <h2 className="mt-3 max-w-3xl text-3xl font-black tracking-tight sm:text-5xl">
+                                    Una experiencia tecnológica que se siente como producto real.
+                                </h2>
+                            </div>
+                            <Link href="/register" className="it-btn it-btn-primary w-fit rounded-2xl">
+                                Empezar ahora <ArrowRight className="h-4 w-4" />
+                            </Link>
+                        </div>
+                        <div className="mt-10 grid gap-5 md:grid-cols-3">
+                            {benefits.map(({ icon: Icon, title, text }) => (
+                                <article
+                                    key={title}
+                                    className="rounded-[1.7rem] border border-slate-200 bg-slate-50/70 p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+                                >
+                                    <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0c2340] text-sky-300">
+                                        <Icon className="h-5 w-5" />
+                                    </div>
+                                    <h3 className="mt-6 text-xl font-black">{title}</h3>
+                                    <p className="mt-3 text-sm leading-7 text-slate-500">{text}</p>
+                                </article>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <section className="border-t border-slate-200 bg-slate-50 text-[#0c2340]">
+                    <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-10 sm:flex-row sm:items-center sm:justify-between lg:px-10">
+                        <div>
+                            <p className="text-lg font-black">¿No sabes qué equipo necesitas?</p>
+                            <p className="mt-1 text-sm text-slate-500">Déjale el análisis al flujo de IngeTech AI y empieza con tus actividades.</p>
+                        </div>
+                        <button onClick={() => setAssistant(true)} className="it-btn it-btn-primary rounded-2xl">
+                            <MessageCircle className="h-4 w-4" /> Hablar con el asistente
+                        </button>
+                    </div>
+                </section>
+
+                <footer className="border-t border-white/10 px-6 py-8 text-center text-xs text-slate-500">
+                    IngeTech AI · Recomendación inteligente de equipos tecnológicos · UNHEVAL
+                </footer>
+            </main>
+
+            {assistant && <ChatWidget forzarAbierto onCerrado={() => setAssistant(false)} />}
         </>
     );
 }
 
-function TarjetaProducto({
-    l,
-    enComparar,
-    compararLleno,
-    whatsapp,
-    onComparar,
-    onPersonalizar,
-}: {
-    l: Laptop;
-    enComparar: boolean;
-    compararLleno: boolean;
-    whatsapp: string | null;
-    onComparar: () => void;
-    onPersonalizar: () => void;
-}) {
-    return (
-        <article className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0b1a2c] transition hover:-translate-y-0.5 hover:border-cyan-400/50">
-            <div className="relative">
-                <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="h-40 w-full" />
-                {l.gpu_dedicada && (
-                    <span className="absolute top-3 left-3 rounded-full bg-violet-500 px-2.5 py-0.5 text-[11px] font-bold">GPU dedicada</span>
-                )}
-            </div>
-            <div className="flex flex-1 flex-col p-4">
-                <p className="text-xs font-semibold tracking-wide text-cyan-400 uppercase">{l.marca}</p>
-                <h3 className="mt-0.5 font-bold">{l.modelo}</h3>
-                <ul className="mt-3 space-y-1 text-xs text-slate-400">
-                    <li className="flex items-center gap-1.5">
-                        <Cpu className="h-3.5 w-3.5 shrink-0" /> {l.cpu}
-                    </li>
-                    <li className="flex items-center gap-1.5">
-                        <HardDrive className="h-3.5 w-3.5 shrink-0" /> {l.ram_gb} GB RAM · {l.almacenamiento_tipo} {l.almacenamiento_gb} GB
-                    </li>
-                </ul>
-                <p className="mt-4 font-mono text-2xl font-bold">{soles(l.precio_soles)}</p>
+function CategoryCard({ icon, title, text, tone }: { icon: ReactNode; title: string; text: string; tone: 'cyan' | 'violet' | 'blue' }) {
+    const styles = {
+        cyan: 'from-cyan-500/20 to-sky-500/5 text-cyan-300',
+        violet: 'from-violet-500/20 to-fuchsia-500/5 text-violet-300',
+        blue: 'from-blue-500/20 to-sky-500/5 text-sky-300',
+    }[tone];
 
-                <div className="mt-4 flex gap-2">
-                    <button
-                        onClick={onPersonalizar}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-white py-2.5 text-sm font-bold text-[#07111f] hover:bg-cyan-300"
-                    >
-                        <ShoppingCart className="h-4 w-4" /> Comprar
-                    </button>
-                    <button
-                        onClick={onComparar}
-                        disabled={!enComparar && compararLleno}
-                        title={enComparar ? 'Quitar del comparador' : compararLleno ? 'Máximo 3 para comparar' : 'Agregar al comparador'}
-                        className={`rounded-xl border px-3 transition disabled:opacity-40 ${
-                            enComparar ? 'border-cyan-400 bg-cyan-400/10 text-cyan-400' : 'border-white/15 text-slate-300 hover:border-white/40'
-                        }`}
-                    >
-                        {enComparar ? <Check className="h-4 w-4" /> : <Scale className="h-4 w-4" />}
-                    </button>
-                    {whatsapp && (
-                        <a
-                            href={enlaceWhatsapp(whatsapp, `Hola, quiero información sobre la ${l.marca} ${l.modelo} (${soles(l.precio_soles)}).`)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title="Consultar por WhatsApp"
-                            className="grid place-items-center rounded-xl border border-white/15 px-3 text-[#25D366] hover:border-[#25D366]"
-                        >
-                            <WhatsappIcon className="h-4 w-4" />
-                        </a>
-                    )}
-                </div>
-            </div>
-        </article>
+    return (
+        <Link
+            href="/hardware"
+            className={`group relative overflow-hidden rounded-[1.7rem] border border-white/10 bg-gradient-to-br ${styles} p-6 transition hover:-translate-y-1 hover:border-white/20 hover:shadow-2xl`}
+        >
+            <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-white/5 blur-2xl" />
+            <div className="relative grid h-11 w-11 place-items-center rounded-2xl bg-white/10">{icon}</div>
+            <h3 className="relative mt-5 text-xl font-black text-white">{title}</h3>
+            <p className="relative mt-2 text-sm leading-6 text-slate-400">{text}</p>
+            <span className="relative mt-5 inline-flex items-center gap-2 text-xs font-black text-white">
+                Explorar <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+            </span>
+        </Link>
     );
 }

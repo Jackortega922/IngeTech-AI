@@ -1,34 +1,31 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
-import { Battery, Recycle, ShieldCheck, Wrench } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowRight, Battery, CheckCircle2, Database, Leaf, Recycle, ShieldCheck, Sparkles, Wrench } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Reciclaje y sostenibilidad', href: '/ing-ambiental' }];
-
-/**
- * Aporte de Ingeniería Ambiental: educación sobre reciclaje/e-waste al
- * comprar un equipo nuevo. Ver docs/contexto-proyecto.md §5.1.
- */
+const RECYCLING_IMAGE = '/images/home/recycling-160925_960_720.png';
 const TARJETAS = [
     {
         icon: Recycle,
-        titulo: '¿Qué hacer con tu equipo anterior?',
-        texto: 'No lo tires a la basura común: una laptop contiene metales pesados (plomo, mercurio) que contaminan el suelo y el agua si se desechan mal. Llévalo a un punto de acopio de residuos electrónicos (RAEE) — muchas tiendas de tecnología los reciben aunque no sean de su marca.',
-    },
-    {
-        icon: Wrench,
-        titulo: 'Alarga la vida útil antes de reciclar',
-        texto: 'Antes de desechar un equipo, evalúa si una mejora simple (más RAM, cambiar el disco a SSD) le da 1-2 años más de vida. Personalizar en vez de reemplazar es la forma más efectiva de reducir residuo electrónico.',
+        titulo: 'Dale otra vida a tu equipo',
+        texto: 'Antes de desecharlo, revisa si una mejora de RAM o SSD puede extender su vida útil y evitar un residuo electrónico innecesario.',
     },
     {
         icon: Battery,
-        titulo: 'Baterías: el residuo más peligroso',
-        texto: 'Las baterías de litio no deben mezclarse con la basura común: pueden generar incendios y contienen materiales tóxicos. Se depositan por separado en puntos de acopio especializados.',
+        titulo: 'Baterías por separado',
+        texto: 'Las baterías de litio deben entregarse en puntos de acopio especializados y nunca mezclarse con la basura común.',
     },
     {
         icon: ShieldCheck,
-        titulo: 'Borra tus datos antes de entregar el equipo',
-        texto: 'Antes de reciclar o donar un equipo, haz un borrado seguro de tu información (no basta con formatear). Muchos puntos de acopio también ofrecen este servicio.',
+        titulo: 'Protege tus datos',
+        texto: 'Antes de reciclar o donar un equipo, realiza una copia de seguridad y elimina tus datos personales de forma segura.',
+    },
+    {
+        icon: Wrench,
+        titulo: 'Repara antes de reemplazar',
+        texto: 'Un mantenimiento oportuno puede recuperar un equipo y reducir el consumo de materiales, energía y transporte.',
     },
 ];
 
@@ -36,30 +33,100 @@ export default function IngAmbientalIndex() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Reciclaje y sostenibilidad" />
-            <div className="flex flex-1 flex-col gap-4 p-4">
-                <div>
-                    <h1 className="text-2xl font-bold">Reciclaje y sostenibilidad</h1>
-                    <p className="text-muted-foreground">
-                        Comprar un equipo nuevo es también una oportunidad para desechar bien el anterior. Esto es lo que debes saber.
-                    </p>
-                </div>
-
-                <div className="grid max-w-4xl gap-4 sm:grid-cols-2">
-                    {TARJETAS.map((t) => {
-                        const Icon = t.icon;
-
-                        return (
-                            <div key={t.titulo} className="bg-card rounded-2xl border p-5 shadow-sm">
-                                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-                                    <Icon className="h-5 w-5" />
-                                </div>
-                                <h3 className="font-bold">{t.titulo}</h3>
-                                <p className="text-muted-foreground mt-2 text-sm">{t.texto}</p>
+            <main className="it-container py-7 sm:py-9">
+                <section className="relative overflow-hidden rounded-[2.3rem] border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-cyan-50 p-7 text-[#123b35] shadow-xl sm:p-10 lg:p-12 dark:border-emerald-900/40 dark:from-emerald-950/40 dark:via-slate-950 dark:to-cyan-950/30 dark:text-white">
+                    <div className="relative grid items-center gap-8 lg:grid-cols-[1fr_420px]">
+                        <div>
+                            <span className="it-badge border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300">
+                                <Leaf className="mr-1.5 h-3.5 w-3.5" /> TECNOLOGÍA RESPONSABLE
+                            </span>
+                            <h1 className="mt-5 max-w-2xl text-4xl font-black tracking-tight sm:text-6xl">
+                                Tu tecnología también puede <span className="text-emerald-600 dark:text-emerald-300">cuidar el planeta.</span>
+                            </h1>
+                            <p className="mt-5 max-w-xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+                                Aprende qué hacer con tus equipos, baterías y datos cuando llega el momento de renovar. Pequeñas decisiones reducen
+                                residuos y alargan la vida de la tecnología.
+                            </p>
+                            <div className="mt-7 flex flex-wrap gap-3">
+                                <Link href="/hardware" className="it-btn rounded-xl bg-emerald-600 text-white hover:bg-emerald-700">
+                                    Elegir un equipo <ArrowRight className="h-4 w-4" />
+                                </Link>
+                                <span className="it-btn rounded-xl border border-emerald-200 bg-white/70 dark:border-emerald-900 dark:bg-white/5">
+                                    <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Consumo responsable
+                                </span>
                             </div>
-                        );
-                    })}
-                </div>
-            </div>
+                        </div>
+                        <div className="relative overflow-hidden rounded-[1.8rem] border border-white/70 bg-white/70 p-3 shadow-xl dark:border-white/10 dark:bg-white/5">
+                            <img
+                                src={RECYCLING_IMAGE}
+                                alt="Reciclaje de residuos electrónicos"
+                                className="aspect-[4/3] w-full rounded-[1.3rem] object-cover"
+                            />
+                            <div className="absolute right-6 bottom-6 left-6 rounded-2xl border border-white/50 bg-white/90 p-4 shadow-lg backdrop-blur dark:border-white/10 dark:bg-[#0c2340]/90">
+                                <div className="flex items-center gap-3">
+                                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                        <Recycle className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-black">RAEE</p>
+                                        <p className="text-[11px] text-slate-500 dark:text-slate-300">
+                                            Residuos de aparatos eléctricos y electrónicos
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section className="mt-8 grid gap-4 sm:grid-cols-3">
+                    <Impact icon={<Recycle />} title="Reduce" text="Evita reemplazar un equipo que todavía puede actualizarse." />
+                    <Impact icon={<Wrench />} title="Reutiliza" text="Repara, dona o entrega el dispositivo a un punto autorizado." />
+                    <Impact icon={<Database />} title="Protege" text="Elimina tus datos antes de reciclar cualquier dispositivo." />
+                </section>
+                <section className="mt-10">
+                    <p className="it-eyebrow">Guía rápida</p>
+                    <h2 className="mt-2 text-3xl font-black tracking-tight">Antes de despedirte de tu equipo</h2>
+                    <div className="mt-6 grid gap-5 md:grid-cols-2">
+                        {TARJETAS.map((t) => {
+                            const Icon = t.icon;
+                            return (
+                                <article key={t.titulo} className="it-card group p-6 transition hover:-translate-y-1 hover:shadow-xl">
+                                    <div className="flex items-start gap-4">
+                                        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-300">
+                                            <Icon className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-black">{t.titulo}</h3>
+                                            <p className="mt-2 text-sm leading-7 text-slate-500 dark:text-slate-400">{t.texto}</p>
+                                        </div>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
+                </section>
+                <section className="mt-10 rounded-[2rem] bg-[#0c2340] p-7 text-white shadow-xl sm:p-9">
+                    <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
+                        <div>
+                            <p className="text-xs font-black tracking-[.2em] text-emerald-300 uppercase">Compromiso IngeTech</p>
+                            <h2 className="mt-2 text-2xl font-black">Elegir bien también es consumir mejor.</h2>
+                            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
+                                Usa el recomendador para evitar configuraciones innecesarias y selecciona solo lo que realmente necesitas.
+                            </p>
+                        </div>
+                        <Sparkles className="hidden h-10 w-10 text-emerald-300 md:block" />
+                    </div>
+                </section>
+            </main>
         </AppLayout>
+    );
+}
+function Impact({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
+    return (
+        <article className="it-card p-5">
+            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600">{icon}</div>
+            <h3 className="mt-4 font-black">{title}</h3>
+            <p className="mt-1 text-sm leading-6 text-slate-500">{text}</p>
+        </article>
     );
 }

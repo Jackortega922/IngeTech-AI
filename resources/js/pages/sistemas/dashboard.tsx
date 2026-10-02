@@ -1,193 +1,114 @@
-import LaptopImage from '@/components/laptop-image';
 import AppLayout from '@/layouts/app-layout';
-import { estadoPedido, soles } from '@/lib/pedidos';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import type { Pedido, PreferenciasCliente } from '@/types/flujo';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ArrowRight, CheckCircle2, Cpu, HeartHandshake, Package, Sparkles, Wand2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Inicio',
-        href: '/dashboard',
-    },
+import { Head, Link, usePage } from '@inertiajs/react';
+import { ArrowRight, Bot, ChevronRight, Clock3, Cpu, History, Laptop, ShieldCheck, Sparkles, Wand2 } from 'lucide-react';
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Inicio', href: '/dashboard' }];
+const steps = [
+    { icon: Sparkles, n: '01', title: 'Cuéntanos qué haces', text: 'Indica actividades, software, presupuesto y portabilidad.' },
+    { icon: Bot, n: '02', title: 'La IA cruza tus datos', text: 'Comparamos tus necesidades con las especificaciones del catálogo.' },
+    { icon: Wand2, n: '03', title: 'Personaliza y decide', text: 'Compara opciones y ajusta tu equipo antes de elegir.' },
 ];
-
-const pasos = [
-    { icon: Sparkles, titulo: 'Cuéntanos de ti', texto: 'Tu carrera, actividades y software que usas.' },
-    { icon: Cpu, titulo: 'Recibe tu recomendación', texto: 'Laptops con % de compatibilidad y por qué te sirven.' },
-    { icon: Wand2, titulo: 'Personalízala y cómprala', texto: 'Ajusta RAM, almacenamiento y accesorios, y paga en línea.' },
+const shortcuts = [
+    { href: '/hardware', icon: Laptop, title: 'Explorar equipos', text: 'Laptops y PCs con ficha técnica.' },
+    { href: '/software', icon: Cpu, title: 'Ver software', text: 'Requisitos mínimos y recomendados.' },
+    { href: '/historial', icon: History, title: 'Mi historial', text: 'Tus recomendaciones guardadas.' },
 ];
-
-export default function Dashboard({ preferencias, mensaje }: { preferencias: PreferenciasCliente | null; mensaje: string | null }) {
+export default function Dashboard() {
     const { auth } = usePage<SharedData>().props;
-    const [pedidos, setPedidos] = useState<Pedido[] | null>(null);
-
-    useEffect(() => {
-        fetch('/api/mis-pedidos', { headers: { Accept: 'application/json' } })
-            .then((r) => (r.ok ? r.json() : []))
-            .then(setPedidos)
-            .catch(() => setPedidos([]));
-    }, []);
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Inicio" />
-
-            <div className="flex flex-1 flex-col gap-6 p-4">
-                {mensaje && (
-                    <p className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
-                        <CheckCircle2 className="h-4 w-4 shrink-0" /> {mensaje}
-                    </p>
-                )}
-
-                <TarjetaCuestionario preferencias={preferencias} />
-
-                <div className="overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent p-8">
-                    {/* Ruta detrás de `auth` en routes/web.php: siempre hay sesión aquí. */}
-                    <p className="text-muted-foreground text-sm">Hola, {auth.user!.name} 👋</p>
-                    <h1 className="mt-1 text-2xl font-bold sm:text-3xl">¿Buscamos tu próxima laptop?</h1>
-                    <p className="text-muted-foreground mt-2 max-w-xl">
-                        Responde unas preguntas sobre tu carrera y lo que necesitas hacer, y te recomendamos la mejor opción para tu presupuesto.
-                    </p>
-                    <Link
-                        href="/perfil"
-                        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-6 py-3 font-bold text-white transition hover:bg-cyan-600"
-                    >
-                        Nueva recomendación <ArrowRight className="h-4 w-4" />
-                    </Link>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-3">
-                    {pasos.map((paso, i) => (
-                        <div key={paso.titulo} className="rounded-xl border p-5">
-                            <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400">
-                                <paso.icon className="h-5 w-5" />
-                                <span className="text-xs font-bold">Paso {i + 1}</span>
+            <Head title="Inicio — IngeTech AI" />
+            <main className="it-container py-7 sm:py-9">
+                <section className="relative overflow-hidden rounded-[2rem] border border-[#173a63]/10 bg-white shadow-xl dark:bg-slate-900">
+                    <div className="absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_center,rgba(23,58,99,.16),transparent_65%)]" />
+                    <div className="absolute top-10 right-10 h-32 w-32 rounded-full border border-slate-200/70 dark:border-slate-700" />
+                    <div className="relative grid lg:grid-cols-[1fr_360px]">
+                        <div className="p-7 sm:p-10 lg:p-12">
+                            <span className="it-badge border-[var(--it-primary)]/15 bg-[var(--it-primary-soft)] text-[var(--it-primary)]">
+                                <Sparkles className="mr-1.5 h-3.5 w-3.5" /> IA para elegir mejor
+                            </span>
+                            <p className="mt-7 text-sm font-semibold text-slate-500">Bienvenido, {auth.user.name}</p>
+                            <h1 className="mt-2 max-w-3xl text-4xl font-black tracking-tight text-[#0c2340] sm:text-5xl dark:text-white">
+                                Encuentra el equipo que encaja contigo.
+                            </h1>
+                            <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-500 dark:text-slate-400">
+                                IngeTech AI transforma tus actividades y software en una recomendación clara, explicable y fácil de comparar.
+                            </p>
+                            <div className="mt-8 flex flex-wrap gap-3">
+                                <Link href="/perfil" className="it-btn it-btn-primary rounded-xl">
+                                    Crear recomendación <ArrowRight className="h-4 w-4" />
+                                </Link>
+                                <Link href="/hardware" className="it-btn it-btn-secondary rounded-xl">
+                                    Explorar catálogo
+                                </Link>
                             </div>
-                            <h3 className="mt-3 font-semibold">{paso.titulo}</h3>
-                            <p className="text-muted-foreground mt-1 text-sm">{paso.texto}</p>
                         </div>
-                    ))}
-                </div>
-
-                <MisPedidos pedidos={pedidos} />
-            </div>
-        </AppLayout>
-    );
-}
-
-function MisPedidos({ pedidos }: { pedidos: Pedido[] | null }) {
-    return (
-        <section id="pedidos" className="scroll-mt-20">
-            <div className="flex items-center gap-2">
-                <Package className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                <h2 className="text-xl font-bold">Mis pedidos</h2>
-            </div>
-            <p className="text-muted-foreground mt-1 text-sm">Las laptops que compraste y en qué estado va cada envío.</p>
-
-            {pedidos === null ? (
-                <div className="bg-muted mt-4 h-24 animate-pulse rounded-xl" />
-            ) : pedidos.length === 0 ? (
-                <div className="text-muted-foreground mt-4 rounded-xl border border-dashed p-8 text-center text-sm">
-                    Todavía no tienes pedidos. Encuentra tu laptop en la{' '}
-                    <Link href="/" className="text-cyan-600 underline dark:text-cyan-400">
-                        tienda
-                    </Link>{' '}
-                    o pide una recomendación con IA.
-                </div>
-            ) : (
-                <div className="mt-4 grid gap-3 md:grid-cols-2">
-                    {pedidos.map((p) => {
-                        const estado = estadoPedido(p.estado);
-                        const l = p.personalizacion.laptop;
-                        return (
-                            <Link
-                                key={p.id}
-                                href={`/pedido/${p.codigo}`}
-                                className="flex gap-4 rounded-xl border p-4 transition hover:border-cyan-500/50"
-                            >
-                                <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="h-16 w-16 shrink-0 rounded-lg" />
-                                <div className="min-w-0 flex-1">
-                                    <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-                                        <h3 className="font-semibold">
-                                            {l.marca} {l.modelo}
-                                        </h3>
-                                        <span className="font-mono font-bold text-cyan-600 dark:text-cyan-400">{soles(p.total)}</span>
+                        <div className="hidden border-l bg-[#0c2340] p-8 text-white lg:block">
+                            <p className="text-xs font-bold tracking-[.2em] text-sky-300 uppercase">Tu flujo</p>
+                            <div className="mt-8 space-y-6">
+                                {steps.map((step) => (
+                                    <div key={step.n} className="flex gap-4">
+                                        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/10">
+                                            <step.icon className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-slate-400">{step.n}</p>
+                                            <h3 className="mt-1 font-bold">{step.title}</h3>
+                                            <p className="mt-1 text-xs leading-5 text-slate-400">{step.text}</p>
+                                        </div>
                                     </div>
-                                    <p className="text-muted-foreground mt-1 text-xs">
-                                        {p.personalizacion.ram_gb} GB RAM · {p.personalizacion.almacenamiento_gb} GB · {p.codigo}
-                                    </p>
-                                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                                        <span className={`rounded-full px-2.5 py-0.5 font-semibold ${estado.clase}`}>{estado.label}</span>
-                                        <span className="text-muted-foreground">
-                                            {new Date(p.created_at).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                        </span>
-                                    </div>
-                                </div>
-                            </Link>
-                        );
-                    })}
-                </div>
-            )}
-        </section>
-    );
-}
-
-// Estado del cuestionario de bienvenida (Psicología): invita a responderlo si falta, o deja
-// revisarlo y borrarlo si ya está (el cliente decide sobre sus datos).
-function TarjetaCuestionario({ preferencias }: { preferencias: PreferenciasCliente | null }) {
-    const completo = !!preferencias?.completado_at;
-
-    function borrar() {
-        if (window.confirm('¿Borrar tus respuestas del cuestionario? Las recomendaciones dejarán de adaptarse a ti.')) {
-            router.delete('/bienvenida');
-        }
-    }
-
-    if (!completo) {
-        return (
-            <div className="flex flex-col gap-3 rounded-2xl border border-violet-500/30 bg-violet-500/5 p-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-start gap-3">
-                    <HeartHandshake className="mt-0.5 h-6 w-6 shrink-0 text-violet-500" />
-                    <div>
-                        <p className="font-semibold">Cuéntanos cómo eres (2 minutos)</p>
-                        <p className="text-muted-foreground text-sm">
-                            {preferencias?.omitido_at ? 'Lo omitiste antes. ' : ''}Con 10 preguntas rápidas adaptamos las recomendaciones a lo que
-                            buscas.
-                        </p>
+                                ))}
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <Link
-                    href="/bienvenida"
-                    className="shrink-0 rounded-xl bg-violet-500 px-5 py-2.5 text-center text-sm font-bold text-white hover:bg-violet-600"
-                >
-                    Responder
-                </Link>
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex flex-col gap-3 rounded-2xl border p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-3">
-                <HeartHandshake className="mt-0.5 h-6 w-6 shrink-0 text-violet-500" />
-                <div>
-                    <p className="font-semibold">Ya te conocemos un poco mejor</p>
-                    <p className="text-muted-foreground text-sm">
-                        Tus recomendaciones se adaptan a tus respuestas. Puedes cambiarlas o borrarlas cuando quieras.
-                    </p>
-                </div>
-            </div>
-            <div className="flex shrink-0 gap-3 text-sm">
-                <Link href="/bienvenida" className="rounded-xl border px-4 py-2 font-semibold hover:border-violet-500">
-                    Revisar respuestas
-                </Link>
-                <button onClick={borrar} className="text-muted-foreground hover:text-foreground underline">
-                    Borrar
-                </button>
-            </div>
-        </div>
+                </section>
+                <section className="mt-7 grid gap-4 md:grid-cols-3">
+                    {steps.map((step) => (
+                        <article key={step.n} className="it-card it-card-hover p-5">
+                            <div className="flex items-center justify-between">
+                                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[var(--it-primary-soft)] text-[var(--it-primary)]">
+                                    <step.icon className="h-5 w-5" />
+                                </span>
+                                <span className="text-xs font-black text-slate-300">{step.n}</span>
+                            </div>
+                            <h2 className="mt-5 font-bold">{step.title}</h2>
+                            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{step.text}</p>
+                        </article>
+                    ))}
+                </section>
+                <section className="mt-7 grid gap-5 lg:grid-cols-[1fr_320px]">
+                    <div className="it-card p-6 sm:p-7">
+                        <div>
+                            <p className="it-eyebrow">Accesos rápidos</p>
+                            <h2 className="mt-1 text-2xl font-black text-[#0c2340] dark:text-white">Tu centro de trabajo</h2>
+                        </div>
+                        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                            {shortcuts.map((item) => (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className="group rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:border-[var(--it-primary)]/30 hover:shadow-lg"
+                                >
+                                    <item.icon className="h-5 w-5 text-[var(--it-primary)]" />
+                                    <h3 className="mt-4 font-bold">{item.title}</h3>
+                                    <p className="mt-1 text-xs leading-5 text-slate-500">{item.text}</p>
+                                    <ChevronRight className="mt-4 h-4 w-4 text-slate-300 transition group-hover:translate-x-1 group-hover:text-[var(--it-primary)]" />
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                    <aside className="rounded-3xl bg-[#0c2340] p-7 text-white shadow-lg">
+                        <ShieldCheck className="h-7 w-7 text-sky-300" />
+                        <h2 className="mt-5 text-xl font-black">Recomendaciones con contexto</h2>
+                        <p className="mt-2 text-sm leading-6 text-slate-300">
+                            El resultado considera tus necesidades y la información disponible en el catálogo administrado.
+                        </p>
+                        <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-sky-200">
+                            <Clock3 className="h-4 w-4" /> Flujo guiado de pocos minutos
+                        </div>
+                    </aside>
+                </section>
+            </main>
+        </AppLayout>
     );
 }

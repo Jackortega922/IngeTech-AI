@@ -12,8 +12,27 @@ function colorDeMarca(marca: string): string {
     return PALETA[marca] ?? '#0891b2';
 }
 
-export default function DeviceIllustration({ marca, tipo, className }: { marca: string; tipo: 'laptop' | 'escritorio'; className?: string }) {
+export default function DeviceIllustration({
+    marca,
+    tipo,
+    className,
+    imagenUrl,
+}: {
+    marca: string;
+    tipo: 'laptop' | 'escritorio';
+    className?: string;
+    /** Si el admin subió una foto real del equipo, se muestra en vez del dibujo genérico. */
+    imagenUrl?: string | null;
+}) {
     const color = colorDeMarca(marca);
+
+    if (imagenUrl) {
+        return (
+            <div className={`overflow-hidden ${className ?? 'h-32 w-full'}`} style={{ background: `${color}0d` }}>
+                <img src={imagenUrl} alt={marca} className="h-full w-full object-cover" />
+            </div>
+        );
+    }
 
     return (
         <div

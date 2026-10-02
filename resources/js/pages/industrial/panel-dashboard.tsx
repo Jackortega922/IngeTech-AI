@@ -1,6 +1,6 @@
 import { LoadingPanel } from '@/components/loading-panel';
-import type { CalidadRecomendacion, Carrera, DashboardAdmin } from '@/types/flujo';
-import { BarChart3, Gauge, GraduationCap, Laptop as LaptopIcon, ListChecks, Package, Target, Timer, Users } from 'lucide-react';
+import type { Carrera, DashboardAdmin } from '@/types/flujo';
+import { BarChart3, GraduationCap, Laptop as LaptopIcon, Package, Users } from 'lucide-react';
 
 /**
  * Aporte de Ingeniería Industrial: KPIs y analítica del sistema (consultas
@@ -31,7 +31,7 @@ export function PanelDashboard({ dashboard, carreras }: { dashboard: DashboardAd
             icon: GraduationCap,
         },
         {
-            label: 'Clientes',
+            label: 'Estudiantes',
             valor: dashboard.total_usuarios,
             descripcion: 'Usuarios registrados',
             icon: Users,
@@ -89,7 +89,7 @@ export function PanelDashboard({ dashboard, carreras }: { dashboard: DashboardAd
                     <h3 className="mt-4 font-bold">Aún no hay consultas registradas</h3>
 
                     <p className="text-muted-foreground mx-auto mt-1 max-w-md text-sm">
-                        Cuando los clientes utilicen el recomendador, aquí aparecerán estadísticas del sistema.
+                        Cuando los estudiantes utilicen el recomendador, aquí aparecerán estadísticas del sistema.
                     </p>
                 </div>
             ) : (
@@ -167,105 +167,6 @@ export function PanelDashboard({ dashboard, carreras }: { dashboard: DashboardAd
                     </div>
                 </div>
             )}
-
-            <PanelCalidad calidad={dashboard.calidad} />
-        </div>
-    );
-}
-
-function formatearDuracion(segundos: number): string {
-    if (segundos < 60) return `${segundos} s`;
-    const minutos = Math.floor(segundos / 60);
-    const resto = segundos % 60;
-    return resto === 0 ? `${minutos} min` : `${minutos} min ${resto} s`;
-}
-
-/**
- * ¿La IA recomienda bien? KPIs de Ingeniería Industrial — definiciones, fórmulas y metas en
- * docs/gestion/kpis.md. Un valor null se muestra como "—": significa que aún no hay muestra,
- * no que el resultado sea malo.
- */
-function PanelCalidad({ calidad }: { calidad: CalidadRecomendacion }) {
-    const indicadores = [
-        {
-            label: 'Tasa de elección',
-            valor: calidad.tasa_eleccion_pct === null ? '—' : `${calidad.tasa_eleccion_pct}%`,
-            descripcion: `${calidad.perfiles_con_eleccion} de ${calidad.consultas_con_resultado} consultas eligieron una opción recomendada`,
-            icon: Target,
-        },
-        {
-            label: 'Tiempo de decisión',
-            valor: calidad.tiempo_decision_mediana_seg === null ? '—' : formatearDuracion(calidad.tiempo_decision_mediana_seg),
-            descripcion: 'Mediana entre recibir la recomendación y elegir',
-            icon: Timer,
-        },
-        {
-            label: 'Compatibilidad promedio',
-            valor: calidad.compatibilidad_promedio === null ? '—' : `${calidad.compatibilidad_promedio}%`,
-            descripcion: 'Qué tan bien calzan las laptops recomendadas',
-            icon: Gauge,
-        },
-        {
-            label: 'Cobertura del catálogo',
-            valor: calidad.cobertura_pct === null ? '—' : `${calidad.cobertura_pct}%`,
-            descripcion: 'Consultas que terminaron con al menos una opción',
-            icon: ListChecks,
-        },
-    ];
-
-    const totalElecciones = Object.values(calidad.elecciones_por_opcion).reduce((a, b) => a + b, 0);
-
-    return (
-        <div className="bg-card rounded-2xl border p-6 shadow-sm">
-            <div className="mb-6">
-                <h3 className="font-bold">Calidad de la recomendación</h3>
-                <p className="text-muted-foreground text-xs">¿La IA está recomendando bien? Indicadores definidos en docs/gestion/kpis.md</p>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {indicadores.map((k) => {
-                    const Icon = k.icon;
-
-                    return (
-                        <div key={k.label} className="rounded-xl border p-4">
-                            <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400">
-                                <Icon className="h-4 w-4" />
-                                <span className="text-xs font-semibold">{k.label}</span>
-                            </div>
-                            <p className="mt-2 text-2xl font-bold">{k.valor}</p>
-                            <p className="text-muted-foreground mt-1 text-xs">{k.descripcion}</p>
-                        </div>
-                    );
-                })}
-            </div>
-
-            <div className="mt-6">
-                <h4 className="text-sm font-semibold">Opción que más eligen</h4>
-                <p className="text-muted-foreground mb-4 text-xs">Qué valora la gente cuando decide: precio, equilibrio o rendimiento</p>
-
-                {totalElecciones === 0 ? (
-                    <p className="text-muted-foreground text-sm">Todavía no hay elecciones registradas.</p>
-                ) : (
-                    <div className="space-y-3">
-                        {Object.entries(calidad.elecciones_por_opcion).map(([opcion, v]) => (
-                            <div key={opcion}>
-                                <div className="mb-1.5 flex justify-between text-xs">
-                                    <span className="font-medium">{opcion}</span>
-                                    <span className="font-bold text-cyan-600">
-                                        {v} ({Math.round((v / totalElecciones) * 100)}%)
-                                    </span>
-                                </div>
-                                <div className="bg-muted h-2 overflow-hidden rounded-full">
-                                    <div
-                                        className="h-full rounded-full bg-cyan-500 transition-all"
-                                        style={{ width: `${(v / totalElecciones) * 100}%` }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
         </div>
     );
 }
