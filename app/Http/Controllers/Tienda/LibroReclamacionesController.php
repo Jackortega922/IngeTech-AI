@@ -107,7 +107,7 @@ class LibroReclamacionesController extends Controller
 
         abort_unless(
             in_array($reclamo->numero, $request->session()->get('reclamos_propios', []), true)
-                || ($user && ($user->is_admin || $reclamo->user_id === $user->id)),
+                || ($user && ($user->puede('reclamos') || $reclamo->user_id === $user->id)),
             404,
         );
 

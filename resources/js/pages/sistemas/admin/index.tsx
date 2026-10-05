@@ -2,13 +2,14 @@ import { LoadingPanel } from '@/components/loading-panel';
 import AppLayout from '@/layouts/app-layout';
 import { PUERTO_ETIQUETA } from '@/lib/guia-compra';
 import { PanelInventario } from '@/pages/administracion/panel-inventario';
+import { PanelUsuarios } from '@/pages/administracion/panel-usuarios';
 import { PanelContabilidad } from '@/pages/contabilidad/panel-contabilidad';
 import { PanelReclamos } from '@/pages/derecho/panel-reclamos';
 import { PanelDashboard } from '@/pages/industrial/panel-dashboard';
 import { PanelPedidos } from '@/pages/sistemas/admin/panel-pedidos';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 import type { Carrera, Catalogos, Cliente, ContabilidadAdmin, DashboardAdmin, Laptop, Pedido, Reclamo, Software } from '@/types/flujo';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import {
     AlertCircle,
     BookOpenText,
@@ -28,6 +29,7 @@ import {
     Settings2,
     ShoppingBag,
     Trash2,
+    UserCog,
     Users,
     X,
 } from 'lucide-react';
@@ -35,7 +37,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Administración', href: '/admin' }];
 
-type Sub = 'dashboard' | 'contabilidad' | 'clientes' | 'pedidos' | 'inventario' | 'reclamos' | 'hardware' | 'software' | 'carreras';
+type Sub = 'dashboard' | 'contabilidad' | 'clientes' | 'pedidos' | 'inventario' | 'reclamos' | 'hardware' | 'software' | 'carreras' | 'usuarios';
 
 const TABS = [
     { value: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -47,15 +49,27 @@ const TABS = [
     { value: 'hardware', label: 'Equipos', icon: LaptopIcon },
     { value: 'software', label: 'Software', icon: Package },
     { value: 'carreras', label: 'Carreras', icon: GraduationCap },
+    { value: 'usuarios', label: 'Usuarios', icon: UserCog },
 ] as const;
 
-function tabInicial(): Sub {
-    if (typeof window === 'undefined') return 'dashboard';
+// Cada pestaña se llama igual que su permiso (App\Support\Roles): el rol solo ve las suyas.
+function tabInicial(permisos: string[]): Sub {
+    const permitidas = TABS.filter((t) => permisos.includes(t.value));
+    const primera = (permitidas[0]?.value ?? 'dashboard') as Sub;
+    if (typeof window === 'undefined') return primera;
 
     const valor = new URLSearchParams(window.location.search).get('tab');
 
-    return TABS.some((t) => t.value === valor) ? (valor as Sub) : 'dashboard';
+    return permitidas.some((t) => t.value === valor) ? (valor as Sub) : primera;
 }
+
+const DATOS_POR_PERMISO = {
+    dashboard: '/api/admin/dashboard',
+    contabilidad: '/api/admin/contabilidad',
+    clientes: '/api/admin/clientes',
+    pedidos: '/api/admin/pedidos',
+    reclamos: '/api/admin/reclamos',
+} as const;
 
 async function api(url: string, method: string, body?: unknown) {
     const res = await fetch(url, {
@@ -90,7 +104,9 @@ async function api(url: string, method: string, body?: unknown) {
 }
 
 export default function AdminIndex() {
-    const [sub, setSub] = useState<Sub>(tabInicial);
+    const { permisos } = usePage<SharedData>().props.auth;
+    const tabs = TABS.filter((t) => permisos.includes(t.value));
+    const [sub, setSub] = useState<Sub>(() => tabInicial(permisos));
     const [catalogos, setCatalogos] = useState<Catalogos | null>(null);
     const [dashboard, setDashboard] = useState<DashboardAdmin | null>(null);
     const [contabilidad, setContabilidad] = useState<ContabilidadAdmin | null>(null);
@@ -107,56 +123,22 @@ export default function AdminIndex() {
             setCargando(true);
             setError(null);
 
-            const [catalogosRes, dashboardRes, contabilidadRes, clientesRes, pedidosRes, reclamosRes] = await Promise.all([
-                fetch('/api/catalogos', {
-                    headers: {
-                        Accept: 'application/json',
-                    },
-                    credentials: 'same-origin',
-                }),
-                fetch('/api/admin/dashboard', {
-                    headers: {
-                        Accept: 'application/json',
-                    },
-                    credentials: 'same-origin',
-                }),
-                fetch('/api/admin/contabilidad', {
-                    headers: {
-                        Accept: 'application/json',
-                    },
-                    credentials: 'same-origin',
-                }),
-                fetch('/api/admin/clientes', {
-                    headers: {
-                        Accept: 'application/json',
-                    },
-                    credentials: 'same-origin',
-                }),
-                fetch('/api/admin/pedidos', {
-                    headers: {
-                        Accept: 'application/json',
-                    },
-                    credentials: 'same-origin',
-                }),
-                fetch('/api/admin/reclamos', {
-                    headers: {
-                        Accept: 'application/json',
-                    },
-                    credentials: 'same-origin',
-                }),
-            ]);
-
-            if (!catalogosRes.ok || !dashboardRes.ok || !contabilidadRes.ok || !clientesRes.ok || !pedidosRes.ok || !reclamosRes.ok) {
-                throw new Error('No se pudieron cargar los datos del panel.');
-            }
+            // Solo se piden los datos de las secciones del rol: el resto respondería 403.
+            const pedir = async (url: string) => {
+                const res = await fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+                if (!res.ok) throw new Error('No se pudieron cargar los datos del panel.');
+                return res.json();
+            };
+            const opcional = (permiso: keyof typeof DATOS_POR_PERMISO) =>
+                permisos.includes(permiso) ? pedir(DATOS_POR_PERMISO[permiso]) : Promise.resolve(null);
 
             const [catalogosData, dashboardData, contabilidadData, clientesData, pedidosData, reclamosData] = await Promise.all([
-                catalogosRes.json(),
-                dashboardRes.json(),
-                contabilidadRes.json(),
-                clientesRes.json(),
-                pedidosRes.json(),
-                reclamosRes.json(),
+                pedir('/api/catalogos'),
+                opcional('dashboard'),
+                opcional('contabilidad'),
+                opcional('clientes'),
+                opcional('pedidos'),
+                opcional('reclamos'),
             ]);
 
             setCatalogos(catalogosData);
@@ -170,6 +152,8 @@ export default function AdminIndex() {
         } finally {
             setCargando(false);
         }
+        // permisos no cambia mientras la página está abierta (viene del servidor al cargarla).
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -186,7 +170,7 @@ export default function AdminIndex() {
         window.history.replaceState(null, '', `/admin?tab=${s}`);
     }
 
-    const tituloTab = TABS.find((t) => t.value === sub)?.label ?? 'Administración';
+    const tituloTab = tabs.find((t) => t.value === sub)?.label ?? 'Administración';
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -252,7 +236,7 @@ export default function AdminIndex() {
                     {/* NAVEGACION */}
                     <div className="bg-card rounded-2xl border p-2 shadow-sm">
                         <div className="flex gap-2 overflow-x-auto">
-                            {TABS.map((tab) => {
+                            {tabs.map((tab) => {
                                 const Icon = tab.icon;
                                 const activo = sub === tab.value;
 
@@ -294,9 +278,11 @@ export default function AdminIndex() {
                     ) : sub === 'clientes' ? (
                         <PanelClientes clientes={clientes} />
                     ) : sub === 'pedidos' ? (
-                        <PanelPedidos pedidos={pedidos} avisar={avisar} />
+                        <PanelPedidos pedidos={pedidos} avisar={avisar} soloLectura={!permisos.includes('pedidos.editar')} />
                     ) : sub === 'inventario' ? (
                         <PanelInventario avisar={avisar} />
+                    ) : sub === 'usuarios' ? (
+                        <PanelUsuarios avisar={avisar} />
                     ) : sub === 'reclamos' ? (
                         <PanelReclamos reclamos={reclamos} avisar={avisar} />
                     ) : sub === 'hardware' ? (

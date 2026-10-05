@@ -5,6 +5,8 @@ export interface Auth {
     // sesión, así que user es null. Las páginas detrás de `auth` en routes/web.php sí pueden
     // asumirlo no nulo con seguridad.
     user: User | null;
+    // Secciones del panel que puede usar el rol (App\Support\Roles). Vacío para clientes.
+    permisos: string[];
 }
 
 export interface BreadcrumbItem {
@@ -46,7 +48,11 @@ export interface User {
     name: string;
     email: string;
     avatar?: string;
+    // cliente · admin · ventas · almacen · contabilidad (App\Support\Roles).
+    rol: string;
     is_admin: boolean;
+    // Personal de la tienda (cualquier rol menos cliente): entra al panel /admin.
+    es_personal: boolean;
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;

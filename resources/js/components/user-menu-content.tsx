@@ -1,6 +1,7 @@
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
+import { NOMBRE_ROL } from '@/lib/roles';
 import { type User } from '@/types';
 import { Link } from '@inertiajs/react';
 import { LogOut, Settings, UserRound } from 'lucide-react';
@@ -17,7 +18,7 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
                 <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-900">
                     <UserInfo user={user} showEmail />
                     <div className="mt-3 flex items-center gap-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
-                        <UserRound className="h-3.5 w-3.5" /> {user.is_admin ? 'Administrador' : 'Cliente'}
+                        <UserRound className="h-3.5 w-3.5" /> {NOMBRE_ROL[user.rol] ?? 'Cliente'}
                     </div>
                 </div>
             </DropdownMenuLabel>

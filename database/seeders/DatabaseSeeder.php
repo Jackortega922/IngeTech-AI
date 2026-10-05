@@ -30,6 +30,16 @@ class DatabaseSeeder extends Seeder
             'is_admin' => false,
         ]);
 
+        // Una cuenta por rol del personal, para probar qué ve cada uno en /admin.
+        foreach (['ventas' => 'Ventas Demo', 'almacen' => 'Almacén Demo', 'contabilidad' => 'Contabilidad Demo'] as $rol => $nombre) {
+            User::factory()->create([
+                'name' => $nombre,
+                'email' => "{$rol}@ingetech.test",
+                'password' => bcrypt('password'),
+                'rol' => $rol,
+            ]);
+        }
+
         $this->call([
             CarreraSeeder::class,
             SoftwareSeeder::class,

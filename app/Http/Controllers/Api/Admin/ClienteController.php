@@ -10,7 +10,7 @@ class ClienteController extends Controller
     public function index()
     {
         $clientes = User::withCount('perfiles')
-            ->where('is_admin', false)
+            ->where('rol', 'cliente')
             ->orderByDesc('created_at')
             // La carrera/ocupación y el cargo son datos de la última consulta, no del cliente
             // en sí: alguien puede volver a consultar con otra ocupación. Sirven como dato

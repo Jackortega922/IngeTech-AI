@@ -6,7 +6,16 @@ import { useEffect, useState } from 'react';
 
 // Pedidos de la tienda: quién compró, qué, a dónde se envía, y el estado del envío (que el
 // admin avanza a mano: pagado -> preparando -> enviado -> entregado).
-export function PanelPedidos({ pedidos: iniciales, avisar }: { pedidos: Pedido[] | null; avisar: (texto: string) => void }) {
+// soloLectura: Contabilidad ve los pedidos (son sus ventas) pero no les cambia el estado.
+export function PanelPedidos({
+    pedidos: iniciales,
+    avisar,
+    soloLectura = false,
+}: {
+    pedidos: Pedido[] | null;
+    avisar: (texto: string) => void;
+    soloLectura?: boolean;
+}) {
     const [pedidos, setPedidos] = useState<Pedido[] | null>(iniciales);
     useEffect(() => setPedidos(iniciales), [iniciales]);
 
@@ -137,18 +146,24 @@ export function PanelPedidos({ pedidos: iniciales, avisar }: { pedidos: Pedido[]
                                             </td>
                                             <td className="px-5 py-4 text-right font-mono font-bold">{soles(p.total)}</td>
                                             <td className="px-5 py-4">
-                                                <select
-                                                    value={p.estado}
-                                                    onChange={(e) => cambiarEstado(p, e.target.value as EstadoPedido)}
-                                                    aria-label={`Estado del pedido ${p.codigo}`}
-                                                    className={`rounded-full border-0 px-3 py-1 text-xs font-bold ${estadoPedido(p.estado).clase}`}
-                                                >
-                                                    {ESTADOS_PEDIDO.map((e) => (
-                                                        <option key={e.value} value={e.value}>
-                                                            {e.label}
-                                                        </option>
-                                                    ))}
-                                                </select>
+                                                {soloLectura ? (
+                                                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${estadoPedido(p.estado).clase}`}>
+                                                        {estadoPedido(p.estado).label}
+                                                    </span>
+                                                ) : (
+                                                    <select
+                                                        value={p.estado}
+                                                        onChange={(e) => cambiarEstado(p, e.target.value as EstadoPedido)}
+                                                        aria-label={`Estado del pedido ${p.codigo}`}
+                                                        className={`rounded-full border-0 px-3 py-1 text-xs font-bold ${estadoPedido(p.estado).clase}`}
+                                                    >
+                                                        {ESTADOS_PEDIDO.map((e) => (
+                                                            <option key={e.value} value={e.value}>
+                                                                {e.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                )}
                                             </td>
                                         </tr>
                                     );

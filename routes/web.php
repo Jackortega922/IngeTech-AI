@@ -56,7 +56,7 @@ Route::middleware(['auth'])->group(function () {
     // Los administradores no tienen un "dashboard de cliente": van directo
     // a su panel, para que nunca vean el flujo de recomendación por error.
     Route::get('dashboard', function (Request $request) {
-        if ($request->user()->is_admin) {
+        if ($request->user()->es_personal) {
             return redirect()->route('admin');
         }
 
