@@ -102,7 +102,7 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
         router.visit('/personalizar');
     }
 
-    const cuentaHref = auth.user ? (auth.user.is_admin ? '/admin' : '/dashboard') : '/login';
+    const cuentaHref = auth.user ? (auth.user.es_personal ? '/admin' : '/dashboard') : '/login';
     const iaHref = auth.user ? '/perfil' : '/register';
 
     return (

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Roles;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -44,6 +45,8 @@ class HandleInertiaRequests extends Middleware
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
+                // Secciones del panel que puede usar su rol (App\Support\Roles): menú y pestañas.
+                'permisos' => Roles::permisos($request->user()?->rol),
             ],
             // Contacto de la tienda (config/contacto.php): footer y botón de WhatsApp.
             'contacto' => config('contacto'),

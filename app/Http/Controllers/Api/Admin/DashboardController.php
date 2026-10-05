@@ -38,7 +38,7 @@ class DashboardController extends Controller
             'total_equipos' => Laptop::count(),
             'total_software' => Software::count(),
             'total_carreras' => Carrera::count(),
-            'total_usuarios' => User::where('is_admin', false)->count(),
+            'total_usuarios' => User::where('rol', 'cliente')->count(),
             'total_consultas' => $eventos->count(),
             'por_carrera' => $porCarrera,
             'por_presupuesto' => $buckets,

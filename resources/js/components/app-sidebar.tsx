@@ -23,6 +23,7 @@ import {
     ShoppingBag,
     Store,
     Tag,
+    UserCog,
     UserPlus,
     Users,
 } from 'lucide-react';
@@ -56,18 +57,19 @@ const navCliente: NavItem[] = [
     { title: 'Preguntas frecuentes', url: '/preguntas', icon: CircleHelp },
 ];
 
-// Cuando entras como administrador, el menú solo muestra lo que le
-// corresponde al admin — el flujo de recomendación es para los clientes.
-const navAdmin: NavItem[] = [
-    { title: 'Dashboard', url: '/admin?tab=dashboard', icon: LayoutDashboard },
-    { title: 'Contabilidad', url: '/admin?tab=contabilidad', icon: Coins },
-    { title: 'Clientes', url: '/admin?tab=clientes', icon: Users },
-    { title: 'Pedidos', url: '/admin?tab=pedidos', icon: ShoppingBag },
-    { title: 'Inventario', url: '/admin?tab=inventario', icon: Boxes },
-    { title: 'Reclamos', url: '/admin?tab=reclamos', icon: BookOpenText },
-    { title: 'Equipos', url: '/admin?tab=hardware', icon: Monitor },
-    { title: 'Software', url: '/admin?tab=software', icon: LayoutList },
-    { title: 'Carreras', url: '/admin?tab=carreras', icon: GraduationCap },
+// Personal de la tienda: solo las secciones de su rol (el permiso es el nombre de la pestaña).
+// El flujo de recomendación es para los clientes.
+const navAdmin: (NavItem & { permiso: string })[] = [
+    { title: 'Dashboard', url: '/admin?tab=dashboard', icon: LayoutDashboard, permiso: 'dashboard' },
+    { title: 'Contabilidad', url: '/admin?tab=contabilidad', icon: Coins, permiso: 'contabilidad' },
+    { title: 'Clientes', url: '/admin?tab=clientes', icon: Users, permiso: 'clientes' },
+    { title: 'Pedidos', url: '/admin?tab=pedidos', icon: ShoppingBag, permiso: 'pedidos' },
+    { title: 'Inventario', url: '/admin?tab=inventario', icon: Boxes, permiso: 'inventario' },
+    { title: 'Reclamos', url: '/admin?tab=reclamos', icon: BookOpenText, permiso: 'reclamos' },
+    { title: 'Equipos', url: '/admin?tab=hardware', icon: Monitor, permiso: 'hardware' },
+    { title: 'Software', url: '/admin?tab=software', icon: LayoutList, permiso: 'software' },
+    { title: 'Carreras', url: '/admin?tab=carreras', icon: GraduationCap, permiso: 'carreras' },
+    { title: 'Usuarios', url: '/admin?tab=usuarios', icon: UserCog, permiso: 'usuarios' },
 ];
 
 export function AppSidebar() {
@@ -76,7 +78,8 @@ export function AppSidebar() {
     // renderiza también para quien no inició sesión, así que auth.user puede ser null.
     const usuario = auth.user;
     const esVisitante = usuario === null;
-    const mainNavItems = usuario === null ? navVisitante : usuario.is_admin ? navAdmin : navCliente;
+    const mainNavItems =
+        usuario === null ? navVisitante : usuario.es_personal ? navAdmin.filter((i) => auth.permisos.includes(i.permiso)) : navCliente;
 
     return (
         <Sidebar collapsible="icon" variant="inset" className="border-r border-slate-200/80 bg-white/95 dark:border-slate-800 dark:bg-[#07182c]">
