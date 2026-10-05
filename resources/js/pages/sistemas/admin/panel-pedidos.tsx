@@ -1,7 +1,7 @@
 import LaptopImage from '@/components/laptop-image';
 import { ESTADOS_PEDIDO, estadoPedido, lugarDeEnvio, soles } from '@/lib/pedidos';
 import type { EstadoPedido, Pedido } from '@/types/flujo';
-import { Mail, Package, Phone } from 'lucide-react';
+import { Mail, Package, Phone, Recycle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 // Pedidos de la tienda: quién compró, qué, a dónde se envía, y el estado del envío (que el
@@ -143,6 +143,12 @@ export function PanelPedidos({
                                             <td className="text-muted-foreground px-5 py-4 text-xs">
                                                 <p>{p.direccion}</p>
                                                 <p>{lugarDeEnvio(p)}</p>
+                                                {p.recojo_raee && (
+                                                    <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                                                        <Recycle className="h-3 w-3" /> Recoger equipo para reciclaje
+                                                        {p.raee_detalle ? `: ${p.raee_detalle}` : ''}
+                                                    </p>
+                                                )}
                                             </td>
                                             <td className="px-5 py-4 text-right font-mono font-bold">{soles(p.total)}</td>
                                             <td className="px-5 py-4">

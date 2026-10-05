@@ -52,6 +52,9 @@ class PedidoController extends Controller
             'pago.ultimos4' => ['required', 'digits:4'],
             'acepta_terminos' => ['accepted'],
             'cupon' => ['nullable', 'string', 'max:30'],
+            // Ambiental: recojo del equipo anterior para reciclaje (RAEE).
+            'recojo_raee' => ['boolean'],
+            'raee_detalle' => ['nullable', 'string', 'max:120'],
         ], [
             'telefono.regex' => 'Ingresa un celular de 9 dígitos que empiece en 9.',
             'acepta_terminos.accepted' => 'Debes aceptar los términos y la política de privacidad.',
@@ -104,6 +107,8 @@ class PedidoController extends Controller
                 'ciudad' => $ubigeo ? null : $datos['ciudad'],
                 'direccion' => $datos['direccion'],
                 'referencia' => $datos['referencia'] ?? null,
+                'recojo_raee' => $datos['recojo_raee'] ?? false,
+                'raee_detalle' => ! empty($datos['recojo_raee']) ? ($datos['raee_detalle'] ?? null) : null,
                 'metodo_pago' => 'tarjeta_simulada',
                 'tarjeta_marca' => $datos['pago']['marca'],
                 'tarjeta_ultimos4' => $datos['pago']['ultimos4'],

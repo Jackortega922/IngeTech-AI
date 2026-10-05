@@ -135,6 +135,12 @@ export default function PedidoIndex({ pedido }: { pedido: Pedido }) {
                                     {pedido.direccion}, {lugarDeEnvio(pedido)}
                                 </p>
                                 {pedido.referencia && <p className="text-xs text-slate-500">Ref.: {pedido.referencia}</p>}
+                                {pedido.recojo_raee && (
+                                    <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-300">
+                                        ♻ Al entregarte la laptop recogeremos tu equipo anterior para reciclarlo
+                                        {pedido.raee_detalle ? ` (${pedido.raee_detalle})` : ''}.
+                                    </p>
+                                )}
                                 <p className="mt-1 text-xs text-slate-500">
                                     Contacto: {pedido.telefono} · {pedido.email}
                                 </p>

@@ -140,6 +140,12 @@ def calcular_compatibilidad(
             advertencias.append(
                 "Esta laptop no tiene GPU dedicada; puede limitar tareas de IA/diseño."
             )
+        # Ingeniería Ambiental: una GPU dedicada que nadie va a usar consume más energía, agota
+        # antes la batería y suma componentes (más residuo electrónico al final de su vida).
+        if ideal["gpu"] < 0.2 and specs["gpu"] == 1.0:
+            advertencias.append(
+                "Trae GPU dedicada que tus actividades no necesitan: gasta más energía y batería."
+            )
 
         resultados.append(
             {

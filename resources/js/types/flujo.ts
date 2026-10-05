@@ -241,6 +241,9 @@ export interface Pedido {
     subtotal: string | number;
     // Descuento por cupón (Marketing); el total ya lo tiene restado.
     descuento: string | number;
+    // Ambiental: recoger el equipo anterior para reciclaje (RAEE) al entregar.
+    recojo_raee: boolean;
+    raee_detalle: string | null;
     costo_envio: string | number;
     total: string | number;
     estado: EstadoPedido;

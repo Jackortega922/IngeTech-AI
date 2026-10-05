@@ -34,6 +34,8 @@ class Pedido extends Model
         'ciudad',
         'direccion',
         'referencia',
+        'recojo_raee',
+        'raee_detalle',
         'metodo_pago',
         'tarjeta_marca',
         'tarjeta_ultimos4',
@@ -49,6 +51,7 @@ class Pedido extends Model
         return [
             'subtotal' => 'decimal:2',
             'descuento' => 'decimal:2',
+            'recojo_raee' => 'boolean',
             'costo_envio' => 'decimal:2',
             'total' => 'decimal:2',
         ];
