@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Tienda\BienvenidaController;
 use App\Http\Controllers\Tienda\BoletaController;
+use App\Http\Controllers\Tienda\LibroReclamacionesController;
 use App\Http\Controllers\Tienda\PedidoConfirmacionController;
 use App\Http\Controllers\Tienda\SeguimientoController;
 use App\Models\Laptop;
@@ -26,6 +27,15 @@ Route::get('comparador', fn () => Inertia::render('sistemas/comparador/index'))-
 // poder leer antes de comprar, sin crear cuenta.
 Route::get('preguntas', fn () => Inertia::render('sistemas/preguntas/index'))->name('preguntas');
 Route::get('derecho', fn () => Inertia::render('derecho/index'))->name('derecho');
+// Transparencia de la IA: qué datos usa el motor, cómo calcula y cuáles son sus límites.
+Route::get('como-decide-la-ia', fn () => Inertia::render('derecho/como-decide-ia'))->name('como-decide-ia');
+
+// Libro de Reclamaciones virtual: obligatorio y sin cuenta. Los límites frenan el spam y a
+// quien intente adivinar números de hoja.
+Route::get('libro-reclamaciones', [LibroReclamacionesController::class, 'create'])->name('reclamos.create');
+Route::post('libro-reclamaciones', [LibroReclamacionesController::class, 'store'])->middleware('throttle:5,1')->name('reclamos.store');
+Route::post('libro-reclamaciones/consultar', [LibroReclamacionesController::class, 'consultar'])->middleware('throttle:10,1')->name('reclamos.consultar');
+Route::get('libro-reclamaciones/{numero}', [LibroReclamacionesController::class, 'show'])->name('reclamos.show');
 
 // Compra: se puede comprar sin cuenta (personalizar, pagar y ver la confirmación). La cuenta
 // solo hace falta para la recomendación con IA y para ver el historial de pedidos.

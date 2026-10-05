@@ -277,3 +277,39 @@ export interface PreferenciasCliente {
     completado_at: string | null;
     omitido_at: string | null;
 }
+
+// Datos de la tienda que aparecen en la boleta y en la hoja de reclamación. Tienda hipotética:
+// pueden venir vacíos (config/tienda.php → emisor).
+export interface EmisorTienda {
+    razon_social: string | null;
+    ruc: string | null;
+    direccion: string | null;
+}
+
+// Hoja del Libro de Reclamaciones (Derecho). Ver app/Models/Reclamo.php.
+export interface Reclamo {
+    id: number;
+    numero: string;
+    pedido_codigo: string | null;
+    tipo: 'reclamo' | 'queja';
+    nombre: string;
+    tipo_documento: 'DNI' | 'CE' | 'Pasaporte';
+    numero_documento: string;
+    domicilio: string;
+    telefono: string | null;
+    email: string;
+    menor_de_edad: boolean;
+    apoderado: string | null;
+    bien: 'producto' | 'servicio';
+    monto_reclamado: string | null;
+    descripcion_bien: string;
+    detalle: string;
+    pedido_consumidor: string;
+    estado: 'pendiente' | 'respondido';
+    fecha_limite: string;
+    respuesta: string | null;
+    respondido_at: string | null;
+    created_at: string;
+    // Días hábiles para responder (negativo si venció; null si ya se respondió).
+    dias_restantes: number | null;
+}

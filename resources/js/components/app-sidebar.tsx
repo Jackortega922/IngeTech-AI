@@ -4,6 +4,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
+    BookOpenText,
     CircleHelp,
     Clock,
     Coins,
@@ -37,6 +38,7 @@ const navVisitante: NavItem[] = [
     { title: 'Seguimiento de pedido', url: '/seguimiento', icon: PackageSearch },
     { title: 'Preguntas frecuentes', url: '/preguntas', icon: CircleHelp },
     { title: 'Términos y Garantía', url: '/derecho', icon: Scroll },
+    { title: 'Libro de Reclamaciones', url: '/libro-reclamaciones', icon: BookOpenText },
 ];
 
 const navCliente: NavItem[] = [
@@ -49,6 +51,7 @@ const navCliente: NavItem[] = [
     { title: 'Promociones', url: '/marketing', icon: Tag },
     { title: 'Reciclaje y sostenibilidad', url: '/ing-ambiental', icon: Recycle },
     { title: 'Términos y Garantía', url: '/derecho', icon: Scroll },
+    { title: 'Libro de Reclamaciones', url: '/libro-reclamaciones', icon: BookOpenText },
     { title: 'Preguntas frecuentes', url: '/preguntas', icon: CircleHelp },
 ];
 
@@ -59,6 +62,7 @@ const navAdmin: NavItem[] = [
     { title: 'Contabilidad', url: '/admin?tab=contabilidad', icon: Coins },
     { title: 'Clientes', url: '/admin?tab=clientes', icon: Users },
     { title: 'Pedidos', url: '/admin?tab=pedidos', icon: ShoppingBag },
+    { title: 'Reclamos', url: '/admin?tab=reclamos', icon: BookOpenText },
     { title: 'Equipos', url: '/admin?tab=hardware', icon: Monitor },
     { title: 'Software', url: '/admin?tab=software', icon: LayoutList },
     { title: 'Carreras', url: '/admin?tab=carreras', icon: GraduationCap },

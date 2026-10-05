@@ -1,7 +1,7 @@
 import { enlaceWhatsapp, WhatsappIcon } from '@/components/tienda/whatsapp-button';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BadgeCheck, Clock, Facebook, Headset, Instagram, Mail, MapPin, Music2, Phone, Sparkles, Truck, Youtube } from 'lucide-react';
+import { BadgeCheck, BookOpenText, Clock, Facebook, Headset, Instagram, Mail, MapPin, Music2, Phone, Sparkles, Truck, Youtube } from 'lucide-react';
 import type { ComponentType } from 'react';
 
 // Lo que la tienda ofrece. "Pago seguro" no aparece a propósito: no hay pago en línea (la
@@ -126,6 +126,20 @@ export default function StoreFooter() {
                         <li>
                             <Link href="/derecho" className="transition hover:text-cyan-400">
                                 Términos, garantía y devoluciones
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/como-decide-la-ia" className="transition hover:text-cyan-400">
+                                Cómo decide la IA
+                            </Link>
+                        </li>
+                        <li>
+                            {/* Aviso obligatorio para tiendas en línea (Ley 29571): visible y fácil de encontrar. */}
+                            <Link
+                                href="/libro-reclamaciones"
+                                className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2 font-semibold text-white transition hover:border-cyan-400 hover:text-cyan-400"
+                            >
+                                <BookOpenText className="h-4 w-4" /> Libro de Reclamaciones
                             </Link>
                         </li>
                     </ul>
