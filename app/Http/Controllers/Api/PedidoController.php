@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cupon;
 use App\Models\Pedido;
 use App\Services\Tienda\ArmadoLaptop;
 use App\Services\Tienda\Inventario;
 use App\Support\UbigeoHuanuco;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -49,6 +51,7 @@ class PedidoController extends Controller
             'pago.marca' => ['required', Rule::in(['visa', 'mastercard', 'amex'])],
             'pago.ultimos4' => ['required', 'digits:4'],
             'acepta_terminos' => ['accepted'],
+            'cupon' => ['nullable', 'string', 'max:30'],
         ], [
             'telefono.regex' => 'Ingresa un celular de 9 dígitos que empiece en 9.',
             'acepta_terminos.accepted' => 'Debes aceptar los términos y la política de privacidad.',
@@ -71,11 +74,26 @@ class PedidoController extends Controller
         $pedido = DB::transaction(function () use ($datos, $user, $armado, $ubigeo, $inventario) {
             $personalizacion = $armado->guardar($datos, $user);
             $envio = (float) config('tienda.costo_envio');
+            $subtotal = (float) $personalizacion->precio_total;
+
+            // Cupón (Marketing): se vuelve a validar aquí con el precio que calculó el servidor, y
+            // se bloquea la fila para que dos compras a la vez no pasen el límite de usos.
+            $cupon = null;
+            if (! empty($datos['cupon'])) {
+                $cupon = Cupon::lockForUpdate()->where('codigo', Str::upper(trim($datos['cupon'])))->first();
+                $motivo = $cupon ? $cupon->motivoNoAplica($subtotal) : 'Ese cupón no existe.';
+                if ($motivo) {
+                    throw ValidationException::withMessages(['cupon' => $motivo]);
+                }
+                $cupon->increment('usos');
+            }
+            $descuento = $cupon?->descuentoPara($subtotal) ?? 0;
 
             $pedido = Pedido::create([
                 'codigo' => Pedido::nuevoCodigo(),
                 'user_id' => $user?->id,
                 'personalizacion_id' => $personalizacion->id,
+                'cupon_id' => $cupon?->id,
                 'nombre' => $datos['nombre'],
                 'email' => $datos['email'],
                 'telefono' => $datos['telefono'],
@@ -89,9 +107,11 @@ class PedidoController extends Controller
                 'metodo_pago' => 'tarjeta_simulada',
                 'tarjeta_marca' => $datos['pago']['marca'],
                 'tarjeta_ultimos4' => $datos['pago']['ultimos4'],
-                'subtotal' => $personalizacion->precio_total,
+                'subtotal' => $subtotal,
+                'descuento' => $descuento,
                 'costo_envio' => $envio,
-                'total' => (float) $personalizacion->precio_total + $envio,
+                // El IGV (Contabilidad) se calcula sobre este total, ya con el descuento.
+                'total' => $subtotal - $descuento + $envio,
                 'estado' => 'pagado',
             ]);
 

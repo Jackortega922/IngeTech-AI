@@ -6,7 +6,7 @@ import { luhnValido, marcaDe, soles, TARJETAS_PRUEBA, vencimientoValido } from '
 import { type SharedData } from '@/types';
 import type { Catalogos, Configuracion, Tarjeta } from '@/types/flujo';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { AlertTriangle, CreditCard, FlaskConical, Lock, Truck } from 'lucide-react';
+import { AlertTriangle, CreditCard, FlaskConical, Lock, Tag, Truck } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
 // Debe coincidir con config/tienda.php (costo_envio).
@@ -44,6 +44,11 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
     const [errores, setErrores] = useState<Errores>({});
     const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
     const [pagando, setPagando] = useState(false);
+    // Cupón (Marketing): el servidor dice cuánto descuenta; al pagar lo vuelve a calcular.
+    const [cuponTexto, setCuponTexto] = useState('');
+    const [cupon, setCupon] = useState<{ codigo: string; descripcion: string; descuento: number } | null>(null);
+    const [cuponError, setCuponError] = useState<string | null>(null);
+    const [validandoCupon, setValidandoCupon] = useState(false);
 
     useEffect(() => {
         const c = flujoStorage.leerConfiguracion();
@@ -69,6 +74,32 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
     const marca = marcaDe(numero);
     const esHuanuco = datos.departamento === 'Huánuco';
     const provinciaElegida = provinciasHuanuco.find((p) => p.nombre === datos.provincia);
+    const descuento = cupon?.descuento ?? 0;
+    const total = config.precio_estimado - descuento + COSTO_ENVIO;
+
+    async function aplicarCupon() {
+        if (!cuponTexto.trim() || !config) return;
+        setValidandoCupon(true);
+        setCuponError(null);
+        try {
+            const res = await fetch('/api/cupones/validar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({ codigo: cuponTexto, subtotal: config.precio_estimado }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setCupon(data);
+            } else {
+                setCupon(null);
+                setCuponError(data.errors?.cupon?.[0] ?? data.message ?? 'No se pudo aplicar el cupón.');
+            }
+        } catch {
+            setCuponError('No pudimos validar el cupón. Revisa tu conexión.');
+        } finally {
+            setValidandoCupon(false);
+        }
+    }
 
     function validarLocal(): Errores {
         const e: Errores = {};
@@ -118,6 +149,7 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
                     // Solo marca y últimos 4: el número completo no sale del navegador.
                     pago: { marca, ultimos4: numero.slice(-4) },
                     acepta_terminos: acepta,
+                    cupon: cupon?.codigo ?? null,
                 }),
             });
             const data = await res.json();
@@ -130,7 +162,12 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
             if (res.status === 422 && data.errors) {
                 setErrores(Object.fromEntries(Object.entries(data.errors as Record<string, string[]>).map(([k, v]) => [k, v[0]])));
                 // laptop_id: se agotó mientras el cliente pagaba (no tiene un campo donde mostrarse).
-                setErrorGeneral(data.errors.laptop_id?.[0] ?? 'Revisa los datos marcados.');
+                if (data.errors.cupon) {
+                    // El cupón dejó de valer mientras pagaba (se agotó o venció): se quita y se avisa.
+                    setCupon(null);
+                    setCuponError(data.errors.cupon[0]);
+                }
+                setErrorGeneral(data.errors.laptop_id?.[0] ?? data.errors.cupon?.[0] ?? 'Revisa los datos marcados.');
             } else {
                 setErrorGeneral(data.message ?? 'No pudimos procesar el pago. Inténtalo de nuevo.');
             }
@@ -394,15 +431,60 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
                                     ))}
                                 </ul>
                             )}
-                            <div className="mt-5 space-y-2 border-t border-slate-200 pt-4 text-sm dark:border-white/10">
+                            <div className="mt-5 border-t border-slate-200 pt-4 dark:border-white/10">
+                                {cupon ? (
+                                    <p className="flex items-center justify-between gap-2 rounded-xl bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-300">
+                                        <span className="flex items-center gap-1.5">
+                                            <Tag className="h-3.5 w-3.5" /> <b>{cupon.codigo}</b> · {cupon.descripcion}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setCupon(null);
+                                                setCuponTexto('');
+                                            }}
+                                            className="underline"
+                                        >
+                                            Quitar
+                                        </button>
+                                    </p>
+                                ) : (
+                                    <div className="flex gap-2">
+                                        <input
+                                            value={cuponTexto}
+                                            onChange={(e) => setCuponTexto(e.target.value.toUpperCase())}
+                                            onKeyDown={(e) => {
+                                                // Enter aplica el cupón en vez de enviar el pago.
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    void aplicarCupon();
+                                                }
+                                            }}
+                                            placeholder="¿Tienes un cupón?"
+                                            aria-label="Código de cupón"
+                                            maxLength={30}
+                                            className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-[#0c2340] placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none dark:border-white/10 dark:bg-white/[0.06] dark:text-white"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => void aplicarCupon()}
+                                            disabled={validandoCupon || !cuponTexto.trim()}
+                                            className="rounded-xl border border-slate-300 px-3 text-sm font-semibold hover:border-cyan-400 disabled:opacity-50 dark:border-white/15"
+                                        >
+                                            {validandoCupon ? '…' : 'Aplicar'}
+                                        </button>
+                                    </div>
+                                )}
+                                {cuponError && <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-300">{cuponError}</p>}
+                            </div>
+                            <div className="mt-4 space-y-2 text-sm">
                                 <Fila label="Subtotal" valor={soles(config.precio_estimado)} />
+                                {descuento > 0 && <Fila label="Descuento" valor={`− ${soles(descuento)}`} />}
                                 <Fila label="Envío" valor={COSTO_ENVIO === 0 ? 'Gratis' : soles(COSTO_ENVIO)} />
                             </div>
                             <div className="mt-4 flex items-baseline justify-between border-t border-slate-200 pt-4 dark:border-white/10">
                                 <span className="text-sm text-slate-600 dark:text-slate-300">Total</span>
-                                <span className="font-mono text-2xl font-bold text-sky-600 dark:text-cyan-400">
-                                    {soles(config.precio_estimado + COSTO_ENVIO)}
-                                </span>
+                                <span className="font-mono text-2xl font-bold text-sky-600 dark:text-cyan-400">{soles(total)}</span>
                             </div>
 
                             {errorGeneral && (
@@ -416,7 +498,7 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
                                 disabled={pagando}
                                 className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-400 py-3.5 font-bold text-[#07111f] transition hover:bg-cyan-300 disabled:opacity-60"
                             >
-                                <Lock className="h-4 w-4" /> {pagando ? 'Procesando pago…' : `Pagar ${soles(config.precio_estimado + COSTO_ENVIO)}`}
+                                <Lock className="h-4 w-4" /> {pagando ? 'Procesando pago…' : `Pagar ${soles(total)}`}
                             </button>
                             <Link
                                 href="/personalizar"

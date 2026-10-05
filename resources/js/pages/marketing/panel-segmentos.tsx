@@ -1,9 +1,10 @@
 import { LoadingPanel } from '@/components/loading-panel';
-import { Brain, Info, Megaphone, RefreshCw, Users } from 'lucide-react';
+import { PanelCupones, type TipoSegmento } from '@/pages/marketing/panel-cupones';
+import { Brain, Info, Megaphone, RefreshCw, Tag, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 interface Segmento {
-    tipo: 'alto_valor' | 'compradores' | 'interesados' | 'exploradores' | 'inactivos';
+    tipo: TipoSegmento;
     nombre: string;
     accion: string;
     tamano: number;
@@ -47,8 +48,9 @@ function calidad(silueta: number | null): string {
 
 // Segmentación de clientes (Marketing + IA). El motor agrupa a los clientes con K-Means según
 // su comportamiento; aquí se ven los grupos y qué campaña conviene a cada uno.
-export function PanelSegmentos() {
+export function PanelSegmentos({ avisar }: { avisar: (msg: string) => void }) {
     const [datos, setDatos] = useState<Respuesta | null>(null);
+    const [pedidoCupon, setPedidoCupon] = useState<{ tipo: TipoSegmento } | null>(null);
     const [cargando, setCargando] = useState(true);
 
     const cargar = useCallback(async () => {
@@ -132,10 +134,23 @@ export function PanelSegmentos() {
                                     <b>Campaña sugerida:</b> {s.accion}
                                 </span>
                             </p>
+                            <button
+                                onClick={() => {
+                                    setPedidoCupon({ tipo: s.tipo });
+                                    document.getElementById('cupones')?.scrollIntoView({ behavior: 'smooth' });
+                                }}
+                                className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/40 px-3 py-1.5 text-xs font-semibold text-cyan-700 hover:bg-cyan-500/10 dark:text-cyan-300"
+                            >
+                                <Tag className="h-3.5 w-3.5" /> Crear cupón para este grupo
+                            </button>
                         </article>
                     ))}
                 </div>
             )}
+
+            <div id="cupones">
+                <PanelCupones pedido={pedidoCupon} avisar={avisar} />
+            </div>
 
             <p className="text-muted-foreground flex items-start gap-2 text-xs leading-5">
                 <Info className="mt-0.5 h-4 w-4 shrink-0" />

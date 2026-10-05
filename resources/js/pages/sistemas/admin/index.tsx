@@ -296,7 +296,7 @@ export default function AdminIndex() {
                     ) : sub === 'inventario' ? (
                         <PanelInventario avisar={avisar} />
                     ) : sub === 'marketing' ? (
-                        <PanelSegmentos />
+                        <PanelSegmentos avisar={avisar} />
                     ) : sub === 'usuarios' ? (
                         <PanelUsuarios avisar={avisar} />
                     ) : sub === 'reclamos' ? (

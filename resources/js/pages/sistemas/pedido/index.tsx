@@ -109,6 +109,12 @@ export default function PedidoIndex({ pedido }: { pedido: Pedido }) {
                                     <span>Subtotal</span>
                                     <span className="font-mono">{soles(pedido.subtotal)}</span>
                                 </div>
+                                {Number(pedido.descuento) > 0 && (
+                                    <div className="flex justify-between text-emerald-700 dark:text-emerald-300">
+                                        <span>Descuento (cupón)</span>
+                                        <span className="font-mono">− {soles(pedido.descuento)}</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between">
                                     <span>Envío</span>
                                     <span className="font-mono">{Number(pedido.costo_envio) === 0 ? 'Gratis' : soles(pedido.costo_envio)}</span>

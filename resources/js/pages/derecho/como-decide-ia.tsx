@@ -15,6 +15,7 @@ import {
     Scale,
     ShieldCheck,
     Target,
+    Users,
     XCircle,
 } from 'lucide-react';
 
@@ -155,6 +156,18 @@ export default function ComoDecideIa() {
                             </li>
                         ))}
                     </ul>
+                </section>
+
+                <section className="it-card p-6 sm:p-7">
+                    <h2 className="flex items-center gap-2 text-xl font-black">
+                        <Users className="h-5 w-5 text-sky-500" /> Grupos de clientes para promociones
+                    </h2>
+                    <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                        Para decidir qué promociones ofrecer, otro modelo de IA (K-Means) agrupa a los clientes con cuenta según cómo usan la tienda:
+                        presupuesto que indican, recomendaciones que piden, compras, gasto y tiempo sin volver. Usa solo esos números, sin tu nombre
+                        ni tu correo, y el equipo de la tienda ve grupos, no personas. <b>No cambia tu recomendación ni tus precios</b>: los cupones
+                        que salen de esos grupos son códigos que cualquiera puede usar.
+                    </p>
                 </section>
 
                 <section className="it-card p-6 sm:p-7">

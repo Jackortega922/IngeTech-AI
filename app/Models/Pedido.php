@@ -23,6 +23,7 @@ class Pedido extends Model
         'comprobante',
         'user_id',
         'personalizacion_id',
+        'cupon_id',
         'nombre',
         'email',
         'telefono',
@@ -37,6 +38,7 @@ class Pedido extends Model
         'tarjeta_marca',
         'tarjeta_ultimos4',
         'subtotal',
+        'descuento',
         'costo_envio',
         'total',
         'estado',
@@ -46,6 +48,7 @@ class Pedido extends Model
     {
         return [
             'subtotal' => 'decimal:2',
+            'descuento' => 'decimal:2',
             'costo_envio' => 'decimal:2',
             'total' => 'decimal:2',
         ];
@@ -93,5 +96,10 @@ class Pedido extends Model
     public function eventos(): HasMany
     {
         return $this->hasMany(PedidoEvento::class)->orderBy('id');
+    }
+
+    public function cupon(): BelongsTo
+    {
+        return $this->belongsTo(Cupon::class);
     }
 }

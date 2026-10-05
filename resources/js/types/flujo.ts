@@ -172,6 +172,7 @@ export interface ContabilidadAdmin {
     igv: number;
     igv_porcentaje: number;
     numero_ventas: number;
+    descuentos: { cantidad: number; monto: number };
     ticket_promedio: number;
     anulaciones: { cantidad: number; monto: number };
     por_mes: Record<string, { ventas: number; monto: number }>;
@@ -238,6 +239,8 @@ export interface Pedido {
     tarjeta_marca: string | null;
     tarjeta_ultimos4: string | null;
     subtotal: string | number;
+    // Descuento por cupón (Marketing); el total ya lo tiene restado.
+    descuento: string | number;
     costo_envio: string | number;
     total: string | number;
     estado: EstadoPedido;

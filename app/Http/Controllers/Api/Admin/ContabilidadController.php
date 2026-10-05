@@ -33,6 +33,8 @@ class ContabilidadController extends Controller
             'igv' => $desglose['igv'],
             'igv_porcentaje' => (int) round(config('tienda.igv') * 100),
             'numero_ventas' => $ventas->count(),
+            // Descuentos por cupones (Marketing): las ventas ya vienen con el descuento restado.
+            'descuentos' => ['cantidad' => $ventas->where('descuento', '>', 0)->count(), 'monto' => round($ventas->sum(fn (Pedido $p) => (float) $p->descuento), 2)],
             'ticket_promedio' => $ventas->count() > 0 ? round($total / $ventas->count(), 2) : 0,
             'anulaciones' => ['cantidad' => $anuladas->count(), 'monto' => round($anuladas->sum(fn (Pedido $p) => (float) $p->total), 2)],
             'por_mes' => $this->porMes($ventas),
@@ -65,7 +67,7 @@ class ContabilidadController extends Controller
         return response()->streamDownload(function () use ($pedidos) {
             $salida = fopen('php://output', 'w');
             fwrite($salida, "\xEF\xBB\xBF");
-            fputcsv($salida, ['Fecha', 'Comprobante', 'Pedido', 'Cliente', 'Correo', 'Base imponible', 'IGV', 'Total', 'Estado'], ';');
+            fputcsv($salida, ['Fecha', 'Comprobante', 'Pedido', 'Cliente', 'Correo', 'Descuento', 'Base imponible', 'IGV', 'Total', 'Estado'], ';');
             foreach ($pedidos as $p) {
                 $d = Igv::desglosar((float) $p->total);
                 fputcsv($salida, [
@@ -74,6 +76,7 @@ class ContabilidadController extends Controller
                     $p->codigo,
                     $p->nombre,
                     $p->email,
+                    number_format((float) $p->descuento, 2, '.', ''),
                     number_format($d['base'], 2, '.', ''),
                     number_format($d['igv'], 2, '.', ''),
                     number_format($d['total'], 2, '.', ''),
