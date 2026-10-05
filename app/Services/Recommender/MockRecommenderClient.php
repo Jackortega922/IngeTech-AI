@@ -16,8 +16,32 @@ use App\Models\Software;
  * servicio Python (ml-engine) esté corriendo. Actívalo con
  * RECOMMENDER_MODE=mock en el .env.
  */
-class MockRecommenderClient implements RecommenderClient
+class MockRecommenderClient implements RecommenderClient, SegmentadorClientes
 {
+    /**
+     * Sin Python no hay K-Means: separa en "compraron" y "no compraron" para que el panel de
+     * Marketing se pueda probar con la misma forma de respuesta.
+     */
+    public function segmentar(array $clientes): array
+    {
+        if (count($clientes) < 6) {
+            return ['version' => 'v0', 'error' => 'datos_insuficientes', 'mensaje' => 'Se necesitan al menos 6 clientes con actividad para segmentar.'];
+        }
+
+        $grupos = collect($clientes)->groupBy(fn ($c) => $c['pedidos'] > 0 ? 'compradores' : 'exploradores');
+        $segmentos = $grupos->map(fn ($miembros, $tipo) => [
+            'tipo' => $tipo,
+            'nombre' => $tipo === 'compradores' ? 'Compradores (mock)' : 'Exploradores (mock)',
+            'accion' => $tipo === 'compradores' ? 'Venta cruzada de accesorios.' : 'Recordarles el comparador.',
+            'tamano' => $miembros->count(),
+            'clientes' => $miembros->pluck('id')->all(),
+            'promedio' => collect(['presupuesto_soles', 'recomendaciones', 'pedidos', 'gasto_soles', 'dias_inactivo'])
+                ->mapWithKeys(fn ($v) => [$v => round($miembros->avg($v), 1)])->all(),
+        ])->values()->all();
+
+        return ['version' => 'v0', 'k' => count($segmentos), 'silueta' => null, 'segmentos' => $segmentos];
+    }
+
     public function recomendar(array $payload): array
     {
         $perfil = $payload['perfil'] ?? [];

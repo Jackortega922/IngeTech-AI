@@ -119,6 +119,55 @@ Se exige **al menos `actividades` o `software`**; si faltan los dos, el motor re
 
 Códigos: `sin_resultados` · `perfil_invalido` · `catalogo_vacio` · `error_interno`.
 
+## Operación: segmentar (Marketing)
+
+Segunda operación del mismo motor ([ADR 0006](../adr/0006-segmentacion-clientes-kmeans.md)):
+agrupa a los clientes con K-Means según su comportamiento. HTTP: `POST /segmentar`. CLI: el
+mismo `cli_entry.py` con `"operacion": "segmentar"` en el JSON. Laravel la llama desde
+`App\Services\Recommender\SegmentadorClientes`.
+
+Entrada — solo números por cliente, sin nombre ni correo:
+
+```json
+{
+  "clientes": [
+    { "id": 12, "presupuesto_soles": 2500, "recomendaciones": 3, "pedidos": 0, "gasto_soles": 0, "dias_inactivo": 4 }
+  ]
+}
+```
+
+| Campo | Qué es |
+|---|---|
+| `presupuesto_soles` | promedio de lo que declaró en sus perfiles (o lo que pagó en promedio, si no pidió recomendaciones) |
+| `recomendaciones` | cuántas recomendaciones pidió |
+| `pedidos` / `gasto_soles` | compras no canceladas y su total |
+| `dias_inactivo` | días desde su última actividad |
+
+Salida:
+
+```json
+{
+  "version": "v0",
+  "k": 3,
+  "silueta": 0.62,
+  "segmentos": [
+    {
+      "tipo": "interesados",
+      "nombre": "Interesados que aún no compran · presupuesto medio",
+      "accion": "Cupón de primera compra: consultan varias veces pero aún no se deciden.",
+      "tamano": 14,
+      "clientes": [12, 15, 31],
+      "promedio": { "presupuesto_soles": 2480.5, "recomendaciones": 3.2, "pedidos": 0, "gasto_soles": 0, "dias_inactivo": 9.1 }
+    }
+  ]
+}
+```
+
+- `k`: número de grupos, elegido entre 2 y 5 por el mejor `silueta` (coeficiente de silueta, -1 a 1).
+- `tipo`: `alto_valor` · `compradores` · `interesados` · `exploradores` · `inactivos`, puesto con
+  reglas legibles sobre el cliente promedio del grupo.
+- Error propio: `datos_insuficientes` (menos de 6 clientes, o todos iguales).
+
 ## Modo CLI (producción)
 
 ```bash

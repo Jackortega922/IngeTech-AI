@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\ContabilidadController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\HardwareController;
 use App\Http\Controllers\Api\Admin\InventarioController;
+use App\Http\Controllers\Api\Admin\MarketingController;
 use App\Http\Controllers\Api\Admin\PedidoController as AdminPedidoController;
 use App\Http\Controllers\Api\Admin\ReclamoController;
 use App\Http\Controllers\Api\Admin\SoftwareController;
@@ -60,6 +61,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         Route::get('/reclamos', [ReclamoController::class, 'index']);
         Route::patch('/reclamos/{reclamo}', [ReclamoController::class, 'update']);
     });
+
+    Route::get('/marketing/segmentos', [MarketingController::class, 'segmentos'])->middleware('admin:marketing');
 
     Route::middleware('admin:hardware')->group(function () {
         Route::post('/hardware', [HardwareController::class, 'store']);
