@@ -24,6 +24,7 @@ class LaptopFactory extends Factory
             'gpu' => fake()->randomElement(['integrada', 'RTX 3050', 'RTX 4060', null]),
             'precio_soles' => fake()->randomFloat(2, 1800, 8000),
             'rendimiento_score' => fake()->numberBetween(40, 95),
+            'stock' => 5,
         ];
     }
 }

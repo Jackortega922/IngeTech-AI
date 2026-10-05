@@ -35,6 +35,8 @@ class Laptop extends Model
         'precio_soles',
         'tienda',
         'rendimiento_score',
+        // `stock` no va aquí a propósito: solo cambia por App\Services\Tienda\Inventario.
+        'stock_minimo',
     ];
 
     protected function casts(): array
@@ -45,7 +47,14 @@ class Laptop extends Model
             'pantalla_pulgadas' => 'float',
             'peso_kg' => 'float',
             'puertos' => 'array',
+            'stock' => 'integer',
+            'stock_minimo' => 'integer',
         ];
+    }
+
+    public function movimientos(): HasMany
+    {
+        return $this->hasMany(MovimientoInventario::class);
     }
 
     public function recomendaciones(): HasMany

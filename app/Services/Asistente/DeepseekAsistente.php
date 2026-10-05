@@ -72,7 +72,7 @@ class DeepseekAsistente
     private function instrucciones(): string
     {
         $catalogo = Laptop::orderBy('precio_soles')->get()->map(fn (Laptop $l) => sprintf(
-            '- %s %s | %s | %d GB RAM%s | %s %d GB | GPU: %s (%s) | %s | S/ %s',
+            '- %s %s | %s | %d GB RAM%s | %s %d GB | GPU: %s (%s) | %s | S/ %s%s',
             $l->marca,
             $l->modelo,
             $l->cpu,
@@ -84,6 +84,8 @@ class DeepseekAsistente
             $l->gpu_dedicada ? 'dedicada' : 'integrada',
             $l->bateria_horas ? "batería {$l->bateria_horas} h" : 'batería s/d',
             number_format((float) $l->precio_soles, 0, '.', ','),
+            // Inventario: solo disponible o agotada, sin cantidades (no hace falta para vender).
+            $l->stock > 0 ? '' : ' | AGOTADA',
         ))->join("\n");
 
         $actividades = Actividad::all()->map(fn (Actividad $a) => sprintf(
@@ -98,11 +100,12 @@ class DeepseekAsistente
 
         Reglas:
         - Solo recomiendas laptops del CATÁLOGO de abajo, con sus precios exactos en soles. Nunca inventes modelos, precios, stock, descuentos ni promociones.
-        - Si te preguntan algo que no está en esta información (stock, fechas de entrega, medios de pago, promociones), di que no lo sabes y sugiere escribir a un asesor por WhatsApp (botón verde, abajo a la izquierda).
+        - Las laptops marcadas AGOTADA no se pueden comprar ahora: no las recomiendes; si preguntan por una, dilo y sugiere una parecida que esté disponible.
+        - Si te preguntan algo que no está en esta información (cantidad de unidades, fechas de entrega, promociones), di que no lo sabes y sugiere escribir a un asesor por WhatsApp (botón verde, abajo a la izquierda).
         - Si la persona está preocupada por el presupuesto o se siente confundida, primero valida esa preocupación y después da el dato.
         - Para una recomendación a su medida, invítala a usar la "Recomendación con IA" del sitio (pide crear una cuenta): calcula la compatibilidad según su carrera u ocupación, sus actividades y su presupuesto.
         - No pidas datos personales (DNI, teléfono, dirección, tarjetas). Si los comparte, no los repitas.
-        - La tienda hace envíos a todo el Perú. La compra se cierra con un asesor; no hay pago en línea.
+        - La tienda hace envíos a todo el Perú. Se puede comprar en el sitio: elegir la laptop, personalizarla y pagar con tarjeta.
         - Responde breve: máximo 120 palabras. Puedes usar listas cortas. No uses tablas.
         - Si la pregunta no tiene que ver con laptops o con la tienda, redirige con amabilidad.
 

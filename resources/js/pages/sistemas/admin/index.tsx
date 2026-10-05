@@ -1,6 +1,7 @@
 import { LoadingPanel } from '@/components/loading-panel';
 import AppLayout from '@/layouts/app-layout';
 import { PUERTO_ETIQUETA } from '@/lib/guia-compra';
+import { PanelInventario } from '@/pages/administracion/panel-inventario';
 import { PanelContabilidad } from '@/pages/contabilidad/panel-contabilidad';
 import { PanelReclamos } from '@/pages/derecho/panel-reclamos';
 import { PanelDashboard } from '@/pages/industrial/panel-dashboard';
@@ -11,6 +12,7 @@ import { Head } from '@inertiajs/react';
 import {
     AlertCircle,
     BookOpenText,
+    Boxes,
     CheckCircle2,
     Coins,
     Database,
@@ -33,13 +35,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Administración', href: '/admin' }];
 
-type Sub = 'dashboard' | 'contabilidad' | 'clientes' | 'pedidos' | 'reclamos' | 'hardware' | 'software' | 'carreras';
+type Sub = 'dashboard' | 'contabilidad' | 'clientes' | 'pedidos' | 'inventario' | 'reclamos' | 'hardware' | 'software' | 'carreras';
 
 const TABS = [
     { value: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { value: 'contabilidad', label: 'Contabilidad', icon: Coins },
     { value: 'clientes', label: 'Clientes', icon: Users },
     { value: 'pedidos', label: 'Pedidos', icon: ShoppingBag },
+    { value: 'inventario', label: 'Inventario', icon: Boxes },
     { value: 'reclamos', label: 'Reclamos', icon: BookOpenText },
     { value: 'hardware', label: 'Equipos', icon: LaptopIcon },
     { value: 'software', label: 'Software', icon: Package },
@@ -292,6 +295,8 @@ export default function AdminIndex() {
                         <PanelClientes clientes={clientes} />
                     ) : sub === 'pedidos' ? (
                         <PanelPedidos pedidos={pedidos} avisar={avisar} />
+                    ) : sub === 'inventario' ? (
+                        <PanelInventario avisar={avisar} />
                     ) : sub === 'reclamos' ? (
                         <PanelReclamos reclamos={reclamos} avisar={avisar} />
                     ) : sub === 'hardware' ? (

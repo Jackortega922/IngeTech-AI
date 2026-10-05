@@ -1,5 +1,6 @@
 """Pruebas del punto de entrada del motor (A8: scoring real, ya sin el mock)."""
 
+from recommender.catalogo import cargar_laptops
 from recommender.scoring import recomendar
 
 PERFIL_DESARROLLADOR = {
@@ -54,3 +55,18 @@ def test_sobrante_se_calcula_contra_el_precio_real_de_la_laptop():
     resp = recomendar({"perfil": PERFIL_DESARROLLADOR, "opciones": {"top_n": 1}})
     rec = resp["recomendaciones"][0]
     assert rec["sobrante_soles"] == round(4000 - rec["precio_soles"], 2)
+
+
+
+def test_no_recomienda_laptops_agotadas():
+    perfil = {**PERFIL_DESARROLLADOR, "presupuesto_soles": 6500}
+    primera = recomendar({"perfil": perfil})["recomendaciones"][0]["laptop_id"]
+
+    resp = recomendar({"perfil": perfil, "opciones": {"top_n": 10, "excluir_ids": [primera]}})
+    assert primera not in [r["laptop_id"] for r in resp["recomendaciones"]]
+
+
+def test_si_todo_esta_agotado_no_hay_resultados():
+    todas = [laptop["id"] for laptop in cargar_laptops()]
+    resp = recomendar({"perfil": PERFIL_DESARROLLADOR, "opciones": {"excluir_ids": todas}})
+    assert resp["error"] == "sin_resultados"

@@ -16,7 +16,9 @@ class ContabilidadTest extends TestCase
 
     private function laptop(string $marca, float $precio): Laptop
     {
-        return Laptop::create([
+        return Laptop::forceCreate([
+            // forceCreate: `stock` no es asignable en masa (solo cambia por el servicio Inventario).
+            'stock' => 5,
             'marca' => $marca, 'modelo' => "Modelo {$marca}", 'tipo' => 'laptop', 'cpu' => 'Ryzen 5', 'ram_gb' => 16,
             'almacenamiento_gb' => 512, 'almacenamiento_tipo' => 'SSD', 'gpu_dedicada' => false,
             'precio_soles' => $precio, 'rendimiento_score' => 55,

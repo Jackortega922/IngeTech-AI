@@ -48,16 +48,20 @@ def recomendar(payload: dict[str, Any]) -> dict[str, Any]:
     if presupuesto is None or presupuesto <= 0:
         return _error("perfil_invalido", "El perfil no incluye un presupuesto válido.")
 
-    top_n = (payload.get("opciones") or {}).get("top_n", 3)
-    top_n = max(1, min(int(top_n), 10))
+    opciones = payload.get("opciones") or {}
+    top_n = max(1, min(int(opciones.get("top_n", 3)), 10))
+    # Agotadas según el inventario (Administración): recomendar algo que no se puede comprar
+    # frustra al cliente. Se quitan antes del filtro de presupuesto.
+    excluir = set(opciones.get("excluir_ids") or [])
 
     laptops = cargar_laptops()
     if not laptops:
         return _error("catalogo_vacio", "El catálogo de laptops está vacío.")
 
-    candidatos = [laptop for laptop in laptops if laptop.get("precio_soles", 0) <= presupuesto]
+    disponibles = [laptop for laptop in laptops if laptop.get("id") not in excluir]
+    candidatos = [laptop for laptop in disponibles if laptop.get("precio_soles", 0) <= presupuesto]
     if not candidatos:
-        return _error("sin_resultados", "No hay laptops dentro del presupuesto.")
+        return _error("sin_resultados", "No hay laptops disponibles dentro del presupuesto.")
 
     # Cuestionario de bienvenida (opcional): marcas a evitar se descartan antes de rankear.
     preferencias = perfil.get("preferencias") or {}

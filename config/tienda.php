@@ -36,4 +36,17 @@ return [
     // es como máximo 25% anual (Reglamento de la Ley del Impuesto a la Renta, art. 22), es decir,
     // 4 años. Se usa para el "costo por año de uso" que se muestra junto a la recomendación.
     'vida_util_anios' => 4,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Inventario (Administración)
+    |--------------------------------------------------------------------------
+    | Punto de reorden = demanda diaria × días que tarda en llegar la reposición + stock mínimo.
+    | Tienda hipotética: no hay un proveedor real, así que estos plazos son supuestos editables.
+    */
+    'inventario' => [
+        'ventana_demanda_dias' => 30, // ventas recientes con las que se estima la demanda
+        'dias_reposicion' => 7, // cuánto tarda el proveedor en entregar
+        'dias_cobertura' => 30, // para cuántos días alcanza un pedido de reposición
+    ],
 ];

@@ -129,7 +129,8 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
             }
             if (res.status === 422 && data.errors) {
                 setErrores(Object.fromEntries(Object.entries(data.errors as Record<string, string[]>).map(([k, v]) => [k, v[0]])));
-                setErrorGeneral('Revisa los datos marcados.');
+                // laptop_id: se agotó mientras el cliente pagaba (no tiene un campo donde mostrarse).
+                setErrorGeneral(data.errors.laptop_id?.[0] ?? 'Revisa los datos marcados.');
             } else {
                 setErrorGeneral(data.message ?? 'No pudimos procesar el pago. Inténtalo de nuevo.');
             }
