@@ -2,8 +2,8 @@
 
 Priorización **MoSCoW**: **M** must (sin esto no hay MVP) · **S** should · **C** could · **W** won't (por ahora).
 
-El tablero Kanban vive en Trello/Jira; este archivo es el respaldo versionado y la fuente de la
-priorización. Actualízalo cuando cambie el alcance.
+Este archivo es la fuente de la priorización (el tablero Trello/Jira se descartó, ver D7).
+Actualízalo cuando cambie el alcance. Última revisión: 2026-10-06.
 
 ## Épica 1 — Núcleo técnico (Módulo A) — *Bloque I*
 
@@ -22,6 +22,8 @@ priorización. Actualízalo cuando cambie el alcance.
 | A10 | Despliegue a Render + staging — desplegado en https://ingetech-ai.onrender.com (Render + Postgres en Neon, guía en [docs/despliegue.md](../despliegue.md)). En pausa por decisión del equipo: se desarrolla en local y se vuelve a desplegar al cerrar el proyecto | M | Jack | ✅ |
 | A11 | Registro de eventos + endpoint de KPIs | S | Jack | ✅ |
 | A12 | Swagger/OpenAPI publicado | S | Jack | ☐ |
+| A15 | Motor: segunda operación `segmentar` (K-Means) para Marketing, en los dos modos (HTTP y CLI) — [ADR 0006](../adr/0006-segmentacion-clientes-kmeans.md) | S | Jack | ✅ |
+| A16 | Motor: no recomendar laptops agotadas (`opciones.excluir_ids`, contrato actualizado) | M | Jack | ✅ |
 | A13 | Asistente conversacional complementario (LLM vía API, ej. DeepSeek) — **no reemplaza el motor de scoring**, es una función aparte (ver [ADR 0005](../adr/0005-llm-complementario-no-motor.md)) | C | Jack | ✅ — `app/Services/Asistente/DeepseekAsistente.php`, anclado al catálogo real; sin `DEEPSEEK_API_KEY` o si falla, responde el asistente por palabras clave. |
 
 ## Épica 2 — Flujo de usuario (Módulo B) — *Bloque I / UX*
@@ -39,7 +41,8 @@ priorización. Actualízalo cuando cambie el alcance.
 | B9 | Compra con o sin cuenta: personalizar → checkout (datos, envío, pago simulado) → confirmación con código; "Mis pedidos" en el panel del cliente y pestaña Pedidos en el admin para avanzar el estado del envío. | M | Jack | ✅ |
 | B10 | Cuestionario de bienvenida (Psicología): 10 preguntas al crear la cuenta; adapta cómo se presenta la recomendación (estilo de decisión, nivel técnico, para quién es). Editable y borrable. | M | Jack | ✅ |
 | B11 | Que las respuestas del cuestionario (movilidad, batería, molestias, años de uso, prioridades, marcas, periféricos) cambien el ranking del motor — requiere ampliar el contrato del motor. | M | Jack | ✅ — `ml-engine/recommender/preferencias.py`: 70% técnica + 30% afinidad, con factores y advertencias por preferencia. El resultado muestra el % desglosado y el "¿por qué?" de la IA. |
-| B12 | Unir compras de invitado a una cuenta (código + correo) y avisos por correo al cambiar el estado del pedido — en pausa por decisión del equipo (foco en IA + disciplinas). | C | Jack | ☐ |
+| B13 | Integrar el frontend de Marco (PR #41) sin perder la lógica de main — tanda 1 (acceso, menús, chat) y tanda 2 (panel, catálogo, software, comparador, guía) hechas en #49 y #50; falta tanda 3 (paneles de disciplinas) y 4 (`admin/index.tsx`) y cerrar #41 | S | Jack | ⚠️ |
+| B12 | Unir compras de invitado a una cuenta (código + correo) y avisos por correo: cambio de estado del pedido, constancia del Libro de Reclamaciones (la pide el reglamento) y campañas de Marketing (requieren consentimiento de publicidad) — en pausa por decisión del equipo (foco en IA + disciplinas). | C | Jack | ☐ |
 
 ## Épica 3 — Catálogo, datos y documentación (Módulo C) — *Bloques I, III, IV*
 
@@ -62,8 +65,8 @@ historia puntual de aquí, se reasigna esa fila y se avisa en el grupo.
 
 | # | Historia | Prio | Dueño | Estado |
 |---|---|---|---|---|
-| D1 | Definir KPIs/OKRs (compatibilidad promedio, tiempo de decisión…) | M | equipo | ☐ |
-| D2 | Dashboard de impacto (Grafana/Power BI) | S | Jack | ☐ |
+| D1 | Definir KPIs/OKRs (compatibilidad promedio, tiempo de decisión…) | M | equipo | ✅ — [docs/gestion/kpis.md](kpis.md): calidad de la recomendación + un indicador por disciplina, con metas propuestas (falta validarlas en equipo) |
+| D2 | Dashboard de impacto | S | Jack | ✅ — dentro del sistema (pestaña Dashboard de `/admin`) en vez de Grafana/Power BI: no necesita otra herramienta ni exportar datos |
 | D3 | Informe de evaluación de impacto socio-tecnológico | M | equipo | ☐ |
 | D4 | Memoria Técnica | M | equipo | ☐ |
 | D5 | Póster / artículo | S | equipo | ☐ |
@@ -72,10 +75,26 @@ historia puntual de aquí, se reasigna esa fila y se avisa en el grupo.
 | D8 | Encuesta de usabilidad (SUS) sobre el flujo de usuario | S | equipo | ☐ |
 | D9 | Artículo científico en formato IEEE | S | equipo | ☐ |
 | D10 | Análisis de licencias (Open Source vs. propietario) del stack usado | C | Jack | ☐ |
+| D11 | Diagramas entidad-relación de la BD antes y después de la IA (lo pidió el docente) | M | Jack | ✅ — [docs/arquitectura/modelo-datos.md](../arquitectura/modelo-datos.md) |
+
+## Épica 5 — Disciplinas integradas al sistema (y a la IA)
+
+Cada disciplina interviene en el sistema construido, incluida la IA. Detalle por disciplina en
+[docs/contexto-proyecto.md §5.1](../contexto-proyecto.md).
+
+| # | Historia | Prio | Dueño | Estado |
+|---|---|---|---|---|
+| E1 | Psicología — cuestionario de bienvenida que adapta la presentación y mueve el 30% de afinidad del motor (B10, B11) | M | Jack | ✅ |
+| E2 | Ingeniería Industrial — KPIs de la recomendación + indicadores del sistema, uno por disciplina, con meta (D1, D2) | M | Jack | ✅ |
+| E3 | Contabilidad — ventas reales con IGV, boleta simulada, registro de ventas CSV, costo por año de uso en el resultado | M | Jack | ✅ |
+| E4 | Derecho — Libro de Reclamaciones virtual (plazo de 15 días hábiles), "Cómo decide la IA", datos personales y ARCO | M | Jack | ✅ |
+| E5 | Administración — inventario con kardex y punto de reorden (las agotadas no se recomiendan) + roles del personal | M | Jack | ✅ |
+| E6 | Marketing — segmentación de clientes con K-Means y cupones por segmento | M | Jack | ✅ |
+| E7 | Ingeniería Ambiental — recojo RAEE en la compra, aviso de la IA por GPU innecesaria, cifras reales | M | Jack | ✅ |
+| E8 | Validar en equipo los supuestos: stock inicial de demostración, plazos del punto de reorden, metas de los KPIs, textos legales y referencia al reglamento RAEE | S | equipo | ☐ |
 
 ## Won't (por ahora)
 
-- Cuentas de usuario finales / login público (el perfil es anónimo en el MVP).
 - App móvil nativa.
 - Modelo de ML avanzado (redes neuronales). Se empieza con scoring ponderado + similitud.
 - Pasarela de pago real. Hoy el pago es **simulado** (tarjetas de prueba, no cobra nada): el checkout ya guarda solo marca y últimos 4 dígitos, así que conectar una pasarela real (ej. Culqi, Niubiz) sería reemplazar la validación del navegador por el token de la pasarela.
