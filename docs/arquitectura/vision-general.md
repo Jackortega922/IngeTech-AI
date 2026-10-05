@@ -47,49 +47,10 @@ El mismo código Python sirve en dos modos según el entorno (patrón heredado d
 El formato del JSON de entrada y salida está en [contrato-motor.md](contrato-motor.md). **Ese
 contrato es sagrado**: si cambia, se actualiza el documento y se avisa a todo el equipo en el mismo PR.
 
-## Base de datos (esquema inicial)
+## Base de datos
 
-```mermaid
-erDiagram
-    laptops ||--o{ recomendaciones : "recomendada en"
-    perfiles_usuario ||--o{ recomendaciones : "generó"
-    recomendaciones ||--o{ personalizaciones : "tiene"
-    accesorios ||--o{ personalizacion_items : ""
-    kits ||--o{ personalizacion_items : ""
-    personalizaciones ||--o{ personalizacion_items : ""
-    recomendaciones ||--o{ eventos_analitica : "registra"
-
-    laptops {
-        id int
-        marca string
-        modelo string
-        cpu string
-        ram_gb int
-        ram_ampliable_gb int
-        almacenamiento_gb int
-        gpu string
-        precio_soles decimal
-        rendimiento_score int
-    }
-    perfiles_usuario {
-        id int
-        carrera string
-        nivel_experiencia string
-        actividades json
-        software json
-        presupuesto_soles decimal
-    }
-    recomendaciones {
-        id int
-        perfil_id int
-        laptop_id int
-        compatibilidad_pct int
-        explicacion json
-    }
-```
-
-El detalle de cada tabla y sus migraciones lo maneja el módulo A (esquema base) y el módulo C
-(tablas de catálogo: `laptops`, `accesorios`, `kits`).
+El esquema completo, con los diagramas entidad-relación **antes y después de la IA** (qué tablas
+y columnas existen solo por ella), está en [modelo-datos.md](modelo-datos.md).
 
 ## Decisiones ya tomadas
 

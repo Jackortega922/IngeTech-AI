@@ -4,7 +4,8 @@
 |---|---|
 | [contexto-proyecto.md](contexto-proyecto.md) | Qué es el proyecto y por qué: problema, objetivo, las 6 disciplinas, contexto académico |
 | [herramientas.md](herramientas.md) | Glosario: qué es cada herramienta del stack y para qué sirve (para quien no conoce el stack) |
-| [arquitectura/vision-general.md](arquitectura/vision-general.md) | Cómo funciona el sistema, flujo de punta a punta, esquema de BD |
+| [arquitectura/vision-general.md](arquitectura/vision-general.md) | Cómo funciona el sistema, flujo de punta a punta |
+| [arquitectura/modelo-datos.md](arquitectura/modelo-datos.md) | Base de datos: diagramas entidad-relación antes y después de la IA |
 | [arquitectura/contrato-motor.md](arquitectura/contrato-motor.md) | Formato JSON entre Laravel y el motor de recomendación |
 | [modulos/](modulos/) | Ficha de cada módulo: objetivo, carpetas, tareas, cómo probar |
 | [adr/](adr/) | Decisiones de arquitectura (Architecture Decision Records) |
