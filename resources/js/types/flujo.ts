@@ -151,6 +151,7 @@ export interface DashboardAdmin {
     por_carrera: Record<string, number>;
     por_presupuesto: Record<string, number>;
     calidad: CalidadRecomendacion;
+    sistema: IndicadoresSistema;
 }
 
 // KPIs de Ingeniería Industrial (docs/gestion/kpis.md). Las tasas llegan en null cuando todavía
@@ -163,6 +164,18 @@ export interface CalidadRecomendacion {
     tasa_eleccion_pct: number | null;
     tiempo_decision_mediana_seg: number | null;
     elecciones_por_opcion: Record<string, number>;
+}
+
+// Ingeniería Industrial: un indicador por disciplina (docs/gestion/kpis.md). null = sin muestra.
+export interface IndicadoresSistema {
+    ventas_desde_ia_pct: number | null;
+    conversion_ia_pct: number | null;
+    ciclo_entrega_mediana_horas: number | null;
+    reclamos_por_100_pedidos: number | null;
+    reclamos_en_plazo_pct: number | null;
+    quiebre_stock_pct: number | null;
+    ventas_con_cupon_pct: number | null;
+    recojo_raee_pct: number | null;
 }
 
 // Contabilidad: ventas reales (pedidos no cancelados), con el IGV desglosado.

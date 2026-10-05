@@ -1,5 +1,5 @@
 import { LoadingPanel } from '@/components/loading-panel';
-import type { CalidadRecomendacion, Carrera, DashboardAdmin } from '@/types/flujo';
+import type { CalidadRecomendacion, Carrera, DashboardAdmin, IndicadoresSistema } from '@/types/flujo';
 import { BarChart3, Gauge, GraduationCap, Laptop as LaptopIcon, ListChecks, Package, Target, Timer, Users } from 'lucide-react';
 
 /**
@@ -169,6 +169,8 @@ export function PanelDashboard({ dashboard, carreras }: { dashboard: DashboardAd
             )}
 
             <PanelCalidad calidad={dashboard.calidad} />
+
+            <PanelSistema sistema={dashboard.sistema} />
         </div>
     );
 }
@@ -267,5 +269,116 @@ function PanelCalidad({ calidad }: { calidad: CalidadRecomendacion }) {
                 )}
             </div>
         </div>
+    );
+}
+
+interface Indicador {
+    disciplina: string;
+    nombre: string;
+    valor: number | null;
+    unidad: '%' | 'h' | '';
+    // Meta propuesta (docs/gestion/kpis.md). 'max': cumplir es quedar por debajo.
+    meta?: { valor: number; tipo: 'min' | 'max' };
+    pregunta: string;
+}
+
+// Ingeniería Industrial mira el sistema completo: un indicador por disciplina, con la IA en el
+// centro. Verde si cumple la meta, ámbar si no; sin meta es solo descriptivo.
+function PanelSistema({ sistema }: { sistema: IndicadoresSistema }) {
+    const indicadores: Indicador[] = [
+        {
+            disciplina: 'IA',
+            nombre: 'Ventas que vienen de la IA',
+            valor: sistema.ventas_desde_ia_pct,
+            unidad: '%',
+            meta: { valor: 40, tipo: 'min' },
+            pregunta: 'De cada 100 ventas, cuántas empezaron con una recomendación.',
+        },
+        {
+            disciplina: 'IA',
+            nombre: 'Conversión de la IA',
+            valor: sistema.conversion_ia_pct,
+            unidad: '%',
+            meta: { valor: 15, tipo: 'min' },
+            pregunta: 'De cada 100 consultas con resultado, cuántas terminan en compra.',
+        },
+        {
+            disciplina: 'Administración',
+            nombre: 'Ciclo de entrega (mediana)',
+            valor: sistema.ciclo_entrega_mediana_horas,
+            unidad: 'h',
+            meta: { valor: 72, tipo: 'max' },
+            pregunta: 'Horas desde el pago hasta la entrega.',
+        },
+        {
+            disciplina: 'Administración',
+            nombre: 'Quiebre de stock',
+            valor: sistema.quiebre_stock_pct,
+            unidad: '%',
+            meta: { valor: 10, tipo: 'max' },
+            pregunta: 'Laptops del catálogo agotadas (la IA deja de recomendarlas).',
+        },
+        {
+            disciplina: 'Derecho',
+            nombre: 'Reclamos por cada 100 pedidos',
+            valor: sistema.reclamos_por_100_pedidos,
+            unidad: '',
+            meta: { valor: 5, tipo: 'max' },
+            pregunta: 'Hojas del Libro de Reclamaciones por cada 100 pedidos.',
+        },
+        {
+            disciplina: 'Derecho',
+            nombre: 'Reclamos respondidos a tiempo',
+            valor: sistema.reclamos_en_plazo_pct,
+            unidad: '%',
+            meta: { valor: 100, tipo: 'min' },
+            pregunta: 'Respondidos dentro de los 15 días hábiles que pide la ley.',
+        },
+        {
+            disciplina: 'Marketing',
+            nombre: 'Ventas con cupón',
+            valor: sistema.ventas_con_cupon_pct,
+            unidad: '%',
+            pregunta: 'Cuánto pesan las promociones en las ventas (descriptivo).',
+        },
+        {
+            disciplina: 'Ambiental',
+            nombre: 'Compras con recojo RAEE',
+            valor: sistema.recojo_raee_pct,
+            unidad: '%',
+            meta: { valor: 20, tipo: 'min' },
+            pregunta: 'Clientes que entregan su equipo anterior para reciclaje.',
+        },
+    ];
+
+    return (
+        <section className="bg-card rounded-2xl border p-5 shadow-sm">
+            <h3 className="flex items-center gap-2 font-bold">
+                <Gauge className="h-5 w-5 text-cyan-500" /> Indicadores del sistema
+            </h3>
+            <p className="text-muted-foreground mt-1 text-xs">
+                Un indicador por disciplina. Las metas son una propuesta (docs/gestion/kpis.md); «—» significa que todavía no hay datos.
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {indicadores.map((i) => {
+                    const cumple = i.valor === null || !i.meta ? null : i.meta.tipo === 'min' ? i.valor >= i.meta.valor : i.valor <= i.meta.valor;
+                    const color =
+                        cumple === null ? 'border-border' : cumple ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-amber-500/40 bg-amber-500/5';
+                    return (
+                        <article key={i.nombre} className={`rounded-xl border p-4 ${color}`}>
+                            <p className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">{i.disciplina}</p>
+                            <p className="mt-1 text-sm font-semibold">{i.nombre}</p>
+                            <p className="mt-2 text-2xl font-black">{i.valor === null ? '—' : `${i.valor}${i.unidad === 'h' ? ' h' : i.unidad}`}</p>
+                            <p className="text-muted-foreground mt-1 text-xs">
+                                {i.meta
+                                    ? `Meta: ${i.meta.tipo === 'min' ? '≥' : '≤'} ${i.meta.valor}${i.unidad === 'h' ? ' h' : i.unidad}`
+                                    : 'Sin meta'}
+                            </p>
+                            <p className="text-muted-foreground mt-2 text-xs leading-5">{i.pregunta}</p>
+                        </article>
+                    );
+                })}
+            </div>
+        </section>
     );
 }

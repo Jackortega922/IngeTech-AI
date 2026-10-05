@@ -71,6 +71,26 @@ le sirva para su carrera y su presupuesto.
 - **Para qué sirve:** no mide si la IA acierta, sino qué prioriza la gente. Informa decisiones
   de catálogo y de Marketing (E6).
 
+## Indicadores del sistema (todas las disciplinas)
+
+Ingeniería Industrial mira el sistema completo: un indicador por disciplina, con la IA en el
+centro. Se calculan en `DashboardController::indicadoresDelSistema()` y se ven en la pestaña
+**Dashboard** → *Indicadores del sistema*. Metas propuestas, igual que arriba.
+
+| Disciplina | KPI | Fórmula | Meta |
+|---|---|---|---|
+| IA | Ventas que vienen de la IA | pedidos válidos cuya personalización salió de una recomendación ÷ pedidos válidos | ≥ 40 % |
+| IA | Conversión de la IA | perfiles distintos que compraron una laptop recomendada ÷ consultas con resultado | ≥ 15 % |
+| Administración | Ciclo de entrega | mediana de horas entre el pago y el evento "entregado" (`pedido_eventos`) | ≤ 72 h |
+| Administración | Quiebre de stock | laptops con stock 0 ÷ laptops del catálogo | ≤ 10 % |
+| Derecho | Reclamos por cada 100 pedidos | hojas del Libro de Reclamaciones ÷ pedidos × 100 | ≤ 5 |
+| Derecho | Reclamos respondidos a tiempo | respondidos hasta su fecha límite ÷ respondidos | 100 % (es obligación legal) |
+| Marketing | Ventas con cupón | ventas con descuento ÷ ventas válidas | descriptivo |
+| Ambiental | Compras con recojo RAEE | ventas con recojo del equipo anterior ÷ ventas válidas | ≥ 20 % |
+
+"Venta válida" = pedido no cancelado. Contabilidad no tiene un KPI aquí porque su panel ya es
+el reporte de ventas, IGV y descuentos.
+
 ## Decisiones de diseño
 
 - **Sin muestra no hay valor.** Cuando todavía no hay datos, los indicadores se muestran como

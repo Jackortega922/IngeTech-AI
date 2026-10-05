@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Carrera;
 use App\Models\EventoAnalitica;
 use App\Models\Laptop;
+use App\Models\Pedido;
+use App\Models\Reclamo;
 use App\Models\Recomendacion;
 use App\Models\Software;
 use App\Models\User;
@@ -43,6 +45,7 @@ class DashboardController extends Controller
             'por_carrera' => $porCarrera,
             'por_presupuesto' => $buckets,
             'calidad' => $this->calidadDeLaRecomendacion($eventos),
+            'sistema' => $this->indicadoresDelSistema($eventos),
         ]);
     }
 
@@ -90,6 +93,47 @@ class DashboardController extends Controller
             'tasa_eleccion_pct' => $conResultado === 0 ? null : round($primeraEleccionPorPerfil->count() / $conResultado * 100, 1),
             'tiempo_decision_mediana_seg' => $tiemposDecision->isEmpty() ? null : (int) $tiemposDecision->median(),
             'elecciones_por_opcion' => $porOpcion,
+        ];
+    }
+
+    /**
+     * Ingeniería Industrial mira el sistema completo: un indicador por disciplina, con la IA en
+     * el centro (¿la recomendación termina en una venta?). Definiciones y metas en
+     * docs/gestion/kpis.md. Igual que arriba: null cuando no hay muestra.
+     *
+     * @param  Collection<int, EventoAnalitica>  $consultas
+     */
+    private function indicadoresDelSistema(Collection $consultas): array
+    {
+        $pedidos = Pedido::with(['personalizacion.recomendacion', 'eventos'])->get();
+        $validos = $pedidos->where('estado', '!=', 'cancelado');
+        $pct = fn (int $parte, int $total) => $total === 0 ? null : round($parte / $total * 100, 1);
+
+        // IA → venta: pedidos que nacieron de una recomendación, y perfiles distintos que compraron.
+        $desdeIa = $validos->filter(fn (Pedido $p) => $p->personalizacion?->recomendacion_id !== null);
+        $perfilesQueCompraron = $desdeIa->map(fn (Pedido $p) => $p->personalizacion->recomendacion?->perfil_usuario_id)->filter()->unique()->count();
+        $consultasOk = $consultas->filter(fn (EventoAnalitica $e) => ($e->payload['resultado'] ?? null) === 'ok')->count();
+
+        // Ciclo del pedido: desde que se paga hasta que se entrega (historial pedido_eventos).
+        $horasEntrega = $pedidos->map(function (Pedido $p) {
+            $entregado = $p->eventos->firstWhere('estado', 'entregado');
+
+            return $entregado ? $p->created_at->diffInMinutes($entregado->created_at) / 60 : null;
+        })->filter(fn ($h) => $h !== null);
+
+        $respondidos = Reclamo::where('estado', 'respondido')->get();
+        $enPlazo = $respondidos->filter(fn (Reclamo $r) => $r->respondido_at->toDateString() <= $r->fecha_limite->toDateString())->count();
+        $totalLaptops = Laptop::count();
+
+        return [
+            'ventas_desde_ia_pct' => $pct($desdeIa->count(), $validos->count()),
+            'conversion_ia_pct' => $pct($perfilesQueCompraron, $consultasOk),
+            'ciclo_entrega_mediana_horas' => $horasEntrega->isEmpty() ? null : round((float) $horasEntrega->median(), 1),
+            'reclamos_por_100_pedidos' => $pedidos->isEmpty() ? null : round(Reclamo::count() / $pedidos->count() * 100, 1),
+            'reclamos_en_plazo_pct' => $pct($enPlazo, $respondidos->count()),
+            'quiebre_stock_pct' => $pct(Laptop::where('stock', 0)->count(), $totalLaptops),
+            'ventas_con_cupon_pct' => $pct($validos->filter(fn (Pedido $p) => (float) $p->descuento > 0)->count(), $validos->count()),
+            'recojo_raee_pct' => $pct($validos->where('recojo_raee', true)->count(), $validos->count()),
         ];
     }
 }
