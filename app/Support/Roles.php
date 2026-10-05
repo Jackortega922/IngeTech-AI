@@ -30,11 +30,11 @@ class Roles
 
     public const PERMISOS_ADMIN = [
         'dashboard', 'contabilidad', 'clientes', 'pedidos', 'pedidos.editar', 'inventario', 'reclamos',
-        'hardware', 'software', 'carreras', 'usuarios',
+        'marketing', 'hardware', 'software', 'carreras', 'usuarios',
     ];
 
     private const PERMISOS = [
-        'ventas' => ['dashboard', 'clientes', 'pedidos', 'pedidos.editar', 'reclamos'],
+        'ventas' => ['dashboard', 'clientes', 'pedidos', 'pedidos.editar', 'reclamos', 'marketing'],
         'almacen' => ['dashboard', 'inventario', 'hardware'],
         'contabilidad' => ['dashboard', 'contabilidad', 'pedidos'],
     ];

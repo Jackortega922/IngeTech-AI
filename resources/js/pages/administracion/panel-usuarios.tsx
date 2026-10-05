@@ -26,6 +26,7 @@ const NOMBRE_PERMISO: Record<string, string> = {
     'pedidos.editar': 'Cambiar estado de pedidos',
     inventario: 'Inventario',
     reclamos: 'Reclamos',
+    marketing: 'Marketing',
     hardware: 'Equipos',
     software: 'Software',
     carreras: 'Carreras',

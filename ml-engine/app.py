@@ -1,6 +1,7 @@
 """Motor de recomendación — modo servidor (desarrollo local).
 
-Solo expone HTTP y delega en ``recommender.scoring.recomendar``. Nada de lógica aquí.
+Solo expone HTTP y delega en ``recommender.scoring.recomendar`` y
+``recommender.segmentacion.segmentar``. Nada de lógica aquí.
 En producción se usa ``cli_entry.py`` en su lugar (ver ADR 0003).
 """
 
@@ -8,6 +9,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
 from recommender.scoring import recomendar
+from recommender.segmentacion import segmentar
 
 app = FastAPI(title="IngeTech AI — Motor de recomendación", version="0.0.0")
 
@@ -55,3 +57,21 @@ def health() -> dict[str, str]:
 @app.post("/recomendar")
 def post_recomendar(solicitud: SolicitudRecomendacion) -> dict:
     return recomendar(solicitud.model_dump())
+
+
+class ClienteSegmentacion(BaseModel):
+    id: int
+    presupuesto_soles: float = 0
+    recomendaciones: int = 0
+    pedidos: int = 0
+    gasto_soles: float = 0
+    dias_inactivo: int = 0
+
+
+class SolicitudSegmentacion(BaseModel):
+    clientes: list[ClienteSegmentacion] = Field(default_factory=list)
+
+
+@app.post("/segmentar")
+def post_segmentar(solicitud: SolicitudSegmentacion) -> dict:
+    return segmentar(solicitud.model_dump())

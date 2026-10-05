@@ -6,6 +6,7 @@ import { PanelUsuarios } from '@/pages/administracion/panel-usuarios';
 import { PanelContabilidad } from '@/pages/contabilidad/panel-contabilidad';
 import { PanelReclamos } from '@/pages/derecho/panel-reclamos';
 import { PanelDashboard } from '@/pages/industrial/panel-dashboard';
+import { PanelSegmentos } from '@/pages/marketing/panel-segmentos';
 import { PanelPedidos } from '@/pages/sistemas/admin/panel-pedidos';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import type { Carrera, Catalogos, Cliente, ContabilidadAdmin, DashboardAdmin, Laptop, Pedido, Reclamo, Software } from '@/types/flujo';
@@ -21,6 +22,7 @@ import {
     Image as ImageIcon,
     Laptop as LaptopIcon,
     LayoutDashboard,
+    Megaphone,
     MonitorSmartphone,
     Package,
     Plus,
@@ -37,7 +39,18 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Administración', href: '/admin' }];
 
-type Sub = 'dashboard' | 'contabilidad' | 'clientes' | 'pedidos' | 'inventario' | 'reclamos' | 'hardware' | 'software' | 'carreras' | 'usuarios';
+type Sub =
+    | 'dashboard'
+    | 'contabilidad'
+    | 'clientes'
+    | 'pedidos'
+    | 'inventario'
+    | 'reclamos'
+    | 'marketing'
+    | 'hardware'
+    | 'software'
+    | 'carreras'
+    | 'usuarios';
 
 const TABS = [
     { value: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -46,6 +59,7 @@ const TABS = [
     { value: 'pedidos', label: 'Pedidos', icon: ShoppingBag },
     { value: 'inventario', label: 'Inventario', icon: Boxes },
     { value: 'reclamos', label: 'Reclamos', icon: BookOpenText },
+    { value: 'marketing', label: 'Marketing', icon: Megaphone },
     { value: 'hardware', label: 'Equipos', icon: LaptopIcon },
     { value: 'software', label: 'Software', icon: Package },
     { value: 'carreras', label: 'Carreras', icon: GraduationCap },
@@ -281,6 +295,8 @@ export default function AdminIndex() {
                         <PanelPedidos pedidos={pedidos} avisar={avisar} soloLectura={!permisos.includes('pedidos.editar')} />
                     ) : sub === 'inventario' ? (
                         <PanelInventario avisar={avisar} />
+                    ) : sub === 'marketing' ? (
+                        <PanelSegmentos />
                     ) : sub === 'usuarios' ? (
                         <PanelUsuarios avisar={avisar} />
                     ) : sub === 'reclamos' ? (

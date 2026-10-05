@@ -6,12 +6,16 @@ Laravel lo ejecuta así:
 
 Lee un JSON por stdin y escribe el JSON de respuesta por stdout.
 Código de salida 0 salvo error interno.
+
+Con ``"operacion": "segmentar"`` en el JSON hace la segmentación de clientes (Marketing) en vez
+de una recomendación: ``echo '{"operacion": "segmentar", "clientes": [...]}' | python cli_entry.py``
 """
 
 import json
 import sys
 
 from recommender.scoring import recomendar
+from recommender.segmentacion import segmentar
 
 
 def main() -> int:
@@ -26,7 +30,8 @@ def main() -> int:
         return 0
 
     try:
-        resultado = recomendar(payload)
+        operacion = segmentar if payload.get("operacion") == "segmentar" else recomendar
+        resultado = operacion(payload)
     except Exception as exc:  # noqa: BLE001 - la frontera CLI reporta cualquier fallo como JSON
         json.dump(
             {"version": "v0", "error": "error_interno", "mensaje": str(exc)},

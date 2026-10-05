@@ -5,9 +5,20 @@ namespace App\Services\Recommender;
 use Illuminate\Process\Exceptions\ProcessTimedOutException;
 use Illuminate\Support\Facades\Process;
 
-class CliRecommenderClient implements RecommenderClient
+class CliRecommenderClient implements RecommenderClient, SegmentadorClientes
 {
     public function recomendar(array $payload): array
+    {
+        return $this->ejecutar($payload);
+    }
+
+    // cli_entry.py decide la operación por el campo "operacion" del JSON.
+    public function segmentar(array $clientes): array
+    {
+        return $this->ejecutar(['operacion' => 'segmentar', 'clientes' => $clientes]);
+    }
+
+    private function ejecutar(array $payload): array
     {
         try {
             // El directorio de trabajo se fija a la raíz del proyecto porque RECOMMENDER_CLI usa
