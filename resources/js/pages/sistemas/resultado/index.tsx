@@ -132,7 +132,10 @@ export default function ResultadoIndex({ preferencias }: { preferencias: Prefere
                             <span className="it-eyebrow">Resultado IA</span>
                             <h1 className="mt-2 text-4xl font-black tracking-tight">Estas opciones encajan contigo.</h1>
                             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-                                Revisa por qué te las recomendamos, compáralas y elige una para personalizar.
+                                Revisa por qué te las recomendamos, compáralas y elige una para personalizar.{' '}
+                                <Link href="/como-decide-la-ia" className="font-semibold text-sky-600 underline dark:text-sky-400">
+                                    ¿Cómo decide la IA?
+                                </Link>
                             </p>
                         </div>
                         {comparar.length >= 2 && (

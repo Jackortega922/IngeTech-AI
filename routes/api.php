@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\ContabilidadController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\HardwareController;
 use App\Http\Controllers\Api\Admin\PedidoController as AdminPedidoController;
+use App\Http\Controllers\Api\Admin\ReclamoController;
 use App\Http\Controllers\Api\Admin\SoftwareController;
 use App\Http\Controllers\Api\CatalogoController;
 use App\Http\Controllers\Api\ChatbotController;
@@ -40,6 +41,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/clientes', [ClienteController::class, 'index']);
     Route::get('/pedidos', [AdminPedidoController::class, 'index']);
     Route::patch('/pedidos/{pedido}', [AdminPedidoController::class, 'update']);
+    Route::get('/reclamos', [ReclamoController::class, 'index']);
+    Route::patch('/reclamos/{reclamo}', [ReclamoController::class, 'update']);
 
     Route::post('/hardware', [HardwareController::class, 'store']);
     Route::put('/hardware/{laptop}', [HardwareController::class, 'update']);

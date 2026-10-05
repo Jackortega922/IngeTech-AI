@@ -4,7 +4,7 @@ import { ESTADOS_PEDIDO, estadoPedido, lugarDeEnvio, soles } from '@/lib/pedidos
 import { type SharedData } from '@/types';
 import type { Pedido } from '@/types/flujo';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { CheckCircle2, CreditCard, FileText, MapPin } from 'lucide-react';
+import { BookOpenText, CheckCircle2, CreditCard, FileText, MapPin } from 'lucide-react';
 
 export default function PedidoIndex({ pedido }: { pedido: Pedido }) {
     const { auth } = usePage<SharedData>().props;
@@ -151,6 +151,14 @@ export default function PedidoIndex({ pedido }: { pedido: Pedido }) {
                                         <FileText className="h-3.5 w-3.5" /> Ver boleta {pedido.comprobante}
                                     </a>
                                 )}
+                                {/* Derecho: si hay un problema con la compra, el Libro de Reclamaciones llega con
+                                    el pedido y la laptop ya completados. */}
+                                <Link
+                                    href={`/libro-reclamaciones?pedido=${pedido.codigo}`}
+                                    className="mt-2 flex items-center gap-1.5 text-xs text-slate-500 underline hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                                >
+                                    <BookOpenText className="h-3.5 w-3.5" /> ¿Un problema con tu compra? Libro de Reclamaciones
+                                </Link>
                             </div>
                         </div>
                     </section>
