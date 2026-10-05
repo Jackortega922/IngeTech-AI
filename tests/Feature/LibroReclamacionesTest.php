@@ -97,7 +97,9 @@ class LibroReclamacionesTest extends TestCase
 
     public function test_desde_un_pedido_propio_se_completan_los_datos()
     {
-        $laptop = Laptop::create([
+        $laptop = Laptop::forceCreate([
+            // forceCreate: `stock` no es asignable en masa (solo cambia por el servicio Inventario).
+            'stock' => 5,
             'marca' => 'Acer', 'modelo' => 'Aspire 5', 'tipo' => 'laptop', 'cpu' => 'Ryzen 5', 'ram_gb' => 16,
             'almacenamiento_gb' => 512, 'almacenamiento_tipo' => 'SSD', 'gpu_dedicada' => false,
             'precio_soles' => 2360, 'rendimiento_score' => 55,

@@ -78,6 +78,9 @@ export interface Laptop {
     precio_soles: string | number;
     tienda: string | null;
     rendimiento_score: number | null;
+    // Inventario (Administración): unidades disponibles y stock de seguridad.
+    stock: number;
+    stock_minimo: number;
 }
 
 export interface Necesidad {
@@ -312,4 +315,38 @@ export interface Reclamo {
     created_at: string;
     // Días hábiles para responder (negativo si venció; null si ya se respondió).
     dias_restantes: number | null;
+}
+
+// Inventario para el admin (App\Http\Controllers\Api\Admin\InventarioController).
+export interface FilaInventario {
+    id: number;
+    marca: string;
+    modelo: string;
+    precio_soles: string;
+    stock: number;
+    stock_minimo: number;
+    vendidas: number;
+    demanda_diaria: number;
+    cobertura_dias: number | null;
+    punto_reorden: number;
+    reponer: number;
+    estado: 'agotado' | 'reponer' | 'ok';
+}
+
+export interface MovimientoInventario {
+    id: number;
+    tipo: 'inicial' | 'entrada' | 'venta' | 'anulacion' | 'ajuste';
+    cantidad: number;
+    stock_resultante: number;
+    motivo: string | null;
+    created_at: string;
+    laptop: { id: number; marca: string; modelo: string } | null;
+    user: { id: number; name: string } | null;
+    pedido: { id: number; codigo: string } | null;
+}
+
+export interface InventarioAdmin {
+    laptops: FilaInventario[];
+    movimientos: MovimientoInventario[];
+    parametros: { ventana_demanda_dias: number; dias_reposicion: number; dias_cobertura: number };
 }

@@ -22,7 +22,8 @@ Formato JSON que intercambian Laravel (`app/Services/Recommender/`) y el motor P
     "presupuesto_soles": 4000
   },
   "opciones": {
-    "top_n": 3
+    "top_n": 3,
+    "excluir_ids": [7]
   }
 }
 ```
@@ -35,6 +36,7 @@ Formato JSON que intercambian Laravel (`app/Services/Recommender/`) y el motor P
 | `software` | string[] | programas que la persona dice usar (o los de su carrera), catálogo `ml-engine/data/software.json` con sus requisitos. El motor toma el más exigente por factor (RAM, CPU, GPU) y lo combina con las actividades. Puede ir vacío si vienen `actividades` |
 | `presupuesto_soles` | number | > 0 |
 | `opciones.top_n` | int | 1–10, por defecto 3 |
+| `opciones.excluir_ids` | int[] | **Opcional.** Laptops que no se deben recomendar: las agotadas según el inventario de Laravel (Administración). Se quitan antes del filtro de presupuesto; si no queda ninguna dentro del presupuesto, la respuesta es `sin_resultados`. |
 | `preferencias` | object | **Opcional.** Respuestas del cuestionario de bienvenida (ver abajo). Si falta, el motor recomienda como siempre. |
 
 ### `perfil.preferencias` (opcional)

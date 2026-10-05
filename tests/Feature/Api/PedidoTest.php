@@ -23,7 +23,9 @@ class PedidoTest extends TestCase
     {
         parent::setUp();
 
-        $this->laptop = Laptop::create([
+        $this->laptop = Laptop::forceCreate([
+            // forceCreate: `stock` no es asignable en masa (solo cambia por el servicio Inventario).
+            'stock' => 5,
             'marca' => 'Acer', 'modelo' => 'Aspire 5', 'tipo' => 'laptop', 'cpu' => 'Ryzen 5',
             'ram_gb' => 16, 'ram_ampliable_gb' => 32, 'almacenamiento_gb' => 512, 'almacenamiento_tipo' => 'SSD',
             'gpu' => 'integrada', 'gpu_dedicada' => false, 'precio_soles' => 2399, 'rendimiento_score' => 55,

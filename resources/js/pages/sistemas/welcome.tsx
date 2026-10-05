@@ -4,6 +4,7 @@ import HeroCarousel from '@/components/tienda/hero-carousel';
 import StoreFooter from '@/components/tienda/store-footer';
 import WhatsappButton, { enlaceWhatsapp, WhatsappIcon } from '@/components/tienda/whatsapp-button';
 import { flujoStorage } from '@/lib/flujo-storage';
+import { disponibilidad } from '@/lib/inventario';
 import { type SharedData } from '@/types';
 import type { Laptop } from '@/types/flujo';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -390,6 +391,13 @@ function TarjetaProducto({
                 {l.gpu_dedicada && (
                     <span className="absolute top-3 left-3 rounded-full bg-violet-500 px-2.5 py-0.5 text-[11px] font-bold">GPU dedicada</span>
                 )}
+                {disponibilidad(l.stock).texto && (
+                    <span
+                        className={`absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${disponibilidad(l.stock).agotada ? 'bg-slate-700 text-slate-200' : 'bg-amber-400 text-[#07111f]'}`}
+                    >
+                        {disponibilidad(l.stock).texto}
+                    </span>
+                )}
             </div>
             <div className="flex flex-1 flex-col p-4">
                 <p className="text-xs font-semibold tracking-wide text-cyan-400 uppercase">{l.marca}</p>
@@ -407,9 +415,10 @@ function TarjetaProducto({
                 <div className="mt-4 flex gap-2">
                     <button
                         onClick={onPersonalizar}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-white py-2.5 text-sm font-bold text-[#07111f] hover:bg-cyan-300"
+                        disabled={disponibilidad(l.stock).agotada}
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-white py-2.5 text-sm font-bold text-[#07111f] hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"
                     >
-                        <ShoppingCart className="h-4 w-4" /> Comprar
+                        <ShoppingCart className="h-4 w-4" /> {disponibilidad(l.stock).agotada ? 'Agotada' : 'Comprar'}
                     </button>
                     <button
                         onClick={onComparar}

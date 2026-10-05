@@ -28,3 +28,11 @@ def test_sin_preferencias_el_campo_queda_vacio():
     datos = SolicitudRecomendacion(perfil={"actividades": ["programacion_web"]}).model_dump()
 
     assert datos["perfil"]["preferencias"] is None
+
+
+def test_el_modelo_http_conserva_las_laptops_a_excluir():
+    datos = SolicitudRecomendacion(
+        perfil={"actividades": ["programacion_web"]}, opciones={"top_n": 3, "excluir_ids": [4, 7]}
+    ).model_dump()
+
+    assert datos["opciones"]["excluir_ids"] == [4, 7]

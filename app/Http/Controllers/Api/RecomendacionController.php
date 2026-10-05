@@ -51,7 +51,8 @@ class RecomendacionController extends Controller
                     // ajusta el ranking a cómo es la persona. Solo viaja a nuestro propio motor.
                     ...$this->preferenciasParaMotor($request->user()),
                 ],
-                'opciones' => $datos['opciones'] ?? [],
+                // Inventario (Administración): las agotadas no se recomiendan.
+                'opciones' => [...($datos['opciones'] ?? []), 'excluir_ids' => Laptop::where('stock', 0)->pluck('id')->all()],
             ]);
         } catch (RecommenderException $e) {
             return response()->json([
@@ -193,7 +194,7 @@ class RecomendacionController extends Controller
 
     private function buscarCercanas(float $presupuesto, string $portabilidad): array
     {
-        $query = Laptop::query()->orderByRaw('ABS(precio_soles - ?)', [$presupuesto]);
+        $query = Laptop::query()->where('stock', '>', 0)->orderByRaw('ABS(precio_soles - ?)', [$presupuesto]);
 
         if ($portabilidad !== 'cualquiera') {
             $query->where('tipo', $portabilidad);

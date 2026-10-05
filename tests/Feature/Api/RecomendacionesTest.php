@@ -226,6 +226,34 @@ class RecomendacionesTest extends TestCase
         $this->assertDatabaseHas('perfiles_usuario', ['carrera_id' => null, 'tipo_uso' => 'oficina']);
     }
 
+    public function test_las_laptops_agotadas_no_se_recomiendan_ni_se_sugieren()
+    {
+        $base = [
+            'marca' => 'Acer', 'tipo' => 'laptop', 'cpu' => 'Ryzen 5', 'ram_gb' => 16, 'almacenamiento_gb' => 512,
+            'almacenamiento_tipo' => 'SSD', 'gpu_dedicada' => false, 'precio_soles' => 3900, 'rendimiento_score' => 55,
+        ];
+        $agotada = Laptop::forceCreate([...$base, 'modelo' => 'Agotada', 'stock' => 0]);
+        $disponible = Laptop::forceCreate([...$base, 'modelo' => 'Disponible', 'stock' => 3]);
+
+        $prueba = $this;
+        $this->app->instance(RecommenderClient::class, new class($prueba) implements RecommenderClient
+        {
+            public function __construct(private $prueba) {}
+
+            public function recomendar(array $payload): array
+            {
+                $this->prueba->enviadoAlMotor = $payload;
+
+                return ['version' => 'v0', 'error' => 'sin_resultados', 'mensaje' => 'Nada en tu presupuesto.'];
+            }
+        });
+
+        $respuesta = $this->postJson('/api/recomendaciones', $this->perfilValido())->assertUnprocessable();
+
+        $this->assertSame([$agotada->id], $this->enviadoAlMotor['opciones']['excluir_ids']);
+        $this->assertSame([$disponible->id], array_column($respuesta->json('cercanas'), 'id'));
+    }
+
     public function test_rechaza_programas_y_tipos_de_uso_que_no_existen()
     {
         $payload = $this->perfilValido();

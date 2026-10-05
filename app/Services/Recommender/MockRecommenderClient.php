@@ -32,6 +32,7 @@ class MockRecommenderClient implements RecommenderClient
 
         $viables = Laptop::query()
             ->where('precio_soles', '<=', $presupuesto)
+            ->whereNotIn('id', $payload['opciones']['excluir_ids'] ?? [])
             ->get()
             ->filter(fn (Laptop $laptop) => $laptop->ram_gb >= $nec['ram_gb']
                 && (int) $laptop->rendimiento_score >= $nec['cpu_score']

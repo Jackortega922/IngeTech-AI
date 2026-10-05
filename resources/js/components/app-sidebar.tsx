@@ -5,6 +5,7 @@ import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpenText,
+    Boxes,
     CircleHelp,
     Clock,
     Coins,
@@ -62,6 +63,7 @@ const navAdmin: NavItem[] = [
     { title: 'Contabilidad', url: '/admin?tab=contabilidad', icon: Coins },
     { title: 'Clientes', url: '/admin?tab=clientes', icon: Users },
     { title: 'Pedidos', url: '/admin?tab=pedidos', icon: ShoppingBag },
+    { title: 'Inventario', url: '/admin?tab=inventario', icon: Boxes },
     { title: 'Reclamos', url: '/admin?tab=reclamos', icon: BookOpenText },
     { title: 'Equipos', url: '/admin?tab=hardware', icon: Monitor },
     { title: 'Software', url: '/admin?tab=software', icon: LayoutList },

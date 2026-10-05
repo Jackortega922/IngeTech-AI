@@ -1,6 +1,7 @@
 import LaptopImage from '@/components/laptop-image';
 import AppLayout from '@/layouts/app-layout';
 import { flujoStorage } from '@/lib/flujo-storage';
+import { disponibilidad } from '@/lib/inventario';
 import { type BreadcrumbItem } from '@/types';
 import type { Catalogos, Laptop } from '@/types/flujo';
 import { Head, Link, router } from '@inertiajs/react';
@@ -207,6 +208,13 @@ function HardwareCard({
                     tipo={item.tipo}
                     className="h-full w-full transition duration-500 group-hover:scale-105"
                 />
+                {disponibilidad(item.stock).texto && (
+                    <span
+                        className={`absolute top-3 left-3 rounded-full px-2.5 py-1 text-[11px] font-bold ${disponibilidad(item.stock).agotada ? 'bg-slate-800 text-white' : 'bg-amber-400 text-slate-900'}`}
+                    >
+                        {disponibilidad(item.stock).texto}
+                    </span>
+                )}
                 <button
                     type="button"
                     onClick={onCompare}
@@ -236,8 +244,13 @@ function HardwareCard({
                         Ver detalle
                     </button>
                 </div>
-                <button type="button" onClick={onComprar} className="it-btn it-btn-primary mt-3 w-full justify-center">
-                    <ShoppingCart className="h-4 w-4" /> Comprar
+                <button
+                    type="button"
+                    onClick={onComprar}
+                    disabled={disponibilidad(item.stock).agotada}
+                    className="it-btn it-btn-primary mt-3 w-full justify-center"
+                >
+                    <ShoppingCart className="h-4 w-4" /> {disponibilidad(item.stock).agotada ? 'Agotada' : 'Comprar'}
                 </button>
             </div>
         </article>
@@ -297,8 +310,13 @@ function ProductModal({ item, onClose, onComprar }: { item: Laptop | null; onClo
                                 <p className="text-xs text-slate-400">Precio</p>
                                 <p className="text-3xl font-black">{soles(item.precio_soles)}</p>
                             </div>
-                            <button type="button" onClick={() => onComprar(item)} className="it-btn it-btn-primary">
-                                <ShoppingCart className="h-4 w-4" /> Comprar
+                            <button
+                                type="button"
+                                onClick={() => onComprar(item)}
+                                disabled={disponibilidad(item.stock).agotada}
+                                className="it-btn it-btn-primary"
+                            >
+                                <ShoppingCart className="h-4 w-4" /> {disponibilidad(item.stock).agotada ? 'Agotada' : 'Comprar'}
                             </button>
                         </div>
                     </div>

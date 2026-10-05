@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Admin\ClienteController;
 use App\Http\Controllers\Api\Admin\ContabilidadController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\HardwareController;
+use App\Http\Controllers\Api\Admin\InventarioController;
 use App\Http\Controllers\Api\Admin\PedidoController as AdminPedidoController;
 use App\Http\Controllers\Api\Admin\ReclamoController;
 use App\Http\Controllers\Api\Admin\SoftwareController;
@@ -41,6 +42,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/clientes', [ClienteController::class, 'index']);
     Route::get('/pedidos', [AdminPedidoController::class, 'index']);
     Route::patch('/pedidos/{pedido}', [AdminPedidoController::class, 'update']);
+    Route::get('/inventario', [InventarioController::class, 'index']);
+    Route::post('/inventario/{laptop}/movimientos', [InventarioController::class, 'movimiento']);
+    Route::patch('/inventario/{laptop}', [InventarioController::class, 'update']);
     Route::get('/reclamos', [ReclamoController::class, 'index']);
     Route::patch('/reclamos/{reclamo}', [ReclamoController::class, 'update']);
 

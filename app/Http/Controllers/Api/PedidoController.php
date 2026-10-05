@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
 use App\Services\Tienda\ArmadoLaptop;
+use App\Services\Tienda\Inventario;
 use App\Support\UbigeoHuanuco;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,7 @@ class PedidoController extends Controller
         );
     }
 
-    public function store(Request $request, ArmadoLaptop $armado)
+    public function store(Request $request, ArmadoLaptop $armado, Inventario $inventario)
     {
         $datos = $request->validate([
             ...ArmadoLaptop::reglas(),
@@ -67,11 +68,11 @@ class PedidoController extends Controller
 
         $user = $request->user();
 
-        $pedido = DB::transaction(function () use ($datos, $user, $armado, $ubigeo) {
+        $pedido = DB::transaction(function () use ($datos, $user, $armado, $ubigeo, $inventario) {
             $personalizacion = $armado->guardar($datos, $user);
             $envio = (float) config('tienda.costo_envio');
 
-            return Pedido::create([
+            $pedido = Pedido::create([
                 'codigo' => Pedido::nuevoCodigo(),
                 'user_id' => $user?->id,
                 'personalizacion_id' => $personalizacion->id,
@@ -93,6 +94,12 @@ class PedidoController extends Controller
                 'total' => (float) $personalizacion->precio_total + $envio,
                 'estado' => 'pagado',
             ]);
+
+            // Sale la unidad del inventario. Si se agotó mientras el cliente pagaba, se lanza
+            // un error de validación y la transacción deshace el pedido completo.
+            $inventario->vender($pedido, $personalizacion->laptop);
+
+            return $pedido;
         });
 
         // Quien compró sin cuenta solo puede ver su confirmación desde esta misma sesión.

@@ -38,6 +38,8 @@ class Perfil(BaseModel):
 
 class Opciones(BaseModel):
     top_n: int = 3
+    # Laptops agotadas (inventario de Laravel): no se recomiendan.
+    excluir_ids: list[int] = Field(default_factory=list)
 
 
 class SolicitudRecomendacion(BaseModel):
