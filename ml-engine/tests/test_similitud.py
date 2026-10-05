@@ -69,6 +69,13 @@ def test_no_da_como_motivo_una_gpu_que_la_laptop_no_tiene():
     assert any("GPU" in a for a in sin_gpu["advertencias"])
 
 
+def test_avisa_gpu_dedicada_innecesaria_por_consumo():
+    ideal = {"ram": 0.3, "cpu": 0.3, "gpu": 0.0}
+    con_gpu, sin_gpu = calcular_compatibilidad(ideal, [LAPTOP_CON_GPU, LAPTOP_SIN_GPU])
+    assert any("energía" in a for a in con_gpu["advertencias"])
+    assert not any("energía" in a for a in sin_gpu["advertencias"])
+
+
 def test_calcular_compatibilidad_con_catalogo_vacio():
     ideal = vector_ideal_por_actividades(["ia_ml"], ACTIVIDADES_IDX)
     assert calcular_compatibilidad(ideal, []) == []

@@ -87,7 +87,17 @@ Route::middleware(['auth'])->group(function () {
     // Páginas de disciplinas del proyecto (Proyecto Inter y Transdisciplinario) — ver
     // docs/contexto-proyecto.md §5.1 para el detalle de qué aporta cada una.
     Route::get('marketing', fn () => Inertia::render('marketing/index'))->name('marketing');
-    Route::get('ing-ambiental', fn () => Inertia::render('ing-ambiental/index'))->name('ing-ambiental');
+    // Ambiental: cifras reales del programa de reciclaje y de cuántas laptops se pueden ampliar.
+    Route::get('ing-ambiental', fn () => Inertia::render('ing-ambiental/index', [
+        'raee' => [
+            'solicitados' => Pedido::where('recojo_raee', true)->where('estado', '!=', 'cancelado')->count(),
+            'recogidos' => Pedido::where('recojo_raee', true)->where('estado', 'entregado')->count(),
+        ],
+        'ampliables' => [
+            'ram' => Laptop::whereColumn('ram_ampliable_gb', '>', 'ram_gb')->count(),
+            'total' => Laptop::count(),
+        ],
+    ]))->name('ing-ambiental');
 
     Route::middleware(['admin'])->group(function () {
         Route::get('admin', fn () => Inertia::render('sistemas/admin/index'))->name('admin');

@@ -6,7 +6,7 @@ import { luhnValido, marcaDe, soles, TARJETAS_PRUEBA, vencimientoValido } from '
 import { type SharedData } from '@/types';
 import type { Catalogos, Configuracion, Tarjeta } from '@/types/flujo';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { AlertTriangle, CreditCard, FlaskConical, Lock, Tag, Truck } from 'lucide-react';
+import { AlertTriangle, CreditCard, FlaskConical, Lock, Recycle, Tag, Truck } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
 // Debe coincidir con config/tienda.php (costo_envio).
@@ -41,6 +41,8 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
     });
     const [tarjeta, setTarjeta] = useState({ numero: '', titular: '', vence: '', cvv: '' });
     const [acepta, setAcepta] = useState(false);
+    // Ambiental: recojo del equipo anterior para reciclaje (RAEE).
+    const [raee, setRaee] = useState({ recojo: false, detalle: '' });
     const [errores, setErrores] = useState<Errores>({});
     const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
     const [pagando, setPagando] = useState(false);
@@ -150,6 +152,8 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
                     pago: { marca, ultimos4: numero.slice(-4) },
                     acepta_terminos: acepta,
                     cupon: cupon?.codigo ?? null,
+                    recojo_raee: raee.recojo,
+                    raee_detalle: raee.recojo ? raee.detalle || null : null,
                 }),
             });
             const data = await res.json();
@@ -294,6 +298,36 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
                                             className={input}
                                         />
                                     </Campo>
+                                </div>
+                                <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4">
+                                    <label className="flex cursor-pointer items-start gap-3 text-sm">
+                                        <input
+                                            type="checkbox"
+                                            checked={raee.recojo}
+                                            onChange={(e) => setRaee({ ...raee, recojo: e.target.checked })}
+                                            className="mt-0.5 h-4 w-4 accent-emerald-500"
+                                        />
+                                        <span>
+                                            <span className="flex items-center gap-1.5 font-semibold">
+                                                <Recycle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Recojan mi equipo anterior para
+                                                reciclarlo
+                                            </span>
+                                            <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">
+                                                Al entregarte tu laptop nos llevamos la antigua, sin costo, y la enviamos a un gestor autorizado de
+                                                residuos electrónicos (RAEE). Antes, borra tus datos.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    {raee.recojo && (
+                                        <input
+                                            value={raee.detalle}
+                                            maxLength={120}
+                                            onChange={(e) => setRaee({ ...raee, detalle: e.target.value })}
+                                            placeholder="¿Qué equipo entregas? Ej.: laptop HP de 2016, sin batería"
+                                            aria-label="Equipo que entregas para reciclaje"
+                                            className={`${input} mt-3`}
+                                        />
+                                    )}
                                 </div>
                             </Seccion>
 
