@@ -2,7 +2,7 @@ import { LoadingPanel } from '@/components/loading-panel';
 import { soles } from '@/lib/contabilidad';
 import { estadoPedido } from '@/lib/pedidos';
 import type { ContabilidadAdmin } from '@/types/flujo';
-import { Ban, BarChart3, Coins, Download, FileText, Landmark, Receipt, ShoppingBag } from 'lucide-react';
+import { Ban, BarChart3, Coins, Download, FileText, Landmark, Receipt, ShoppingBag, Tag } from 'lucide-react';
 
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
@@ -64,6 +64,15 @@ export function PanelContabilidad({ datos }: { datos: ContabilidadAdmin | null }
                     </div>
                 ))}
             </div>
+
+            {datos.descuentos.cantidad > 0 && (
+                <p className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm">
+                    <Tag className="h-4 w-4 text-emerald-500" />
+                    {datos.descuentos.cantidad} {datos.descuentos.cantidad === 1 ? 'venta usó' : 'ventas usaron'} cupón: S/{' '}
+                    {datos.descuentos.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })} descontados (gasto de Marketing). Las ventas ya
+                    están netas de descuento.
+                </p>
+            )}
 
             {datos.anulaciones.cantidad > 0 && (
                 <p className="flex items-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/5 px-4 py-3 text-sm">

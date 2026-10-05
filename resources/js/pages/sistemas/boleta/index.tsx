@@ -112,6 +112,13 @@ export default function BoletaIndex({
                     </table>
 
                     <section className="mt-6 ml-auto max-w-xs space-y-1.5 text-sm">
+                        {Number(pedido.descuento) > 0 && (
+                            // Descuento global (cupón): se resta antes del IGV, como en una boleta real.
+                            <div className="flex justify-between">
+                                <span>Descuento</span>
+                                <span className="font-mono">− {soles(Number(pedido.descuento), 2)}</span>
+                            </div>
+                        )}
                         <div className="flex justify-between">
                             <span>Op. gravada</span>
                             <span className="font-mono">{soles(desglose.base, 2)}</span>

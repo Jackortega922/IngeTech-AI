@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\CarreraController;
 use App\Http\Controllers\Api\Admin\ClienteController;
 use App\Http\Controllers\Api\Admin\ContabilidadController;
+use App\Http\Controllers\Api\Admin\CuponController as AdminCuponController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\HardwareController;
 use App\Http\Controllers\Api\Admin\InventarioController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Api\Admin\SoftwareController;
 use App\Http\Controllers\Api\Admin\UsuarioController;
 use App\Http\Controllers\Api\CatalogoController;
 use App\Http\Controllers\Api\ChatbotController;
+use App\Http\Controllers\Api\CuponController;
 use App\Http\Controllers\Api\EleccionController;
 use App\Http\Controllers\Api\HistorialController;
 use App\Http\Controllers\Api\PedidoController;
@@ -35,6 +37,8 @@ Route::get('/mis-recomendaciones', [HistorialController::class, 'index'])->middl
 // Compra: abierta a invitados (el pago es simulado). El límite evita que alguien llene la BD
 // de pedidos falsos en ráfaga.
 Route::post('/pedidos', [PedidoController::class, 'store'])->middleware('throttle:10,1');
+// Vista previa del cupón en el checkout. El límite frena a quien pruebe códigos al azar.
+Route::post('/cupones/validar', [CuponController::class, 'validar'])->middleware('throttle:20,1');
 Route::get('/mis-pedidos', [PedidoController::class, 'index'])->middleware('auth');
 
 // Panel de la tienda: 'admin' deja entrar a todo el personal y 'admin:<permiso>' limita cada
@@ -62,7 +66,12 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         Route::patch('/reclamos/{reclamo}', [ReclamoController::class, 'update']);
     });
 
-    Route::get('/marketing/segmentos', [MarketingController::class, 'segmentos'])->middleware('admin:marketing');
+    Route::middleware('admin:marketing')->group(function () {
+        Route::get('/marketing/segmentos', [MarketingController::class, 'segmentos']);
+        Route::get('/cupones', [AdminCuponController::class, 'index']);
+        Route::post('/cupones', [AdminCuponController::class, 'store']);
+        Route::patch('/cupones/{cupon}', [AdminCuponController::class, 'update']);
+    });
 
     Route::middleware('admin:hardware')->group(function () {
         Route::post('/hardware', [HardwareController::class, 'store']);
