@@ -120,6 +120,30 @@ class ChatbotTest extends TestCase
         $this->assertStringContainsString('Comparador', $respuesta);
     }
 
+    public function test_si_un_modelo_esta_saturado_prueba_el_siguiente_de_la_lista()
+    {
+        $this->conGemini();
+        config(['services.gemini.model' => 'modelo-saturado, modelo-libre']);
+        Http::fake(fn (HttpRequest $r) => $r['model'] === 'modelo-saturado'
+            ? Http::response(['error' => ['message' => 'high demand']], 503)
+            : Http::response(['choices' => [['message' => ['content' => 'Respondo yo.']]]]));
+
+        $this->postJson('/api/chatbot', ['mensaje' => '¿qué laptop me recomiendas?'])
+            ->assertOk()
+            ->assertJson(['respuesta' => 'Respondo yo.', 'fuente' => 'gemini']);
+
+        Http::assertSentCount(2);
+    }
+
+    public function test_sin_ia_un_saludo_se_responde_con_un_saludo()
+    {
+        foreach (['hola', 'Buenas tardes!', 'holaaa'] as $saludo) {
+            $respuesta = $this->postJson('/api/chatbot', ['mensaje' => $saludo])->assertOk()->json('respuesta');
+            $this->assertStringStartsWith('¡Hola', $respuesta, $saludo);
+            $this->assertStringNotContainsString('No encontré', $respuesta);
+        }
+    }
+
     public function test_sin_api_key_no_llama_a_gemini()
     {
         Http::fake();

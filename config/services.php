@@ -34,8 +34,8 @@ return [
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
         'url' => env('GEMINI_URL', 'https://generativelanguage.googleapis.com/v1beta/openai'),
-        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
-        'timeout' => (int) env('GEMINI_TIMEOUT', 20),
+        'model' => env('GEMINI_MODEL', 'gemini-flash-lite-latest,gemini-flash-latest'),
+        'timeout' => (int) env('GEMINI_TIMEOUT', 15),
     ],
 
     'slack' => [

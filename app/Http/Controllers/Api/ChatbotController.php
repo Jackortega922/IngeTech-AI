@@ -66,7 +66,10 @@ class ChatbotController extends Controller
         $saludoNombre = $nombre ? explode(' ', trim($nombre))[0] : null;
         $texto = $this->normalizar((string) $request->input('mensaje', ''));
 
-        if ($texto === '') {
+        // Mensaje vacío o un simple saludo ("hola", "buenas tardes"): se saluda de vuelta en vez
+        // de responder "no encontré eso en el catálogo".
+        $soloSaludo = preg_match('/^(hola+|holi|buen[oa]s?( dias| tardes| noches)?|hey|que tal|saludos)[\s!.,¿?]*$/u', $texto) === 1;
+        if ($texto === '' || $soloSaludo) {
             $hola = $saludoNombre ? "¡Hola, {$saludoNombre}!" : '¡Hola!';
 
             return response()->json(['respuesta' => "{$hola} ¿En qué te ayudo? Puedes preguntarme por una carrera, un software o un equipo del catálogo — o simplemente contarme qué necesitas y vemos juntos qué te conviene."]);
