@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
+use App\Notifications\PedidoEstadoActualizado;
 use App\Services\Tienda\Inventario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 
 /**
@@ -33,6 +35,11 @@ class PedidoController extends Controller
             $pedido->update($datos);
             $inventario->alCambiarEstado($pedido, $antes, $datos['estado'], $request->user());
         });
+
+        // Aviso al cliente solo si de verdad cambió (elegir el mismo estado no manda correo).
+        if ($pedido->wasChanged('estado')) {
+            Notification::route('mail', [$pedido->email => $pedido->nombre])->notify(new PedidoEstadoActualizado($pedido));
+        }
 
         return response()->json($pedido);
     }

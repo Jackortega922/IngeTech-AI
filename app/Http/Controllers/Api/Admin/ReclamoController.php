@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Reclamo;
+use App\Notifications\ReclamoRespondido;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 /**
  * Libro de Reclamaciones para el admin: ver las hojas con su plazo y responderlas. Primero las
@@ -31,6 +33,8 @@ class ReclamoController extends Controller
             'estado' => 'respondido',
             'respondido_at' => now(),
         ]);
+
+        Notification::route('mail', [$reclamo->email => $reclamo->nombre])->notify(new ReclamoRespondido($reclamo));
 
         return response()->json($reclamo);
     }
