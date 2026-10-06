@@ -23,7 +23,8 @@ class DashboardController extends Controller
         $buckets = ['< S/2,000' => 0, 'S/2,000–4,000' => 0, 'S/4,000–6,000' => 0, '> S/6,000' => 0];
 
         foreach ($eventos as $evento) {
-            $carrera = $evento->payload['carrera_clave'] ?? 'desconocida';
+            // La carrera es opcional en el perfil: sin ella, la consulta es de uso general.
+            $carrera = $evento->payload['carrera_clave'] ?? 'Sin carrera (uso general)';
             $porCarrera[$carrera] = ($porCarrera[$carrera] ?? 0) + 1;
 
             $presupuesto = (float) ($evento->payload['presupuesto_soles'] ?? 0);

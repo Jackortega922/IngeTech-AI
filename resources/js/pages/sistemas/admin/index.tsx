@@ -71,15 +71,14 @@ const TABS: { value: Sub; label: string; icon: typeof LayoutDashboard }[] = [
     { value: 'usuarios', label: 'Usuarios', icon: UserCog },
 ];
 
-// Cada pestaña se llama igual que su permiso (App\Support\Roles): el rol solo ve las suyas.
-function tabInicial(permisos: string[]): Sub {
+// La sección sale de la URL (/admin?tab=...), que es a donde llevan los enlaces del menú lateral.
+// Cada sección se llama igual que su permiso (App\Support\Roles): el rol solo ve las suyas, y si
+// la URL pide una que no le toca, se muestra la primera que sí.
+function seccionDeUrl(url: string, permisos: string[]): Sub {
     const permitidas = TABS.filter((t) => permisos.includes(t.value));
-    const primera = permitidas[0]?.value ?? 'dashboard';
-    if (typeof window === 'undefined') return primera;
+    const valor = new URLSearchParams(url.split('?')[1] ?? '').get('tab');
 
-    const valor = new URLSearchParams(window.location.search).get('tab');
-
-    return permitidas.some((t) => t.value === valor) ? (valor as Sub) : primera;
+    return permitidas.some((t) => t.value === valor) ? (valor as Sub) : (permitidas[0]?.value ?? 'dashboard');
 }
 
 const DATOS_POR_PERMISO = {
@@ -115,9 +114,12 @@ async function api(url: string, method: string, body?: unknown) {
 }
 
 export default function AdminIndex() {
-    const { permisos } = usePage<SharedData>().props.auth;
-    const tabs = TABS.filter((t) => permisos.includes(t.value));
-    const [sub, setSub] = useState<Sub>(() => tabInicial(permisos));
+    const pagina = usePage<SharedData>();
+    const { permisos } = pagina.props.auth;
+    // Se navega con el menú lateral (antes había además una barra de pestañas con lo mismo). Los enlaces
+    // del menú al panel conservan el estado (preserveState en nav-main): no se recarga todo.
+    const sub = seccionDeUrl(pagina.url, permisos);
+    const seccion = TABS.find((t) => t.value === sub) ?? TABS[0];
     const [catalogos, setCatalogos] = useState<Catalogos | null>(null);
     const [dashboard, setDashboard] = useState<DashboardAdmin | null>(null);
     const [contabilidad, setContabilidad] = useState<ContabilidadAdmin | null>(null);
@@ -179,13 +181,8 @@ export default function AdminIndex() {
         setTimeout(() => setMensaje(null), 3500);
     }
 
-    function cambiarTab(s: Sub) {
-        setSub(s);
-        window.history.replaceState(null, '', `/admin?tab=${s}`);
-    }
-
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout breadcrumbs={[...breadcrumbs, { title: seccion.label, href: `/admin?tab=${seccion.value}` }]}>
             <Head title="Administración — IngeTech AI" />
             <div className="min-h-full bg-slate-50/70 dark:bg-slate-950">
                 <div className="mx-auto max-w-[1600px] space-y-6 p-4 md:p-7">
@@ -194,9 +191,12 @@ export default function AdminIndex() {
                         <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
                             <div>
                                 <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-bold">
-                                    <Database className="h-3.5 w-3.5 text-sky-300" /> Centro de control
+                                    <Database className="h-3.5 w-3.5 text-sky-300" /> Centro de control · Administración
                                 </div>
-                                <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Administración</h1>
+                                <h1 className="flex items-center gap-3 text-3xl font-black tracking-tight sm:text-4xl">
+                                    <seccion.icon className="h-8 w-8 text-sky-300" />
+                                    {seccion.label}
+                                </h1>
                                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
                                     Ventas, inventario, clientes y el catálogo que alimenta las recomendaciones de IngeTech AI.
                                 </p>
@@ -230,25 +230,6 @@ export default function AdminIndex() {
                             </button>
                         </div>
                     )}
-
-                    <nav className="it-admin-card p-2">
-                        <div className="flex gap-1 overflow-x-auto">
-                            {tabs.map((t) => (
-                                <button
-                                    key={t.value}
-                                    onClick={() => cambiarTab(t.value)}
-                                    className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition ${
-                                        sub === t.value
-                                            ? 'bg-[var(--it-primary)] text-white shadow-lg'
-                                            : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
-                                    }`}
-                                >
-                                    <t.icon className="h-4 w-4" />
-                                    {t.label}
-                                </button>
-                            ))}
-                        </div>
-                    </nav>
 
                     {!catalogos || cargando ? (
                         <LoadingPanel />
