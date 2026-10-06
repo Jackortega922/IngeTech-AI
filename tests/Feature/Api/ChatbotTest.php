@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Accesorio;
 use App\Models\Carrera;
+use App\Models\Cupon;
+use App\Models\Kit;
 use App\Models\Laptop;
 use App\Models\Software;
 use App\Models\User;
@@ -133,6 +136,30 @@ class ChatbotTest extends TestCase
             ->assertJson(['respuesta' => 'Respondo yo.', 'fuente' => 'gemini']);
 
         Http::assertSentCount(2);
+    }
+
+    public function test_conoce_kits_garantia_y_reclamos_pero_no_da_codigos_de_cupon()
+    {
+        $this->conGemini();
+        $mouse = Accesorio::create(['nombre' => 'Mouse inalámbrico', 'tipo' => 'mouse', 'precio_soles' => 45]);
+        $kit = Kit::create(['nombre' => 'Kit Estudiante', 'precio_soles' => 40]);
+        $kit->accesorios()->attach($mouse);
+        Cupon::create(['codigo' => 'SECRETO10', 'descripcion' => 'x', 'tipo' => 'porcentaje', 'valor' => 10]);
+        Http::fake(['api.gemini.test/*' => Http::response(['choices' => [['message' => ['content' => 'ok']]]])]);
+
+        $this->postJson('/api/chatbot', ['mensaje' => '¿tienen garantía?']);
+
+        Http::assertSent(function (HttpRequest $r) {
+            $prompt = $r['messages'][0]['content'];
+
+            return str_contains($prompt, 'Kit Estudiante: Mouse inalámbrico | S/ 40 (ahorra S/ 5')
+                && str_contains($prompt, '12 meses')
+                && str_contains($prompt, '7 días calendario')
+                && str_contains($prompt, 'Libro de Reclamaciones')
+                && str_contains($prompt, '15 días hábiles')
+                // Los códigos de cupón son de Marketing: la IA nunca los recibe.
+                && ! str_contains($prompt, 'SECRETO10');
+        });
     }
 
     public function test_quita_el_formato_markdown_que_el_chat_no_muestra()

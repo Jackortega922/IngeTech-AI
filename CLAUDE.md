@@ -23,23 +23,42 @@ que aplican a cualquier asistente de IA. Este archivo solo añade lo específico
   - Local/Docker: servidor `uvicorn` (`ml-engine/app.py`), Laravel le hace POST HTTP.
   - Producción: Laravel ejecuta `ml-engine/cli_entry.py` como subproceso corto, le pasa el
     perfil por stdin y lee el JSON por stdout — sin servidor persistente.
-  - Ambas fachadas delegan en `ml-engine/recommender/scoring.py::recomendar()`, que debe
-    mantenerse puro (sin I/O, sin FastAPI) para poder testearse sin levantar nada.
-  - `app/Services/Recommender/` es, por diseño, el único lugar de Laravel que sabe cuál de los
-    dos modos se usa; **todavía no existe en este scaffold** — al crearlo, expón solo
-    `recomendar($perfil)` hacia el resto de la app.
+  - Ambas fachadas delegan en funciones puras (sin I/O, sin FastAPI), testeables sin levantar
+    nada: `recommender/scoring.py::recomendar()` (recomendación) y
+    `recommender/segmentacion.py::segmentar()` (segmentación de clientes con K-Means para
+    Marketing, [ADR 0006](docs/adr/0006-segmentacion-clientes-kmeans.md); en CLI se elige con
+    `"operacion": "segmentar"`).
+  - `app/Services/Recommender/` es el único lugar de Laravel que sabe cuál modo se usa
+    (`RECOMMENDER_MODE`: `http`, `cli` o `mock`). Expone dos interfaces: `RecommenderClient`
+    (`recomendar`) y `SegmentadorClientes` (`segmentar`); el binding está en
+    `AppServiceProvider`. Las pruebas reemplazan esas interfaces con clases falsas.
 - **El contrato JSON entre Laravel y el motor es sagrado:** está fijado en
   [docs/arquitectura/contrato-motor.md](docs/arquitectura/contrato-motor.md) y vale igual para
   el modo HTTP y el modo CLI. Cambiarlo exige actualizar ese documento en el mismo PR.
-- **Estado actual del código (scaffold):** `app/` solo trae lo generado por el React Starter Kit
-  (auth, dashboard, settings) — aún no hay modelos ni controladores de laptops, recomendaciones
-  o personalización. `ml-engine/recommender/scoring.py::recomendar()` es un **mock** que devuelve
-  una respuesta con la forma del contrato pero sin lógica real (tareas A7–A9 la reemplazan).
-- **Reutilización:** `PC_EXPERT/` (prototipo Tkinter previo) tiene lógica de recomendación y
-  compatibilidad (`PC_EXPERT/src/recomendador_pro.py`, `compatibilidad.py`) y un catálogo JSON
-  (`PC_EXPERT/data/`) que sirven de punto de partida para `ml-engine/` — pero arma PCs por
-  presupuesto, mientras IngeTech AI recomienda laptops completas por perfil; hay que adaptar,
-  no copiar literal.
+- **El motor es real, no un mock:** clasificación supervisada del perfil (regresión logística,
+  `modelo_perfilado.joblib`) + similitud coseno contra el catálogo + 30% de afinidad con el
+  cuestionario de bienvenida (`preferencias.py`). Lee el catálogo de `ml-engine/data/*.json`,
+  que se regenera desde la BD con `php artisan motor:exportar-catalogo`: si cambias laptops o
+  software en la BD, hay que exportar. Las laptops agotadas le llegan en `opciones.excluir_ids`.
+- **Estado de `app/`:** tienda completa (catálogo público, compra con o sin cuenta, pedidos,
+  boleta) + una sección por disciplina: Psicología (cuestionario), Contabilidad (IGV, boletas),
+  Derecho (Libro de Reclamaciones, "Cómo decide la IA"), Administración (inventario con kardex,
+  roles), Marketing (segmentación, cupones), Ambiental (recojo RAEE) e Industrial (KPIs).
+  Detalle por disciplina en [docs/contexto-proyecto.md §5.1](docs/contexto-proyecto.md) y el
+  modelo de datos en [docs/arquitectura/modelo-datos.md](docs/arquitectura/modelo-datos.md).
+- **Reglas que se rompen fácil:**
+  - El stock solo cambia por `App\Services\Tienda\Inventario` (no es asignable en masa): así
+    el kardex y el stock no se desincronizan.
+  - Los permisos del personal viven en `App\Support\Roles`; cada ruta de `/api/admin` usa el
+    middleware `admin:<permiso>` y las pestañas del panel se llaman igual que el permiso.
+  - El chat (`App\Services\Asistente\GeminiAsistente`) es un complemento, no el motor
+    ([ADR 0005](docs/adr/0005-llm-complementario-no-motor.md)): solo recibe el catálogo y lo que
+    escribe la persona, nunca sus datos. Si cambian garantía o devoluciones en `/derecho`,
+    actualizar también su prompt. Las pruebas nunca llaman al Gemini real (`phpunit.xml`).
+  - Tienda hipotética: razón social, RUC, contacto y redes quedan vacíos a propósito; no
+    inventarlos.
+- **Histórico:** `PC_EXPERT/` es el prototipo Tkinter previo (arma PCs por piezas). No se portó:
+  el motor se construyó desde cero (A7 se fusionó con A8).
 
 ## Comandos
 
@@ -64,8 +83,8 @@ docker compose exec ml-engine pytest tests/test_scoring.py -k nombre_test   # un
 docker compose exec ml-engine ruff check .                  # lint Python
 ```
 
-> El contenedor `app` (Laravel en Docker) llega en la tarea A2. Hasta entonces, la app corre
-> nativa; `ml-engine` sí corre en Docker.
+> En el día a día Laravel corre nativo (Laragon) y `db` + `ml-engine` en Docker. Existe un
+> contenedor `app` (tarea A2) detrás del perfil `docker-app`: `docker compose --profile docker-app up`.
 
 CI (`.github/workflows/ci.yml`) tiene tres jobs independientes — `laravel` (Pint + test con SQLite
 en memoria + `migrate` contra Postgres real), `frontend` (Prettier + ESLint + `tsc` + build; instala
