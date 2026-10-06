@@ -2,7 +2,9 @@
 
 namespace App\Services\Asistente;
 
+use App\Models\Accesorio;
 use App\Models\Actividad;
+use App\Models\Kit;
 use App\Models\Laptop;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -135,6 +137,20 @@ class GeminiAsistente
             $a->requiere_gpu ? ', necesita GPU dedicada' : '',
         ))->join("\n");
 
+        // Kits y accesorios con su precio real (para personalizar la compra). El ahorro del kit se
+        // calcula igual que en /marketing: suma de los accesorios sueltos menos el precio del kit.
+        $kits = Kit::with('accesorios')->get()->map(function (Kit $k) {
+            $suelto = $k->accesorios->sum(fn (Accesorio $a) => (float) $a->precio_soles);
+            $ahorro = max(0, $suelto - (float) $k->precio_soles);
+
+            return sprintf('- %s: %s | S/ %s%s', $k->nombre, $k->accesorios->pluck('nombre')->join(' + '),
+                number_format((float) $k->precio_soles, 0, '.', ','), $ahorro > 0 ? ' (ahorra S/ '.number_format($ahorro, 0, '.', ',').' frente a comprarlos sueltos)' : '');
+        })->join("\n") ?: '- (no hay kits cargados)';
+        $accesorios = Accesorio::orderBy('precio_soles')->get()
+            ->map(fn (Accesorio $a) => sprintf('- %s: S/ %s', $a->nombre, number_format((float) $a->precio_soles, 0, '.', ',')))
+            ->join("\n") ?: '- (no hay accesorios cargados)';
+        $plazoReclamo = (int) config('derecho.plazo_respuesta_dias_habiles');
+
         // Solo se menciona el botón de WhatsApp si la tienda configuró un número: si no, el botón
         // no aparece y la IA estaría mandando a la gente a algo que no existe.
         $contactoAsesor = config('contacto.whatsapp')
@@ -147,7 +163,8 @@ class GeminiAsistente
         Reglas:
         - Solo recomiendas laptops del CATÁLOGO de abajo, con sus precios exactos en soles. Nunca inventes modelos, precios, stock, descuentos ni promociones.
         - Las laptops marcadas AGOTADA no se pueden comprar ahora: no las recomiendes; si preguntan por una, dilo y sugiere una parecida que esté disponible.
-        - Si te preguntan algo que no está en esta información (cantidad de unidades, fechas de entrega, promociones), di que no lo sabes y {$contactoAsesor}.
+        - Si te preguntan algo que no está en esta información (cantidad de unidades, fechas de entrega), di que no lo sabes y {$contactoAsesor}.
+        - Cupones: existen, se escriben al pagar y el descuento se aplica antes del IGV. Nunca des ni inventes códigos de cupón: si piden uno, di que la tienda los comparte en sus promociones.
         - Si la persona está preocupada por el presupuesto o se siente confundida, primero valida esa preocupación y después da el dato.
         - Para una recomendación a su medida, invítala a usar la "Recomendación con IA" del sitio (pide crear una cuenta): calcula la compatibilidad según su carrera u ocupación, sus actividades y su presupuesto.
         - No pidas datos personales (DNI, teléfono, dirección, tarjetas). Si los comparte, no los repitas.
@@ -160,6 +177,19 @@ class GeminiAsistente
 
         Qué pide cada actividad (sobre una base de 8 GB de RAM):
         {$actividades}
+
+        KITS (se agregan al personalizar la laptop):
+        {$kits}
+
+        ACCESORIOS SUELTOS:
+        {$accesorios}
+
+        GARANTÍA, DEVOLUCIONES Y RECLAMOS (lo mismo que dice la página Términos y Garantía):
+        - Garantía: la de fábrica del fabricante, típicamente 12 meses contra defectos de fabricación. Cubre fallas de hardware con uso normal; no cubre mal uso, líquidos ni modificaciones no autorizadas.
+        - Devoluciones: cambio o devolución dentro de los 7 días calendario después de la compra, si el equipo está como se entregó (empaque original, sin señales de uso). Después solo aplica la garantía de fábrica.
+        - Reclamos: hay un Libro de Reclamaciones virtual en el sitio (enlace en el pie de página y en el menú), sin necesidad de cuenta. La tienda debe responder en máximo {$plazoReclamo} días hábiles. Reclamar no impide acudir a INDECOPI.
+        - Cómo decide la IA de recomendación: lo explica la página "Cómo decide la IA" del sitio.
+        - Reciclaje: al comprar se puede pedir que recojan la laptop anterior para reciclarla (residuos electrónicos).
         PROMPT;
     }
 }

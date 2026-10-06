@@ -15,6 +15,8 @@ const SECCIONES = [
         texto: 'IngeTech AI es una tienda de laptops con un asesor de compra con inteligencia artificial: recomienda equipos según tus actividades, tus programas y tu presupuesto, y explica por qué. La recomendación es una sugerencia; la decisión de compra es tuya. Los precios y la disponibilidad son referenciales y pueden variar.',
     },
     {
+        // Garantía y devoluciones también están en las reglas del chat (GeminiAsistente): si cambian
+        // aquí, actualizarlas allá para que la IA no diga otra cosa.
         titulo: 'Garantía de los equipos',
         texto: 'Todo equipo recomendado mantiene la garantía de fábrica del fabricante (típicamente 12 meses contra defectos de fabricación). La garantía cubre fallas de hardware bajo uso normal; no cubre daños por mal uso, líquidos, o modificaciones no autorizadas.',
     },
