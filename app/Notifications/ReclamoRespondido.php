@@ -32,7 +32,7 @@ class ReclamoRespondido extends Notification implements ShouldQueue
             ->greeting("Hola, {$r->nombre}")
             ->line("La tienda respondió tu hoja **{$r->numero}**:")
             ->line($r->respuesta)
-            ->action('Ver mi hoja', url('/libro-reclamaciones'))
+            ->action('Consultar mi hoja', url('/libro-reclamaciones/consultar'))
             ->line('Si no estás conforme con la respuesta, puedes acudir al INDECOPI.')
             ->salutation('Equipo IngeTech AI');
     }

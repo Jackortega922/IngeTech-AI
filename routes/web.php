@@ -34,8 +34,9 @@ Route::get('como-decide-la-ia', fn () => Inertia::render('derecho/como-decide-ia
 // quien intente adivinar números de hoja.
 Route::get('libro-reclamaciones', [LibroReclamacionesController::class, 'create'])->name('reclamos.create');
 Route::post('libro-reclamaciones', [LibroReclamacionesController::class, 'store'])->middleware('throttle:5,1')->name('reclamos.store');
+Route::get('libro-reclamaciones/consultar', [LibroReclamacionesController::class, 'consulta'])->name('reclamos.consulta');
 Route::post('libro-reclamaciones/consultar', [LibroReclamacionesController::class, 'consultar'])->middleware('throttle:10,1')->name('reclamos.consultar');
-Route::get('libro-reclamaciones/{numero}', [LibroReclamacionesController::class, 'show'])->name('reclamos.show');
+Route::get('libro-reclamaciones/{numero}', [LibroReclamacionesController::class, 'show'])->where('numero', 'LR-[0-9]+')->name('reclamos.show');
 
 // Compra: se puede comprar sin cuenta (personalizar, pagar y ver la confirmación). La cuenta
 // solo hace falta para la recomendación con IA y para ver el historial de pedidos.

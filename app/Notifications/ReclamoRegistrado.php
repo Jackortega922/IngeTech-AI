@@ -39,8 +39,8 @@ class ReclamoRegistrado extends Notification implements ShouldQueue
             ->line("Detalle: {$r->detalle}")
             ->line("Lo que pides: {$r->pedido_consumidor}")
             ->line('La tienda debe responderte a más tardar el '.$r->fecha_limite->format('d/m/Y').' ('.config('derecho.plazo_respuesta_dias_habiles').' días hábiles).')
-            ->action('Ver mi hoja', url('/libro-reclamaciones'))
-            ->line("Para verla desde otro dispositivo, usa el número {$r->numero} y este correo en «¿Ya presentaste una hoja?».")
+            ->action('Consultar mi hoja', url('/libro-reclamaciones/consultar'))
+            ->line("Para consultarla usa el número {$r->numero} y este correo.")
             ->line('La formulación del reclamo no impide acudir a otras vías de solución de controversias ni es requisito previo para interponer una denuncia ante el INDECOPI.')
             ->salutation('Equipo IngeTech AI');
     }

@@ -123,6 +123,20 @@ class LibroReclamacionesController extends Controller
         ]);
     }
 
+    /** Página para consultar el estado: con cuenta lista las hojas propias; si no, número + correo. */
+    public function consulta(Request $request)
+    {
+        $user = $request->user();
+
+        return Inertia::render('derecho/consultar-reclamo', [
+            'misHojas' => $user
+                ? Reclamo::where('user_id', $user->id)->latest('id')
+                    ->get(['numero', 'tipo', 'descripcion_bien', 'estado', 'created_at', 'fecha_limite'])
+                    ->makeHidden('dias_restantes')
+                : [],
+        ]);
+    }
+
     /** Volver a ver una hoja (y la respuesta) desde otro navegador: número + correo. */
     public function consultar(Request $request)
     {
@@ -135,8 +149,8 @@ class LibroReclamacionesController extends Controller
 
         // Mismo mensaje si no existe o si el correo no coincide: no se revela qué números son válidos.
         if (! $reclamo || Str::lower(trim($reclamo->email)) !== Str::lower(trim($datos['email']))) {
-            return redirect()->route('reclamos.create')
-                ->withErrors(['numero' => 'No encontramos una hoja con ese número y correo.'])
+            return redirect()->route('reclamos.consulta')
+                ->withErrors(['numero' => 'No encontramos una hoja con ese número y correo. Revisa que estén bien escritos.'])
                 ->onlyInput('numero', 'email');
         }
 

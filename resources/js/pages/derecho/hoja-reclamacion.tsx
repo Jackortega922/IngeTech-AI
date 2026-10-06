@@ -15,8 +15,11 @@ export default function HojaReclamacion({ reclamo: r, proveedor, plazoDias }: { 
             <Head title={`Hoja ${r.numero} — Libro de Reclamaciones`} />
             <div className="min-h-screen bg-slate-100 py-8 text-slate-900 print:bg-white print:py-0">
                 <div className="mx-auto mb-4 flex max-w-3xl items-center justify-between px-4 print:hidden">
-                    <Link href="/libro-reclamaciones" className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-slate-900">
-                        <ArrowLeft className="h-4 w-4" /> Libro de Reclamaciones
+                    <Link
+                        href="/libro-reclamaciones/consultar"
+                        className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-slate-900"
+                    >
+                        <ArrowLeft className="h-4 w-4" /> Consultar mis reclamos
                     </Link>
                     <button
                         onClick={() => window.print()}

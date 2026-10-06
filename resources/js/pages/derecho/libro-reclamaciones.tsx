@@ -2,7 +2,7 @@ import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import type { EmisorTienda } from '@/types/flujo';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { BookOpenText, FileSearch, Info, Send } from 'lucide-react';
 import type { ReactNode } from 'react';
 
@@ -42,7 +42,6 @@ export default function LibroReclamaciones({ inicial, proveedor, plazoDias }: { 
         declara_veracidad: false,
     });
     const { data, setData, errors, processing } = form;
-    const consulta = useForm({ numero: '', email: '' });
 
     const porConfigurar = <span className="text-slate-400 italic">por configurar</span>;
     const hoy = new Date().toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -67,6 +66,13 @@ export default function LibroReclamaciones({ inicial, proveedor, plazoDias }: { 
                         </div>
                     </div>
                 </section>
+
+                <p className="mt-4 text-sm text-slate-500">
+                    ¿Solo quieres ver cómo va tu hoja?{' '}
+                    <Link href="/libro-reclamaciones/consultar" className="font-semibold text-sky-600 underline dark:text-sky-400">
+                        Consultar mi reclamo
+                    </Link>
+                </p>
 
                 <div className="it-card mt-6 grid gap-3 p-5 text-sm sm:grid-cols-3">
                     <Dato label="Proveedor">{proveedor.razon_social ?? 'IngeTech AI'}</Dato>
@@ -253,37 +259,15 @@ export default function LibroReclamaciones({ inicial, proveedor, plazoDias }: { 
                     </button>
                 </form>
 
-                <section className="it-card mt-10 p-6">
-                    <h2 className="flex items-center gap-2 text-lg font-black">
-                        <FileSearch className="h-5 w-5 text-sky-500" /> ¿Ya presentaste una hoja?
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-500">Consulta su estado y la respuesta de la tienda con el número de hoja y tu correo.</p>
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            consulta.post('/libro-reclamaciones/consultar', { preserveScroll: true });
-                        }}
-                        className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto]"
-                    >
-                        <input
-                            className="it-input uppercase"
-                            placeholder="LR-00000001"
-                            value={consulta.data.numero}
-                            onChange={(e) => consulta.setData('numero', e.target.value)}
-                        />
-                        <input
-                            type="email"
-                            className="it-input"
-                            placeholder="Correo"
-                            value={consulta.data.email}
-                            onChange={(e) => consulta.setData('email', e.target.value)}
-                        />
-                        <button type="submit" disabled={consulta.processing} className="it-btn it-btn-secondary">
-                            Consultar
-                        </button>
-                    </form>
-                    <InputError message={consulta.errors.numero ?? consulta.errors.email} className="mt-2" />
-                </section>
+                <Link href="/libro-reclamaciones/consultar" className="it-card mt-10 flex items-center gap-4 p-5 transition hover:border-sky-400">
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[var(--it-primary-soft)] text-[var(--it-primary)] dark:text-sky-300">
+                        <FileSearch className="h-5 w-5" />
+                    </span>
+                    <span>
+                        <b className="block">¿Ya presentaste una hoja?</b>
+                        <span className="text-sm text-slate-500">Consulta en qué estado está y la respuesta de la tienda.</span>
+                    </span>
+                </Link>
             </main>
         </AppLayout>
     );
