@@ -27,7 +27,8 @@ Route::get('/health', function () {
 
 Route::get('/catalogos', [CatalogoController::class, 'index']);
 Route::post('/recomendaciones', [RecomendacionController::class, 'store']);
-// Límite por minuto: con DeepSeek configurado, cada mensaje cuesta una llamada a la API.
+// Límite por minuto: con Gemini configurado, cada mensaje es una llamada a la API (el plan
+// gratuito también tiene un límite de llamadas por minuto).
 Route::post('/chatbot', [ChatbotController::class, 'responder'])->middleware('throttle:20,1');
 
 Route::post('/recomendaciones/{recomendacion}/eleccion', [EleccionController::class, 'store'])->middleware('auth');

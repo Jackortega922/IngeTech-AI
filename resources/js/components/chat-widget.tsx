@@ -1,13 +1,13 @@
 import { Bot, MessageCircle, Minimize2, Send, Sparkles, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-// Diseño: Marco (PR #41). Lógica: la del chat con DeepSeek (A13) — historial, límite de mensajes,
+// Diseño: Marco (PR #41). Lógica: la del chat con Gemini (A13) — historial, límite de mensajes,
 // marca de respuesta generada con IA y aviso de privacidad.
 interface Mensaje {
     autor: 'usuario' | 'bot';
     texto: string;
-    // 'deepseek' si respondió el LLM; sin valor si respondió el asistente por palabras clave.
-    fuente?: 'deepseek';
+    // 'gemini' si respondió el LLM; sin valor si respondió el asistente por palabras clave.
+    fuente?: 'gemini';
 }
 
 // Se mandan los últimos mensajes para que el LLM tenga contexto de la conversación (el
@@ -121,9 +121,9 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
                                     className={`max-w-[80%] rounded-2xl px-3.5 py-3 text-sm leading-6 whitespace-pre-line shadow-sm ${m.autor === 'usuario' ? 'rounded-br-md bg-[var(--it-primary)] text-white' : 'rounded-bl-md border border-slate-200 bg-white text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200'}`}
                                 >
                                     {m.texto}
-                                    {m.fuente === 'deepseek' && (
+                                    {m.fuente === 'gemini' && (
                                         <span className="mt-1.5 flex items-center gap-1 text-[10px] text-slate-400">
-                                            <Sparkles className="h-3 w-3" /> Respuesta generada con IA (DeepSeek)
+                                            <Sparkles className="h-3 w-3" /> Respuesta generada con IA (Gemini)
                                         </span>
                                     )}
                                 </div>

@@ -24,7 +24,7 @@ Actualízalo cuando cambie el alcance. Última revisión: 2026-10-07.
 | A12 | Swagger/OpenAPI publicado | S | Jack | ☐ |
 | A15 | Motor: segunda operación `segmentar` (K-Means) para Marketing, en los dos modos (HTTP y CLI) — [ADR 0006](../adr/0006-segmentacion-clientes-kmeans.md) | S | Jack | ✅ |
 | A16 | Motor: no recomendar laptops agotadas (`opciones.excluir_ids`, contrato actualizado) | M | Jack | ✅ |
-| A13 | Asistente conversacional complementario (LLM vía API, ej. DeepSeek) — **no reemplaza el motor de scoring**, es una función aparte (ver [ADR 0005](../adr/0005-llm-complementario-no-motor.md)) | C | Jack | ✅ — `app/Services/Asistente/DeepseekAsistente.php`, anclado al catálogo real; sin `DEEPSEEK_API_KEY` o si falla, responde el asistente por palabras clave. |
+| A13 | Asistente conversacional complementario (LLM vía API) — **no reemplaza el motor de scoring**, es una función aparte (ver [ADR 0005](../adr/0005-llm-complementario-no-motor.md)) | C | Jack | ✅ — `app/Services/Asistente/GeminiAsistente.php` (Gemini, plan gratuito de Google AI Studio; antes DeepSeek, de pago), anclado al catálogo real; sin `GEMINI_API_KEY` o si falla, responde el asistente por palabras clave. |
 
 ## Épica 2 — Flujo de usuario (Módulo B) — *Bloque I / UX*
 

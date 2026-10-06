@@ -28,13 +28,14 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
-    // Asistente del chat (A13, ADR 0005). Sin DEEPSEEK_API_KEY el chat sigue funcionando con
-    // el asistente por palabras clave de ChatbotController.
-    'deepseek' => [
-        'key' => env('DEEPSEEK_API_KEY'),
-        'url' => env('DEEPSEEK_URL', 'https://api.deepseek.com'),
-        'model' => env('DEEPSEEK_MODEL', 'deepseek-flash'),
-        'timeout' => (int) env('DEEPSEEK_TIMEOUT', 20),
+    // Asistente del chat (A13, ADR 0005): Gemini, plan gratuito de Google AI Studio, por su
+    // endpoint compatible con OpenAI. Sin GEMINI_API_KEY el chat sigue funcionando con el
+    // asistente por palabras clave de ChatbotController.
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'url' => env('GEMINI_URL', 'https://generativelanguage.googleapis.com/v1beta/openai'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+        'timeout' => (int) env('GEMINI_TIMEOUT', 20),
     ],
 
     'slack' => [

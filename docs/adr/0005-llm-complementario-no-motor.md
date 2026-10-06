@@ -49,3 +49,14 @@ lenguaje más natural — nunca como reemplazo del cálculo de compatibilidad. B
 - Si el equipo más adelante decide que el asistente con LLM necesita datos del perfil, eso pasa
   por consentimiento explícito del usuario (no automático), coherente con la disciplina de
   Ética y Protección de Datos.
+
+## Actualización (2026-10-07): el proveedor pasa a Gemini
+
+La decisión no cambia: el LLM sigue siendo solo el asistente del chat. Cambia el proveedor:
+**DeepSeek → Gemini** (Google AI Studio), porque DeepSeek exige saldo y el plan gratuito de
+Gemini no pide tarjeta. Se usa su endpoint compatible con OpenAI, el mismo formato que ya usaba
+el chat (`app/Services/Asistente/GeminiAsistente.php`).
+
+Consecuencia de Derecho: en el plan gratuito Google puede usar las conversaciones para mejorar
+sus productos. Por eso al LLM no se le envía nada del usuario (ni nombre, ni correo, ni perfil),
+solo lo que escribe en el chat, y la página "Cómo decide la IA" lo avisa.
