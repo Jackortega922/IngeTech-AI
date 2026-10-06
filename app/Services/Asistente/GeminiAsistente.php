@@ -46,22 +46,46 @@ class GeminiAsistente
         }
         $mensajes[] = ['role' => 'user', 'content' => $mensaje];
 
+        // GEMINI_MODEL puede ser una lista ("modelo-a,modelo-b"): en el plan gratuito un modelo a
+        // veces está saturado (503) o Google lo retira (404). Si falla uno, se prueba el siguiente.
+        foreach (self::modelos() as $modelo) {
+            $texto = $this->pedir($modelo, $mensajes);
+            if ($texto !== null) {
+                return $texto;
+            }
+        }
+
+        return null;
+    }
+
+    /** @return list<string> */
+    public static function modelos(): array
+    {
+        return array_values(array_filter(array_map('trim', explode(',', (string) config('services.gemini.model')))));
+    }
+
+    private function pedir(string $modelo, array $mensajes): ?string
+    {
         try {
             $respuesta = Http::withToken(config('services.gemini.key'))
                 ->acceptJson()
                 ->timeout(config('services.gemini.timeout'))
                 ->post(rtrim(config('services.gemini.url'), '/').'/chat/completions', [
-                    'model' => config('services.gemini.model'),
+                    'model' => $modelo,
                     'messages' => $mensajes,
                     'temperature' => 0.4,
-                    // Margen para el razonamiento interno de Gemini 2.5, que también cuenta como tokens; el
+                    // Margen para el razonamiento interno de Gemini, que también cuenta como tokens; el
                     // largo de la respuesta lo limita el prompt (máximo 120 palabras).
                     'max_tokens' => 1024,
                     'stream' => false,
                 ]);
 
             if ($respuesta->failed()) {
-                Log::warning('Gemini respondió con error', ['status' => $respuesta->status()]);
+                Log::warning('Gemini respondió con error', [
+                    'modelo' => $modelo,
+                    'status' => $respuesta->status(),
+                    'detalle' => mb_substr($respuesta->body(), 0, 300),
+                ]);
 
                 return null;
             }
@@ -70,7 +94,7 @@ class GeminiAsistente
 
             return $texto !== '' ? $texto : null;
         } catch (Throwable $e) {
-            Log::warning('No se pudo contactar a Gemini', ['error' => $e->getMessage()]);
+            Log::warning('No se pudo contactar a Gemini', ['modelo' => $modelo, 'error' => $e->getMessage()]);
 
             return null;
         }
