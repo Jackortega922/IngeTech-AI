@@ -48,6 +48,7 @@ docker compose up -d db ml-engine                          # base de datos + mot
 composer run dev                                           # servidor Laravel + colas + Vite
 php artisan migrate                                         # BD
 php artisan motor:exportar-catalogo                        # regenera ml-engine/data/laptops.json desde la BD
+php artisan db:seed --class=ClientesDemoSeeder            # 26 clientes de demostración (segmentación y KPIs); se quitan con migrate:fresh --seed
 
 php artisan test                                            # todas las pruebas Laravel (Pest/PHPUnit)
 php artisan test --filter=NombreDelTest                     # una sola prueba

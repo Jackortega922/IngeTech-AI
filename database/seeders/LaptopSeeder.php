@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Laptop;
+use App\Services\Tienda\Inventario;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Datos de ejemplo para poder probar el flujo completo. Precios y specs son
@@ -27,6 +29,9 @@ use Illuminate\Database\Seeder;
  */
 class LaptopSeeder extends Seeder
 {
+    // Tienda hipotética: mismo stock de partida que la migración de inventario.
+    private const STOCK_INICIAL_DEMO = 5;
+
     public function run(): void
     {
         // Se borran explícitamente en vez de solo quitarlas del arreglo de abajo:
@@ -66,10 +71,17 @@ class LaptopSeeder extends Seeder
         ];
 
         foreach ($equipos as $equipo) {
-            Laptop::updateOrCreate(
+            $laptop = Laptop::updateOrCreate(
                 ['marca' => $equipo['marca'], 'modelo' => $equipo['modelo']],
                 $equipo
             );
+
+            // Una laptop recién creada nace sin stock (y agotada no se vende ni se recomienda).
+            // Se le da el stock inicial de demostración por el kardex, como hace la migración de
+            // inventario con las que ya existían. Si ya tiene movimientos, no se toca su stock.
+            if (! $laptop->movimientos()->exists()) {
+                DB::transaction(fn () => app(Inventario::class)->registrar($laptop, 'inicial', self::STOCK_INICIAL_DEMO, 'Inventario inicial de demostración'));
+            }
         }
     }
 }

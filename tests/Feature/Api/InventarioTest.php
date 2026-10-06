@@ -6,6 +6,7 @@ use App\Models\Laptop;
 use App\Models\MovimientoInventario;
 use App\Models\Pedido;
 use App\Models\User;
+use Database\Seeders\LaptopSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -114,5 +115,15 @@ class InventarioTest extends TestCase
         $laptop = $this->laptop(1);
         $this->actingAs(User::factory()->create())->getJson('/api/admin/inventario')->assertForbidden();
         $this->postJson("/api/admin/inventario/{$laptop->id}/movimientos", ['tipo' => 'entrada', 'cantidad' => 5])->assertForbidden();
+    }
+
+    public function test_en_una_base_nueva_el_catalogo_sembrado_no_nace_agotado()
+    {
+        $this->seed(LaptopSeeder::class);
+        $this->seed(LaptopSeeder::class); // volver a sembrar no duplica el stock
+
+        $this->assertSame(0, Laptop::where('stock', 0)->count());
+        $this->assertSame(Laptop::count(), MovimientoInventario::where('tipo', 'inicial')->count());
+        $this->assertSame(5, Laptop::first()->stock);
     }
 }
