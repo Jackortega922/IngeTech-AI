@@ -135,6 +135,29 @@ class ChatbotTest extends TestCase
         Http::assertSentCount(2);
     }
 
+    public function test_quita_el_formato_markdown_que_el_chat_no_muestra()
+    {
+        $this->conGemini();
+        Http::fake(['api.gemini.test/*' => Http::response(['choices' => [['message' => ['content' => "# Opciones\n* La **Acer Aspire 5** cuesta S/ 2,399"]]]])]);
+
+        $this->postJson('/api/chatbot', ['mensaje' => '¿qué me recomiendas?'])
+            ->assertJsonPath('respuesta', "Opciones\n- La Acer Aspire 5 cuesta S/ 2,399");
+    }
+
+    public function test_solo_menciona_whatsapp_si_la_tienda_tiene_numero()
+    {
+        $this->conGemini();
+        Http::fake(['api.gemini.test/*' => Http::response(['choices' => [['message' => ['content' => 'ok']]]])]);
+
+        config(['contacto.whatsapp' => null]);
+        $this->postJson('/api/chatbot', ['mensaje' => '¿cuándo llega?']);
+        Http::assertSent(fn (HttpRequest $r) => ! str_contains($r['messages'][0]['content'], 'WhatsApp'));
+
+        config(['contacto.whatsapp' => '51987654321']);
+        $this->postJson('/api/chatbot', ['mensaje' => '¿cuándo llega?']);
+        Http::assertSent(fn (HttpRequest $r) => str_contains($r['messages'][0]['content'], 'WhatsApp'));
+    }
+
     public function test_sin_ia_un_saludo_se_responde_con_un_saludo()
     {
         foreach (['hola', 'Buenas tardes!', 'holaaa'] as $saludo) {
