@@ -142,6 +142,11 @@ export default function StoreFooter() {
                                 <BookOpenText className="h-4 w-4" /> Libro de Reclamaciones
                             </Link>
                         </li>
+                        <li>
+                            <Link href="/libro-reclamaciones/consultar" className="transition hover:text-cyan-400">
+                                Consultar mi reclamo
+                            </Link>
+                        </li>
                     </ul>
                 </div>
 

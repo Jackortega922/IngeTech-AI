@@ -9,6 +9,7 @@ import {
     CircleHelp,
     Clock,
     Coins,
+    FileSearch,
     GraduationCap,
     LayoutDashboard,
     LayoutGrid,
@@ -42,6 +43,7 @@ const navVisitante: NavItem[] = [
     { title: 'Preguntas frecuentes', url: '/preguntas', icon: CircleHelp },
     { title: 'Términos y Garantía', url: '/derecho', icon: Scroll },
     { title: 'Libro de Reclamaciones', url: '/libro-reclamaciones', icon: BookOpenText },
+    { title: 'Consultar mi reclamo', url: '/libro-reclamaciones/consultar', icon: FileSearch },
 ];
 
 const navCliente: NavItem[] = [
@@ -55,6 +57,7 @@ const navCliente: NavItem[] = [
     { title: 'Reciclaje y sostenibilidad', url: '/ing-ambiental', icon: Recycle },
     { title: 'Términos y Garantía', url: '/derecho', icon: Scroll },
     { title: 'Libro de Reclamaciones', url: '/libro-reclamaciones', icon: BookOpenText },
+    { title: 'Consultar mi reclamo', url: '/libro-reclamaciones/consultar', icon: FileSearch },
     { title: 'Preguntas frecuentes', url: '/preguntas', icon: CircleHelp },
 ];
 

@@ -122,4 +122,26 @@ class LibroReclamacionesTest extends TestCase
         $this->get("/libro-reclamaciones?pedido={$codigo}")
             ->assertInertia(fn (Assert $page) => $page->component('derecho/libro-reclamaciones')->where('inicial.pedido_codigo', ''));
     }
+
+    public function test_la_consulta_es_una_pagina_aparte_y_con_cuenta_lista_solo_las_hojas_propias()
+    {
+        $this->get('/libro-reclamaciones/consultar')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('derecho/consultar-reclamo')->where('misHojas', []));
+
+        $rosa = User::factory()->create(['email' => 'rosa@correo.test']);
+        $this->actingAs($rosa)->post('/libro-reclamaciones', $this->datos());
+        $this->actingAs(User::factory()->create())->post('/libro-reclamaciones', $this->datos(['email' => 'otro@correo.test']));
+
+        $this->actingAs($rosa)->get('/libro-reclamaciones/consultar')
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('misHojas', 1)
+                ->where('misHojas.0.numero', 'LR-00000001')
+                ->where('misHojas.0.estado', 'pendiente')
+                ->missing('misHojas.0.numero_documento'));
+
+        // Si no se encuentra, vuelve a la página de consulta (no a la de presentar).
+        $this->post('/libro-reclamaciones/consultar', ['numero' => 'LR-99999999', 'email' => 'rosa@correo.test'])
+            ->assertRedirect('/libro-reclamaciones/consultar');
+    }
 }
