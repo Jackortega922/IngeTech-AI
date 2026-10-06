@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Cupon;
 use App\Models\Pedido;
+use App\Notifications\PedidoRecibido;
 use App\Services\Tienda\ArmadoLaptop;
 use App\Services\Tienda\Inventario;
 use App\Support\UbigeoHuanuco;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -126,6 +128,9 @@ class PedidoController extends Controller
 
             return $pedido;
         });
+
+        // Confirmación al correo que escribió en el checkout (tenga cuenta o no).
+        Notification::route('mail', [$pedido->email => $pedido->nombre])->notify(new PedidoRecibido($pedido));
 
         // Quien compró sin cuenta solo puede ver su confirmación desde esta misma sesión.
         $request->session()->push('pedidos_propios', $pedido->codigo);

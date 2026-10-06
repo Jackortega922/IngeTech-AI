@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Tienda;
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
 use App\Models\Reclamo;
+use App\Notifications\ReclamoRegistrado;
 use App\Support\AccesoPedido;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -96,6 +98,9 @@ class LibroReclamacionesController extends Controller
 
         $reclamo = Reclamo::create([...$datos, 'user_id' => $request->user()?->id]);
         $request->session()->push('reclamos_propios', $reclamo->numero);
+
+        // Constancia al correo del consumidor: la pide el reglamento del Libro de Reclamaciones.
+        Notification::route('mail', [$reclamo->email => $reclamo->nombre])->notify(new ReclamoRegistrado($reclamo));
 
         return redirect()->route('reclamos.show', $reclamo->numero);
     }

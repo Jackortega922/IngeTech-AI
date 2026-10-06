@@ -13,6 +13,7 @@ import {
     HeartHandshake,
     History,
     Laptop,
+    MailCheck,
     Package,
     ShieldCheck,
     Sparkles,
@@ -55,6 +56,29 @@ export default function Dashboard({ preferencias, mensaje }: { preferencias: Pre
                     <p className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
                         <CheckCircle2 className="h-4 w-4 shrink-0" /> {mensaje}
                     </p>
+                )}
+
+                {/* Correo sin confirmar: no bloquea nada, pero sin confirmarlo no se unen las compras
+                    hechas como invitado (listener UnirComprasDeInvitado). */}
+                {!auth.user!.email_verified_at && (
+                    <div className="flex flex-col gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 sm:flex-row sm:items-center sm:justify-between dark:text-amber-200">
+                        <p className="flex items-start gap-2">
+                            <MailCheck className="mt-0.5 h-4 w-4 shrink-0" />
+                            <span>
+                                Confirma tu correo con el enlace que te enviamos. Así, las compras que hiciste sin cuenta con ese correo aparecerán en
+                                Mis pedidos.
+                            </span>
+                        </p>
+                        <Link
+                            href="/email/verification-notification"
+                            method="post"
+                            as="button"
+                            preserveScroll
+                            className="shrink-0 rounded-lg border border-amber-500/40 px-3 py-1.5 text-xs font-semibold hover:bg-amber-500/10"
+                        >
+                            Reenviar enlace
+                        </Link>
+                    </div>
                 )}
 
                 <section className="relative overflow-hidden rounded-[2rem] border border-[#173a63]/10 bg-white shadow-xl dark:bg-slate-900">

@@ -3,7 +3,7 @@
 Priorización **MoSCoW**: **M** must (sin esto no hay MVP) · **S** should · **C** could · **W** won't (por ahora).
 
 Este archivo es la fuente de la priorización (el tablero Trello/Jira se descartó, ver D7).
-Actualízalo cuando cambie el alcance. Última revisión: 2026-10-07.
+Actualízalo cuando cambie el alcance. Última revisión: 2026-10-08.
 
 ## Épica 1 — Núcleo técnico (Módulo A) — *Bloque I*
 
@@ -42,7 +42,7 @@ Actualízalo cuando cambie el alcance. Última revisión: 2026-10-07.
 | B10 | Cuestionario de bienvenida (Psicología): 10 preguntas al crear la cuenta; adapta cómo se presenta la recomendación (estilo de decisión, nivel técnico, para quién es). Editable y borrable. | M | Jack | ✅ |
 | B11 | Que las respuestas del cuestionario (movilidad, batería, molestias, años de uso, prioridades, marcas, periféricos) cambien el ranking del motor — requiere ampliar el contrato del motor. | M | Jack | ✅ — `ml-engine/recommender/preferencias.py`: 70% técnica + 30% afinidad, con factores y advertencias por preferencia. El resultado muestra el % desglosado y el "¿por qué?" de la IA. |
 | B13 | Integrar el frontend de Marco (PR #41) sin perder la lógica de main — en 4 tandas: acceso, menús y chat (#49); panel, catálogo, software, comparador y guía (#50); promociones y sostenibilidad (#59); panel admin con formularios en ventanas (#60). #41 se cerró. | S | Jack | ✅ |
-| B12 | Unir compras de invitado a una cuenta (código + correo) y avisos por correo: cambio de estado del pedido, constancia del Libro de Reclamaciones (la pide el reglamento) y campañas de Marketing (requieren consentimiento de publicidad) — en pausa por decisión del equipo (foco en IA + disciplinas). | C | Jack | ☐ |
+| B12 | Avisos por correo y unir compras de invitado: confirmación de compra y cambio de estado del pedido, constancia y respuesta del Libro de Reclamaciones, correos de Laravel en español. Al **confirmar el correo**, las compras y reclamos hechos como invitado con ese correo pasan a la cuenta (no al registrarse: alguien podría usar un correo ajeno). Envío en cola; con Gmail SMTP (ver `.env.example`). Falta: campañas de Marketing por correo, que necesitan consentimiento de publicidad. | C | Jack | ⚠️ |
 
 ## Épica 3 — Catálogo, datos y documentación (Módulo C) — *Bloques I, III, IV*
 
