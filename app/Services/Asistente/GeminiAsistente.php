@@ -48,8 +48,15 @@ class GeminiAsistente
 
         // GEMINI_MODEL puede ser una lista ("modelo-a,modelo-b"): en el plan gratuito un modelo a
         // veces está saturado (503) o Google lo retira (404). Si falla uno, se prueba el siguiente.
+        // Tope total de espera: si los modelos van fallando, el visitante no espera más que esto
+        // antes de que conteste el asistente de respaldo.
+        $limite = microtime(true) + (int) config('services.gemini.espera_total');
         foreach (self::modelos() as $modelo) {
-            $texto = $this->pedir($modelo, $mensajes);
+            $restante = (int) floor($limite - microtime(true));
+            if ($restante < 2) {
+                break;
+            }
+            $texto = $this->pedir($modelo, $mensajes, min((int) config('services.gemini.timeout'), $restante));
             if ($texto !== null) {
                 return $texto;
             }
@@ -64,12 +71,12 @@ class GeminiAsistente
         return array_values(array_filter(array_map('trim', explode(',', (string) config('services.gemini.model')))));
     }
 
-    private function pedir(string $modelo, array $mensajes): ?string
+    private function pedir(string $modelo, array $mensajes, int $timeout): ?string
     {
         try {
             $respuesta = Http::withToken(config('services.gemini.key'))
                 ->acceptJson()
-                ->timeout(config('services.gemini.timeout'))
+                ->timeout($timeout)
                 ->post(rtrim(config('services.gemini.url'), '/').'/chat/completions', [
                     'model' => $modelo,
                     'messages' => $mensajes,
@@ -90,7 +97,9 @@ class GeminiAsistente
                 return null;
             }
 
-            $texto = trim((string) $respuesta->json('choices.0.message.content'));
+            // Por si igual manda formato Markdown: el chat muestra texto plano, así que "**negrita**"
+            // y "# título" saldrían con los símbolos a la vista.
+            $texto = trim(preg_replace(['/\*\*(.+?)\*\*/s', '/^#{1,6}\s*/m', '/^\*\s+/m'], ['$1', '', '- '], (string) $respuesta->json('choices.0.message.content')));
 
             return $texto !== '' ? $texto : null;
         } catch (Throwable $e) {
@@ -126,18 +135,24 @@ class GeminiAsistente
             $a->requiere_gpu ? ', necesita GPU dedicada' : '',
         ))->join("\n");
 
+        // Solo se menciona el botón de WhatsApp si la tienda configuró un número: si no, el botón
+        // no aparece y la IA estaría mandando a la gente a algo que no existe.
+        $contactoAsesor = config('contacto.whatsapp')
+            ? 'sugiere escribir a un asesor por WhatsApp (botón verde, abajo a la izquierda)'
+            : 'sugiere revisar las Preguntas frecuentes o la página de Términos y Garantía';
+
         return <<<PROMPT
         Eres el asistente de ventas de IngeTech AI, una tienda peruana de laptops. Respondes en español, con un tono cálido y calmado.
 
         Reglas:
         - Solo recomiendas laptops del CATÁLOGO de abajo, con sus precios exactos en soles. Nunca inventes modelos, precios, stock, descuentos ni promociones.
         - Las laptops marcadas AGOTADA no se pueden comprar ahora: no las recomiendes; si preguntan por una, dilo y sugiere una parecida que esté disponible.
-        - Si te preguntan algo que no está en esta información (cantidad de unidades, fechas de entrega, promociones), di que no lo sabes y sugiere escribir a un asesor por WhatsApp (botón verde, abajo a la izquierda).
+        - Si te preguntan algo que no está en esta información (cantidad de unidades, fechas de entrega, promociones), di que no lo sabes y {$contactoAsesor}.
         - Si la persona está preocupada por el presupuesto o se siente confundida, primero valida esa preocupación y después da el dato.
         - Para una recomendación a su medida, invítala a usar la "Recomendación con IA" del sitio (pide crear una cuenta): calcula la compatibilidad según su carrera u ocupación, sus actividades y su presupuesto.
         - No pidas datos personales (DNI, teléfono, dirección, tarjetas). Si los comparte, no los repitas.
         - La tienda hace envíos a todo el Perú. Se puede comprar en el sitio: elegir la laptop, personalizarla y pagar con tarjeta.
-        - Responde breve: máximo 120 palabras. Puedes usar listas cortas. No uses tablas.
+        - Responde breve: máximo 120 palabras. Escribe en texto plano, sin asteriscos ni otros símbolos de formato (el chat no los muestra como negrita). Para listas usa guiones. No uses tablas.
         - Si la pregunta no tiene que ver con laptops o con la tienda, redirige con amabilidad.
 
         CATÁLOGO (precios referenciales):
