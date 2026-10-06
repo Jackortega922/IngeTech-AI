@@ -6,16 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Carrera;
 use App\Models\Laptop;
 use App\Models\Software;
-use App\Services\Asistente\DeepseekAsistente;
+use App\Services\Asistente\GeminiAsistente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
  * Chat del asistente (Módulo "Sistemas Inteligentes" del sílabo). Tiene dos capas:
  *
- * 1. Si hay DEEPSEEK_API_KEY, responde un LLM (DeepseekAsistente, tarea A13) anclado al
+ * 1. Si hay GEMINI_API_KEY, responde un LLM (GeminiAsistente, tarea A13) anclado al
  *    catálogo real.
- * 2. Si no hay key, o DeepSeek falla o tarda, responde el asistente por palabras clave
+ * 2. Si no hay key, o Gemini falla o tarda, responde el asistente por palabras clave
  *    (responderPorReglas): NLP simple + base de conocimiento contra el catálogo real
  *    (carreras, software, hardware). Así el chat funciona sin ninguna API de pago.
  *
@@ -40,7 +40,7 @@ class ChatbotController extends Controller
         'Cuando quieras, dale a "Nueva recomendación" y lo vemos con calma.',
     ];
 
-    public function responder(Request $request, DeepseekAsistente $llm)
+    public function responder(Request $request, GeminiAsistente $llm)
     {
         $datos = $request->validate([
             'mensaje' => ['nullable', 'string', 'max:500'],
@@ -53,7 +53,7 @@ class ChatbotController extends Controller
         if ($mensaje !== '') {
             $respuesta = $llm->responder($mensaje, $datos['historial'] ?? []);
             if ($respuesta !== null) {
-                return response()->json(['respuesta' => $respuesta, 'fuente' => 'deepseek']);
+                return response()->json(['respuesta' => $respuesta, 'fuente' => 'gemini']);
             }
         }
 

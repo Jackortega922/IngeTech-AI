@@ -58,32 +58,32 @@ class ChatbotTest extends TestCase
             ->assertJsonStructure(['respuesta']);
     }
 
-    private function conDeepseek(): void
+    private function conGemini(): void
     {
-        config(['services.deepseek.key' => 'clave-de-prueba', 'services.deepseek.url' => 'https://api.deepseek.test']);
+        config(['services.gemini.key' => 'clave-de-prueba', 'services.gemini.url' => 'https://api.gemini.test']);
     }
 
-    public function test_con_api_key_responde_deepseek_anclado_al_catalogo()
+    public function test_con_api_key_responde_gemini_anclado_al_catalogo()
     {
-        $this->conDeepseek();
+        $this->conGemini();
         Laptop::create([
             'marca' => 'Acer', 'modelo' => 'Aspire 5', 'tipo' => 'laptop', 'cpu' => 'Ryzen 5', 'ram_gb' => 16,
             'almacenamiento_gb' => 512, 'almacenamiento_tipo' => 'SSD', 'gpu_dedicada' => false,
             'precio_soles' => 2399, 'rendimiento_score' => 55,
         ]);
-        Http::fake(['api.deepseek.test/*' => Http::response(['choices' => [['message' => ['content' => 'Te recomiendo la Acer Aspire 5.']]]])]);
+        Http::fake(['api.gemini.test/*' => Http::response(['choices' => [['message' => ['content' => 'Te recomiendo la Acer Aspire 5.']]]])]);
 
         $this->postJson('/api/chatbot', [
             'mensaje' => '¿Cuál me sirve para programar?',
             'historial' => [['autor' => 'usuario', 'texto' => 'Hola'], ['autor' => 'bot', 'texto' => '¡Hola!']],
         ])
             ->assertOk()
-            ->assertJson(['respuesta' => 'Te recomiendo la Acer Aspire 5.', 'fuente' => 'deepseek']);
+            ->assertJson(['respuesta' => 'Te recomiendo la Acer Aspire 5.', 'fuente' => 'gemini']);
 
         Http::assertSent(function (HttpRequest $r) {
             $mensajes = $r['messages'];
 
-            return $r->url() === 'https://api.deepseek.test/chat/completions'
+            return $r->url() === 'https://api.gemini.test/chat/completions'
                 && $r->hasHeader('Authorization', 'Bearer clave-de-prueba')
                 // El catálogo real va en el prompt, con su precio.
                 && str_contains($mensajes[0]['content'], 'Acer Aspire 5')
@@ -95,10 +95,10 @@ class ChatbotTest extends TestCase
         });
     }
 
-    public function test_no_se_envia_el_nombre_del_usuario_a_deepseek()
+    public function test_no_se_envia_el_nombre_del_usuario_a_gemini()
     {
-        $this->conDeepseek();
-        Http::fake(['api.deepseek.test/*' => Http::response(['choices' => [['message' => ['content' => 'ok']]]])]);
+        $this->conGemini();
+        Http::fake(['api.gemini.test/*' => Http::response(['choices' => [['message' => ['content' => 'ok']]]])]);
 
         $this->actingAs(User::factory()->create(['name' => 'Rosa Quispe']))
             ->postJson('/api/chatbot', ['mensaje' => 'hola'])
@@ -107,10 +107,10 @@ class ChatbotTest extends TestCase
         Http::assertSent(fn (HttpRequest $r) => ! str_contains(json_encode($r->data()), 'Rosa'));
     }
 
-    public function test_si_deepseek_falla_responde_el_asistente_por_palabras_clave()
+    public function test_si_gemini_falla_responde_el_asistente_por_palabras_clave()
     {
-        $this->conDeepseek();
-        Http::fake(['api.deepseek.test/*' => Http::response(['error' => 'saturado'], 503)]);
+        $this->conGemini();
+        Http::fake(['api.gemini.test/*' => Http::response(['error' => 'saturado'], 503)]);
 
         $respuesta = $this->postJson('/api/chatbot', ['mensaje' => '¿cómo funciona el comparador?'])
             ->assertOk()
@@ -120,7 +120,7 @@ class ChatbotTest extends TestCase
         $this->assertStringContainsString('Comparador', $respuesta);
     }
 
-    public function test_sin_api_key_no_llama_a_deepseek()
+    public function test_sin_api_key_no_llama_a_gemini()
     {
         Http::fake();
 

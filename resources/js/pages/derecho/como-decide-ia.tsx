@@ -176,12 +176,14 @@ export default function ComoDecideIa() {
                     </h2>
                     <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
                         El chat es distinto del motor de recomendación. Para responder, envía tu mensaje y los últimos mensajes de la conversación a{' '}
-                        <b>DeepSeek</b>, un proveedor externo de inteligencia artificial con servidores fuera del Perú. Le indicamos que solo hable de
-                        las laptops del catálogo, con sus precios reales. Si DeepSeek no responde, contesta un asistente más simple que funciona en
-                        nuestro servidor. Por eso, <b>no escribas en el chat tu DNI, teléfono, dirección ni datos de tarjetas</b>.
+                        <b>Gemini</b>, el modelo de inteligencia artificial de Google, con servidores fuera del Perú. Le indicamos que solo hable de
+                        las laptops del catálogo, con sus precios reales. Usamos su plan gratuito, en el que{' '}
+                        <b>Google puede usar las conversaciones para mejorar sus productos</b>: no le enviamos tu nombre, tu correo ni tu perfil, solo
+                        lo que escribes en el chat. Si Gemini no responde, contesta un asistente más simple que funciona en nuestro servidor. Por eso,{' '}
+                        <b>no escribas en el chat tu DNI, teléfono, dirección ni datos de tarjetas</b>.
                     </p>
                     <p className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-                        <Bot className="h-4 w-4" /> Las respuestas generadas por DeepSeek llevan la marca «Respuesta generada con IA».
+                        <Bot className="h-4 w-4" /> Las respuestas generadas por Gemini llevan la marca «Respuesta generada con IA (Gemini)».
                     </p>
                 </section>
 

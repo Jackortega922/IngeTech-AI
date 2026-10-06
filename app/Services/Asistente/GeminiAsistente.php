@@ -9,21 +9,26 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
- * Asistente conversacional con un LLM (DeepSeek), tarea A13. Es una función complementaria:
+ * Asistente conversacional con un LLM (Gemini, de Google), tarea A13. Es una función complementaria:
  * NO reemplaza al motor de recomendación (ver ADR 0005). Por eso:
  *
  * - Se le pasa el catálogo real en el prompt y se le ordena recomendar solo de ahí, para que
  *   no invente modelos ni precios (grounding: la respuesta se apoya en datos propios).
  * - No se le manda el perfil del usuario ni su nombre (privacidad, RF-ET2): solo lo que la
  *   persona escribe en el chat.
- * - Si no hay API key o DeepSeek falla/tarda, devuelve null y el controlador responde con el
+ * - Si no hay API key o Gemini falla/tarda, devuelve null y el controlador responde con el
  *   asistente por palabras clave. El chat nunca se queda sin respuesta.
+ *
+ * Se usa el endpoint de Gemini compatible con el formato de OpenAI (/chat/completions): es el
+ * mismo formato que antes usaba DeepSeek, que es de pago; Gemini tiene un plan gratuito sin
+ * tarjeta (Google AI Studio). En ese plan Google puede usar las conversaciones para mejorar sus
+ * productos: por eso no se le envían datos del usuario y la página "Cómo decide la IA" lo avisa.
  */
-class DeepseekAsistente
+class GeminiAsistente
 {
     public function disponible(): bool
     {
-        return filled(config('services.deepseek.key'));
+        return filled(config('services.gemini.key'));
     }
 
     /**
@@ -42,19 +47,21 @@ class DeepseekAsistente
         $mensajes[] = ['role' => 'user', 'content' => $mensaje];
 
         try {
-            $respuesta = Http::withToken(config('services.deepseek.key'))
+            $respuesta = Http::withToken(config('services.gemini.key'))
                 ->acceptJson()
-                ->timeout(config('services.deepseek.timeout'))
-                ->post(rtrim(config('services.deepseek.url'), '/').'/chat/completions', [
-                    'model' => config('services.deepseek.model'),
+                ->timeout(config('services.gemini.timeout'))
+                ->post(rtrim(config('services.gemini.url'), '/').'/chat/completions', [
+                    'model' => config('services.gemini.model'),
                     'messages' => $mensajes,
                     'temperature' => 0.4,
-                    'max_tokens' => 450,
+                    // Margen para el razonamiento interno de Gemini 2.5, que también cuenta como tokens; el
+                    // largo de la respuesta lo limita el prompt (máximo 120 palabras).
+                    'max_tokens' => 1024,
                     'stream' => false,
                 ]);
 
             if ($respuesta->failed()) {
-                Log::warning('DeepSeek respondió con error', ['status' => $respuesta->status()]);
+                Log::warning('Gemini respondió con error', ['status' => $respuesta->status()]);
 
                 return null;
             }
@@ -63,7 +70,7 @@ class DeepseekAsistente
 
             return $texto !== '' ? $texto : null;
         } catch (Throwable $e) {
-            Log::warning('No se pudo contactar a DeepSeek', ['error' => $e->getMessage()]);
+            Log::warning('No se pudo contactar a Gemini', ['error' => $e->getMessage()]);
 
             return null;
         }
