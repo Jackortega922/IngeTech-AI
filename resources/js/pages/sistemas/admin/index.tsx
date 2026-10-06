@@ -1,3 +1,4 @@
+import LaptopImage from '@/components/laptop-image';
 import { LoadingPanel } from '@/components/loading-panel';
 import AppLayout from '@/layouts/app-layout';
 import { PUERTO_ETIQUETA } from '@/lib/guia-compra';
@@ -18,27 +19,31 @@ import {
     CheckCircle2,
     Coins,
     Database,
+    Edit3,
     GraduationCap,
-    Image as ImageIcon,
     Laptop as LaptopIcon,
     LayoutDashboard,
     Megaphone,
-    MonitorSmartphone,
     Package,
     Plus,
     RefreshCw,
+    Save,
     Search,
-    Settings2,
     ShoppingBag,
     Trash2,
     UserCog,
     Users,
     X,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type InputHTMLAttributes, type ReactNode } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Administración', href: '/admin' }];
 
+/**
+ * Panel de la tienda. Diseño: Marco (PR #41) — cabecera "Centro de control", barra de pestañas,
+ * tablas con buscador y formularios en ventanas emergentes. Lógica de main: cada rol ve solo sus
+ * pestañas (App\Support\Roles) y cada pestaña de disciplina vive en su propio archivo.
+ */
 type Sub =
     | 'dashboard'
     | 'contabilidad'
@@ -52,7 +57,7 @@ type Sub =
     | 'carreras'
     | 'usuarios';
 
-const TABS = [
+const TABS: { value: Sub; label: string; icon: typeof LayoutDashboard }[] = [
     { value: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { value: 'contabilidad', label: 'Contabilidad', icon: Coins },
     { value: 'clientes', label: 'Clientes', icon: Users },
@@ -64,12 +69,12 @@ const TABS = [
     { value: 'software', label: 'Software', icon: Package },
     { value: 'carreras', label: 'Carreras', icon: GraduationCap },
     { value: 'usuarios', label: 'Usuarios', icon: UserCog },
-] as const;
+];
 
 // Cada pestaña se llama igual que su permiso (App\Support\Roles): el rol solo ve las suyas.
 function tabInicial(permisos: string[]): Sub {
     const permitidas = TABS.filter((t) => permisos.includes(t.value));
-    const primera = (permitidas[0]?.value ?? 'dashboard') as Sub;
+    const primera = permitidas[0]?.value ?? 'dashboard';
     if (typeof window === 'undefined') return primera;
 
     const valor = new URLSearchParams(window.location.search).get('tab');
@@ -88,33 +93,25 @@ const DATOS_POR_PERMISO = {
 async function api(url: string, method: string, body?: unknown) {
     const res = await fetch(url, {
         method,
-        headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-        },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
         credentials: 'same-origin',
-        body: body !== undefined ? JSON.stringify(body) : undefined,
+        body: body === undefined ? undefined : JSON.stringify(body),
     });
 
     if (!res.ok) {
-        let message = 'Ocurrió un error en la solicitud.';
-
+        let message = 'No se pudo completar la operación.';
         try {
             const data = await res.json();
-            message = data.message ?? data.error ?? message;
+            // Error de validación: el primer campo con problema, que es lo que hay que corregir.
+            const primero = data.errors ? Object.values(data.errors as Record<string, string[]>)[0]?.[0] : null;
+            message = primero ?? data.message ?? data.error ?? message;
         } catch {
             // La respuesta no era JSON.
         }
-
         throw new Error(message);
     }
 
-    if (res.status === 204) {
-        return null;
-    }
-
-    return res.json();
+    return res.status === 204 ? null : res.json();
 }
 
 export default function AdminIndex() {
@@ -133,39 +130,42 @@ export default function AdminIndex() {
     const [cargando, setCargando] = useState(true);
 
     const cargar = useCallback(async () => {
-        try {
-            setCargando(true);
-            setError(null);
+        setCargando(true);
+        setError(null);
 
-            // Solo se piden los datos de las secciones del rol: el resto respondería 403.
-            const pedir = async (url: string) => {
-                const res = await fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
-                if (!res.ok) throw new Error('No se pudieron cargar los datos del panel.');
-                return res.json();
-            };
-            const opcional = (permiso: keyof typeof DATOS_POR_PERMISO) =>
-                permisos.includes(permiso) ? pedir(DATOS_POR_PERMISO[permiso]) : Promise.resolve(null);
+        const pedir = async (url: string) => {
+            const res = await fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+        };
+        // Solo se piden los datos de las secciones del rol: el resto respondería 403.
+        const opcional = (permiso: keyof typeof DATOS_POR_PERMISO) =>
+            permisos.includes(permiso) ? pedir(DATOS_POR_PERMISO[permiso]) : Promise.resolve(null);
 
-            const [catalogosData, dashboardData, contabilidadData, clientesData, pedidosData, reclamosData] = await Promise.all([
-                pedir('/api/catalogos'),
-                opcional('dashboard'),
-                opcional('contabilidad'),
-                opcional('clientes'),
-                opcional('pedidos'),
-                opcional('reclamos'),
-            ]);
+        // Cada sección por separado (idea de Marco): si una falla, las demás se siguen viendo.
+        const [cat, dash, cont, cli, ped, rec] = await Promise.allSettled([
+            pedir('/api/catalogos'),
+            opcional('dashboard'),
+            opcional('contabilidad'),
+            opcional('clientes'),
+            opcional('pedidos'),
+            opcional('reclamos'),
+        ]);
 
-            setCatalogos(catalogosData);
-            setDashboard(dashboardData);
-            setContabilidad(contabilidadData);
-            setClientes(clientesData);
-            setPedidos(pedidosData);
-            setReclamos(reclamosData);
-        } catch (e) {
-            setError(e instanceof Error ? e.message : 'No se pudieron cargar los datos.');
-        } finally {
-            setCargando(false);
-        }
+        const fallas: string[] = [];
+        const tomar = <T,>(r: PromiseSettledResult<T>, nombre: string, guardar: (v: T) => void) => {
+            if (r.status === 'fulfilled') guardar(r.value);
+            else fallas.push(nombre);
+        };
+        tomar(cat, 'catálogo', setCatalogos);
+        tomar(dash, 'dashboard', setDashboard);
+        tomar(cont, 'contabilidad', setContabilidad);
+        tomar(cli, 'clientes', setClientes);
+        tomar(ped, 'pedidos', setPedidos);
+        tomar(rec, 'reclamos', setReclamos);
+
+        if (fallas.length) setError(`No se pudo cargar: ${fallas.join(', ')}.`);
+        setCargando(false);
         // permisos no cambia mientras la página está abierta (viene del servidor al cargarla).
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -176,7 +176,7 @@ export default function AdminIndex() {
 
     function avisar(msg: string) {
         setMensaje(msg);
-        setTimeout(() => setMensaje(null), 3000);
+        setTimeout(() => setMensaje(null), 3500);
     }
 
     function cambiarTab(s: Sub) {
@@ -184,105 +184,72 @@ export default function AdminIndex() {
         window.history.replaceState(null, '', `/admin?tab=${s}`);
     }
 
-    const tituloTab = tabs.find((t) => t.value === sub)?.label ?? 'Administración';
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Administración - IngeTech AI" />
-
-            <div className="bg-background min-h-full flex-1">
-                <div className="mx-auto flex max-w-[1600px] flex-col gap-6 p-4 md:p-6 lg:p-8">
-                    {/* HEADER */}
-                    <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                        <div>
-                            <div className="mb-3 flex items-center gap-3">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
-                                    <Database className="h-5 w-5" />
+            <Head title="Administración — IngeTech AI" />
+            <div className="min-h-full bg-slate-50/70 dark:bg-slate-950">
+                <div className="mx-auto max-w-[1600px] space-y-6 p-4 md:p-7">
+                    <header className="relative overflow-hidden rounded-[2rem] bg-[#0c2340] p-6 text-white shadow-xl sm:p-8">
+                        <div className="absolute -top-24 -right-20 h-72 w-72 rounded-full bg-sky-400/15 blur-3xl" />
+                        <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+                            <div>
+                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-bold">
+                                    <Database className="h-3.5 w-3.5 text-sky-300" /> Centro de control
                                 </div>
-
-                                <div>
-                                    <p className="text-sm font-bold text-cyan-600 dark:text-cyan-400">IngeTech AI</p>
-                                    <p className="text-muted-foreground text-xs">Sistema inteligente de recomendación</p>
-                                </div>
+                                <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Administración</h1>
+                                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
+                                    Ventas, inventario, clientes y el catálogo que alimenta las recomendaciones de IngeTech AI.
+                                </p>
                             </div>
-
-                            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Panel de administración</h1>
-
-                            <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
-                                Gestiona el catálogo tecnológico, los clientes, el software y las carreras u ocupaciones que usa el sistema.
-                            </p>
+                            <button
+                                onClick={() => void cargar()}
+                                disabled={cargando}
+                                className="it-btn rounded-xl border border-white/15 bg-white/10 text-white hover:bg-white/15"
+                            >
+                                <RefreshCw className={cargando ? 'h-4 w-4 animate-spin' : 'h-4 w-4'} /> Actualizar datos
+                            </button>
                         </div>
+                    </header>
 
-                        <button
-                            onClick={() => void cargar()}
-                            disabled={cargando}
-                            className="bg-card hover:bg-muted inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                            <RefreshCw className={`h-4 w-4 ${cargando ? 'animate-spin' : ''}`} />
-                            Actualizar
-                        </button>
-                    </div>
-
-                    {/* MENSAJES */}
                     {mensaje && (
-                        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400">
+                        <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
                             <CheckCircle2 className="h-5 w-5 shrink-0" />
-                            <span>{mensaje}</span>
-                            <button className="ml-auto" onClick={() => setMensaje(null)}>
+                            {mensaje}
+                            <button className="ml-auto" onClick={() => setMensaje(null)} aria-label="Cerrar">
                                 <X className="h-4 w-4" />
                             </button>
                         </div>
                     )}
 
                     {error && (
-                        <div className="flex items-center gap-3 rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-400">
+                        <div className="flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
                             <AlertCircle className="h-5 w-5 shrink-0" />
-                            <span>{error}</span>
-                            <button
-                                onClick={() => void cargar()}
-                                className="ml-auto rounded-lg border border-rose-500/20 px-3 py-1.5 text-xs font-semibold hover:bg-rose-500/10"
-                            >
+                            {error}
+                            <button onClick={() => void cargar()} className="ml-auto rounded-lg border px-3 py-1.5 text-xs font-bold">
                                 Reintentar
                             </button>
                         </div>
                     )}
 
-                    {/* NAVEGACION */}
-                    <div className="bg-card rounded-2xl border p-2 shadow-sm">
-                        <div className="flex gap-2 overflow-x-auto">
-                            {tabs.map((tab) => {
-                                const Icon = tab.icon;
-                                const activo = sub === tab.value;
-
-                                return (
-                                    <button
-                                        key={tab.value}
-                                        onClick={() => cambiarTab(tab.value)}
-                                        className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
-                                            activo
-                                                ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/20'
-                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                        }`}
-                                    >
-                                        <Icon className="h-4 w-4" />
-                                        {tab.label}
-                                    </button>
-                                );
-                            })}
+                    <nav className="it-admin-card p-2">
+                        <div className="flex gap-1 overflow-x-auto">
+                            {tabs.map((t) => (
+                                <button
+                                    key={t.value}
+                                    onClick={() => cambiarTab(t.value)}
+                                    className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition ${
+                                        sub === t.value
+                                            ? 'bg-[var(--it-primary)] text-white shadow-lg'
+                                            : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
+                                    }`}
+                                >
+                                    <t.icon className="h-4 w-4" />
+                                    {t.label}
+                                </button>
+                            ))}
                         </div>
-                    </div>
+                    </nav>
 
-                    {/* TITULO DE SECCION */}
-                    {sub !== 'dashboard' && (
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h2 className="text-xl font-bold">{tituloTab}</h2>
-                                <p className="text-muted-foreground text-sm">Administra la información de esta sección.</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* CONTENIDO */}
                     {!catalogos || cargando ? (
                         <LoadingPanel />
                     ) : sub === 'dashboard' ? (
@@ -295,18 +262,18 @@ export default function AdminIndex() {
                         <PanelPedidos pedidos={pedidos} avisar={avisar} soloLectura={!permisos.includes('pedidos.editar')} />
                     ) : sub === 'inventario' ? (
                         <PanelInventario avisar={avisar} />
+                    ) : sub === 'reclamos' ? (
+                        <PanelReclamos reclamos={reclamos} avisar={avisar} />
                     ) : sub === 'marketing' ? (
                         <PanelSegmentos avisar={avisar} />
                     ) : sub === 'usuarios' ? (
                         <PanelUsuarios avisar={avisar} />
-                    ) : sub === 'reclamos' ? (
-                        <PanelReclamos reclamos={reclamos} avisar={avisar} />
                     ) : sub === 'hardware' ? (
-                        <TablaHardware equipos={catalogos.hardware} onCambio={cargar} avisar={avisar} />
+                        <PanelEquipos equipos={catalogos.hardware} onCambio={cargar} avisar={avisar} />
                     ) : sub === 'software' ? (
-                        <TablaSoftware items={catalogos.software} onCambio={cargar} avisar={avisar} />
+                        <PanelSoftware items={catalogos.software} onCambio={cargar} avisar={avisar} />
                     ) : (
-                        <TablaCarreras carreras={catalogos.carreras} software={catalogos.software} onCambio={cargar} avisar={avisar} />
+                        <PanelCarreras carreras={catalogos.carreras} software={catalogos.software} onCambio={cargar} avisar={avisar} />
                     )}
                 </div>
             </div>
@@ -315,491 +282,479 @@ export default function AdminIndex() {
 }
 
 /* ============================================================
-   LOADING
+   PIEZAS COMUNES (diseño de Marco)
 ============================================================ */
 
-/* ============================================================
-   HARDWARE
-============================================================ */
-
-function TablaHardware({ equipos, onCambio, avisar }: { equipos: Laptop[]; onCambio: () => void; avisar: (m: string) => void }) {
-    const [filas, setFilas] = useState<Laptop[]>(equipos);
-
-    const [busqueda, setBusqueda] = useState('');
-    const [tipoFiltro, setTipoFiltro] = useState('todos');
-
-    const [guardando, setGuardando] = useState(false);
-
-    useEffect(() => {
-        setFilas(equipos);
-    }, [equipos]);
-
-    function set(i: number, campo: keyof Laptop, valor: unknown) {
-        setFilas((f) =>
-            f.map((r, idx) =>
-                idx === i
-                    ? {
-                          ...r,
-                          [campo]: valor,
-                      }
-                    : r,
-            ),
-        );
-    }
-
-    const equiposFiltrados = useMemo(() => {
-        const texto = busqueda.trim().toLowerCase();
-
-        return filas.filter((f) => {
-            const contenido = `${f.marca} ${f.modelo} ${f.cpu} ${f.gpu}`.toLowerCase();
-
-            const coincideBusqueda = !texto || contenido.includes(texto);
-
-            const coincideTipo = tipoFiltro === 'todos' || f.tipo === tipoFiltro;
-
-            return coincideBusqueda && coincideTipo;
-        });
-    }, [filas, busqueda, tipoFiltro]);
-
-    async function guardarTodo() {
-        try {
-            setGuardando(true);
-
-            for (const f of filas) {
-                await api(`/api/admin/hardware/${f.id}`, 'PUT', {
-                    marca: f.marca,
-                    modelo: f.modelo,
-                    descripcion: f.descripcion,
-                    imagen_url: f.imagen_url || null,
-                    tipo: f.tipo,
-                    cpu: f.cpu,
-                    rendimiento_score: Number(f.rendimiento_score),
-                    ram_gb: Number(f.ram_gb),
-                    ram_ampliable_gb: f.ram_ampliable_gb ? Number(f.ram_ampliable_gb) : null,
-                    almacenamiento_gb: Number(f.almacenamiento_gb),
-                    almacenamiento_tipo: f.almacenamiento_tipo,
-                    gpu: f.gpu,
-                    gpu_dedicada: f.gpu_dedicada,
-                    bateria_horas: f.bateria_horas ? Number(f.bateria_horas) : null,
-                    pantalla_pulgadas: f.pantalla_pulgadas ? Number(f.pantalla_pulgadas) : null,
-                    pantalla_resolucion: f.pantalla_resolucion || null,
-                    pantalla_hz: f.pantalla_hz ? Number(f.pantalla_hz) : null,
-                    peso_kg: f.peso_kg ? Number(f.peso_kg) : null,
-                    puertos: f.puertos ?? [],
-                    precio_soles: Number(f.precio_soles),
-                    tienda: f.tienda,
-                });
-            }
-
-            avisar('Cambios guardados correctamente.');
-
-            onCambio();
-        } catch (e) {
-            avisar(e instanceof Error ? e.message : 'No se pudieron guardar los cambios.');
-        } finally {
-            setGuardando(false);
-        }
-    }
-
-    async function agregar() {
-        try {
-            await api('/api/admin/hardware', 'POST', {
-                marca: 'Nueva',
-                modelo: 'Nuevo equipo',
-                descripcion: '',
-                imagen_url: null,
-                tipo: 'laptop',
-                cpu: '—',
-                rendimiento_score: 50,
-                ram_gb: 8,
-                almacenamiento_gb: 512,
-                almacenamiento_tipo: 'SSD',
-                gpu: '—',
-                gpu_dedicada: false,
-                bateria_horas: 8,
-                precio_soles: 2000,
-                tienda: '—',
-            });
-
-            avisar('Nuevo equipo agregado.');
-
-            onCambio();
-        } catch (e) {
-            avisar(e instanceof Error ? e.message : 'No se pudo agregar el equipo.');
-        }
-    }
-
-    async function eliminar(id: number) {
-        const confirmar = window.confirm('¿Estás seguro de eliminar este equipo? Esta acción no se puede deshacer.');
-
-        if (!confirmar) return;
-
-        try {
-            await api(`/api/admin/hardware/${id}`, 'DELETE');
-
-            avisar('Equipo eliminado correctamente.');
-
-            onCambio();
-        } catch (e) {
-            avisar(e instanceof Error ? e.message : 'No se pudo eliminar el equipo.');
-        }
-    }
-
+function Modal({
+    open,
+    title,
+    description,
+    onClose,
+    children,
+    footer,
+}: {
+    open: boolean;
+    title: string;
+    description?: string;
+    onClose: () => void;
+    children: ReactNode;
+    footer: ReactNode;
+}) {
+    if (!open) return null;
     return (
-        <div className="space-y-5">
-            {/* HEADER */}
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                    <div className="flex items-center gap-2">
-                        <LaptopIcon className="h-5 w-5 text-cyan-500" />
-                        <h2 className="text-xl font-bold">Catálogo de equipos</h2>
+        <div className="it-modal-backdrop" onMouseDown={onClose}>
+            <section className="it-modal" onMouseDown={(e) => e.stopPropagation()}>
+                <header className="it-modal-header">
+                    <div>
+                        <p className="it-eyebrow">Gestión de catálogo</p>
+                        <h2 className="mt-1 text-xl font-bold">{title}</h2>
+                        {description && <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>}
                     </div>
-
-                    <p className="text-muted-foreground mt-1 text-sm">{filas.length} equipos registrados en el catálogo.</p>
-                </div>
-
-                <div className="flex gap-2">
-                    <button
-                        onClick={agregar}
-                        className="inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-cyan-600"
-                    >
-                        <Plus className="h-4 w-4" />
-                        Nuevo equipo
+                    <button type="button" className="it-icon-btn" onClick={onClose} aria-label="Cerrar">
+                        <X className="h-4 w-4" />
                     </button>
+                </header>
+                <div className="it-modal-body it-scrollbar">{children}</div>
+                <footer className="it-modal-footer">{footer}</footer>
+            </section>
+        </div>
+    );
+}
 
-                    <button
-                        onClick={guardarTodo}
-                        disabled={guardando}
-                        className="bg-card hover:bg-muted inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-bold transition disabled:opacity-50"
-                    >
-                        <CheckCircle2 className="h-4 w-4" />
-                        {guardando ? 'Guardando...' : 'Guardar cambios'}
-                    </button>
-                </div>
-            </div>
-
-            {/* FILTROS */}
-            <div className="bg-card flex flex-col gap-3 rounded-2xl border p-4 shadow-sm md:flex-row">
-                <div className="relative flex-1">
-                    <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-
-                    <input
-                        className="bg-background w-full rounded-xl border py-2.5 pr-4 pl-10 text-sm transition outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/10"
-                        placeholder="Buscar por marca, modelo, CPU o GPU..."
-                        value={busqueda}
-                        onChange={(e) => setBusqueda(e.target.value)}
-                    />
-                </div>
-
-                <select
-                    className="bg-background rounded-xl border px-4 py-2.5 text-sm outline-none focus:border-cyan-500"
-                    value={tipoFiltro}
-                    onChange={(e) => setTipoFiltro(e.target.value)}
-                >
-                    <option value="todos">Todos los equipos</option>
-                    <option value="laptop">Laptops</option>
-                    <option value="escritorio">Escritorio</option>
-                </select>
-
-                <div className="text-muted-foreground flex items-center justify-center rounded-xl border px-4 text-sm">
-                    {equiposFiltrados.length} resultados
-                </div>
-            </div>
-
-            {/* TABLA */}
-            <div className="bg-card overflow-hidden rounded-2xl border shadow-sm">
-                <div className="overflow-x-auto">
-                    <table className="w-full min-w-[1100px] text-sm">
-                        <thead className="bg-muted/50 text-muted-foreground text-left text-xs tracking-wide uppercase">
-                            <tr>
-                                <th className="px-4 py-3">Equipo</th>
-                                <th className="px-4 py-3">CPU</th>
-                                <th className="px-4 py-3">Score</th>
-                                <th className="px-4 py-3">RAM</th>
-                                <th className="px-4 py-3">Almacenamiento</th>
-                                <th className="px-4 py-3">GPU</th>
-                                <th className="px-4 py-3">Precio</th>
-                                <th className="px-4 py-3 text-right">Acción</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {equiposFiltrados.map((f) => {
-                                const i = filas.findIndex((x) => x.id === f.id);
-
-                                return (
-                                    <tr key={f.id} className="hover:bg-muted/30 border-t transition">
-                                        <td className="p-2">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-600">
-                                                    <LaptopIcon className="h-5 w-5" />
-                                                </div>
-
-                                                <div className="min-w-[210px]">
-                                                    <input
-                                                        className="campo bg-background w-full rounded-lg border px-2 py-1 font-semibold"
-                                                        value={f.marca}
-                                                        onChange={(e) => set(i, 'marca', e.target.value)}
-                                                    />
-
-                                                    <input
-                                                        className="campo bg-background text-muted-foreground mt-1 w-full rounded-lg border px-2 py-1 text-xs"
-                                                        value={f.modelo}
-                                                        onChange={(e) => set(i, 'modelo', e.target.value)}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <td className="p-2">
-                                            <input
-                                                className="campo bg-background w-48 rounded-lg border px-2 py-2"
-                                                value={f.cpu}
-                                                onChange={(e) => set(i, 'cpu', e.target.value)}
-                                            />
-                                        </td>
-
-                                        <td className="p-2">
-                                            <input
-                                                className="campo bg-background w-20 rounded-lg border px-2 py-2"
-                                                type="number"
-                                                min="0"
-                                                value={f.rendimiento_score ?? 0}
-                                                onChange={(e) => set(i, 'rendimiento_score', e.target.value)}
-                                            />
-                                        </td>
-
-                                        <td className="p-2">
-                                            <div className="flex items-center gap-1">
-                                                <input
-                                                    className="campo bg-background w-16 rounded-lg border px-2 py-2"
-                                                    type="number"
-                                                    min="1"
-                                                    value={f.ram_gb}
-                                                    onChange={(e) => set(i, 'ram_gb', e.target.value)}
-                                                />
-                                                <span className="text-muted-foreground text-xs">GB</span>
-                                            </div>
-                                        </td>
-
-                                        <td className="p-2">
-                                            <div className="flex items-center gap-1">
-                                                <input
-                                                    className="campo bg-background w-20 rounded-lg border px-2 py-2"
-                                                    type="number"
-                                                    min="1"
-                                                    value={f.almacenamiento_gb}
-                                                    onChange={(e) => set(i, 'almacenamiento_gb', e.target.value)}
-                                                />
-                                                <span className="text-muted-foreground text-xs">GB</span>
-                                            </div>
-                                        </td>
-
-                                        <td className="p-2">
-                                            <div className="space-y-1">
-                                                <input
-                                                    className="campo bg-background w-40 rounded-lg border px-2 py-2"
-                                                    value={f.gpu ?? ''}
-                                                    onChange={(e) => set(i, 'gpu', e.target.value)}
-                                                />
-
-                                                <select
-                                                    className="bg-background w-40 rounded-lg border px-2 py-1 text-xs"
-                                                    value={String(f.gpu_dedicada)}
-                                                    onChange={(e) => set(i, 'gpu_dedicada', e.target.value === 'true')}
-                                                >
-                                                    <option value="true">GPU dedicada</option>
-                                                    <option value="false">GPU integrada</option>
-                                                </select>
-                                            </div>
-                                        </td>
-
-                                        <td className="p-2">
-                                            <div className="flex items-center gap-1">
-                                                <span className="text-muted-foreground text-xs">S/</span>
-
-                                                <input
-                                                    className="campo bg-background w-24 rounded-lg border px-2 py-2 font-semibold"
-                                                    type="number"
-                                                    min="0"
-                                                    value={Number(f.precio_soles)}
-                                                    onChange={(e) => set(i, 'precio_soles', e.target.value)}
-                                                />
-                                            </div>
-                                        </td>
-
-                                        <td className="p-2 text-right">
-                                            <button
-                                                title="Eliminar equipo"
-                                                onClick={() => void eliminar(f.id)}
-                                                className="text-muted-foreground rounded-lg p-2 transition hover:bg-rose-500/10 hover:text-rose-500"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-
-                {equiposFiltrados.length === 0 && (
-                    <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-                        <Search className="text-muted-foreground mb-3 h-8 w-8" />
-                        <p className="font-semibold">No se encontraron equipos</p>
-                        <p className="text-muted-foreground mt-1 text-sm">Prueba con otro término de búsqueda.</p>
+function CatalogHeader({
+    icon,
+    title,
+    subtitle,
+    button,
+    onAdd,
+    query,
+    setQuery,
+}: {
+    icon: ReactNode;
+    title: string;
+    subtitle: string;
+    button?: string;
+    onAdd?: () => void;
+    query: string;
+    setQuery: (v: string) => void;
+}) {
+    return (
+        <div className="it-admin-card">
+            <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[var(--it-primary-soft)] text-[var(--it-primary)] dark:text-sky-300">
+                        {icon}
                     </div>
-                )}
-            </div>
-
-            {/* DESCRIPCIONES */}
-            <div className="bg-card rounded-2xl border p-5 shadow-sm">
-                <div className="mb-4 flex items-center gap-2">
-                    <Settings2 className="h-5 w-5 text-cyan-500" />
                     <div>
-                        <h3 className="font-bold">Descripciones del catálogo</h3>
-                        <p className="text-muted-foreground text-xs">Texto utilizado para presentar cada equipo.</p>
+                        <h2 className="text-xl font-bold">{title}</h2>
+                        <p className="text-sm text-slate-500">{subtitle}</p>
                     </div>
                 </div>
-
-                <div className="grid gap-3 md:grid-cols-2">
-                    {filas.map((f, i) => (
-                        <label key={f.id} className="block">
-                            <span className="text-muted-foreground mb-1 block text-xs font-medium">
-                                {f.marca} {f.modelo}
-                            </span>
-
-                            <input
-                                className="campo bg-background w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-cyan-500"
-                                value={f.descripcion ?? ''}
-                                onChange={(e) => set(i, 'descripcion', e.target.value)}
-                                placeholder="Descripción corta del equipo..."
-                            />
-                        </label>
-                    ))}
-                </div>
-            </div>
-
-            <div className="bg-card rounded-2xl border p-5 shadow-sm">
-                <div className="mb-4 flex items-center gap-2">
-                    <ImageIcon className="h-5 w-5 text-cyan-500" />
-                    <div>
-                        <h3 className="font-bold">Imágenes del catálogo</h3>
-                        <p className="text-muted-foreground text-xs">
-                            Enlace a una foto ya alojada en otro lado (tienda o fabricante) — no se sube ningún archivo al servidor.
-                        </p>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                    <div className="relative">
+                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <input
+                            className="it-form-input w-full pl-10 sm:w-80"
+                            placeholder={`Buscar ${title.toLowerCase()}...`}
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
                     </div>
-                </div>
-
-                <div className="grid gap-3 md:grid-cols-2">
-                    {filas.map((f, i) => (
-                        <label key={f.id} className="block">
-                            <span className="text-muted-foreground mb-1 block text-xs font-medium">
-                                {f.marca} {f.modelo}
-                            </span>
-
-                            <input
-                                type="url"
-                                className="campo bg-background w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-cyan-500"
-                                value={f.imagen_url ?? ''}
-                                onChange={(e) => set(i, 'imagen_url', e.target.value)}
-                                placeholder="https://..."
-                            />
-                        </label>
-                    ))}
-                </div>
-            </div>
-
-            <div className="bg-card rounded-2xl border p-5 shadow-sm">
-                <div className="mb-4 flex items-center gap-2">
-                    <MonitorSmartphone className="h-5 w-5 text-cyan-500" />
-                    <div>
-                        <h3 className="font-bold">Pantalla, peso y puertos</h3>
-                        <p className="text-muted-foreground text-xs">
-                            Los usa la guía de compra del comparador. Son datos de ficha técnica de referencia: confírmalos con el modelo exacto que
-                            vende la tienda.
-                        </p>
-                    </div>
-                </div>
-
-                <div className="grid gap-3 lg:grid-cols-2">
-                    {filas.map((f, i) => (
-                        <div key={f.id} className="rounded-xl border p-3">
-                            <p className="text-sm font-semibold">
-                                {f.marca} {f.modelo}
-                            </p>
-                            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                                <CampoCorto label="Pulgadas">
-                                    <input
-                                        type="number"
-                                        step="0.1"
-                                        className={campoCorto}
-                                        value={f.pantalla_pulgadas ?? ''}
-                                        onChange={(e) => set(i, 'pantalla_pulgadas', e.target.value)}
-                                    />
-                                </CampoCorto>
-                                <CampoCorto label="Resolución">
-                                    <input
-                                        className={campoCorto}
-                                        value={f.pantalla_resolucion ?? ''}
-                                        onChange={(e) => set(i, 'pantalla_resolucion', e.target.value)}
-                                        placeholder="1920x1080"
-                                    />
-                                </CampoCorto>
-                                <CampoCorto label="Hz">
-                                    <input
-                                        type="number"
-                                        className={campoCorto}
-                                        value={f.pantalla_hz ?? ''}
-                                        onChange={(e) => set(i, 'pantalla_hz', e.target.value)}
-                                    />
-                                </CampoCorto>
-                                <CampoCorto label="Peso (kg)">
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        className={campoCorto}
-                                        value={f.peso_kg ?? ''}
-                                        onChange={(e) => set(i, 'peso_kg', e.target.value)}
-                                    />
-                                </CampoCorto>
-                            </div>
-                            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
-                                {Object.entries(PUERTO_ETIQUETA).map(([clave, etiqueta]) => (
-                                    <label key={clave} className="flex items-center gap-1.5 text-xs">
-                                        <input
-                                            type="checkbox"
-                                            className="accent-cyan-500"
-                                            checked={(f.puertos ?? []).includes(clave)}
-                                            onChange={(e) =>
-                                                set(
-                                                    i,
-                                                    'puertos',
-                                                    e.target.checked ? [...(f.puertos ?? []), clave] : (f.puertos ?? []).filter((p) => p !== clave),
-                                                )
-                                            }
-                                        />
-                                        {etiqueta}
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
+                    {button && onAdd && (
+                        <button className="it-btn it-btn-primary" onClick={onAdd}>
+                            <Plus className="h-4 w-4" />
+                            {button}
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
     );
 }
 
-const campoCorto = 'bg-background w-full rounded-lg border px-2 py-1.5 text-sm outline-none focus:border-cyan-500';
-
-function CampoCorto({ label, children }: { label: string; children: React.ReactNode }) {
+function Vacio({ texto }: { texto: string }) {
     return (
-        <label className="block">
-            <span className="text-muted-foreground mb-0.5 block text-[11px]">{label}</span>
+        <div className="py-14 text-center">
+            <Search className="mx-auto h-8 w-8 text-slate-300" />
+            <p className="mt-3 text-sm font-semibold text-slate-500">{texto}</p>
+        </div>
+    );
+}
+
+function Campo({ label, className, children }: { label: string; className?: string; children: ReactNode }) {
+    return (
+        <label className={`it-form-label ${className ?? ''}`}>
+            {label}
             {children}
         </label>
+    );
+}
+
+function ErrorForm({ texto }: { texto: string | null }) {
+    if (!texto) return null;
+    return <p className="mb-4 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-950/30 dark:text-rose-300">{texto}</p>;
+}
+
+function PieModal({ guardando, onCancelar, onGuardar, texto }: { guardando: boolean; onCancelar: () => void; onGuardar: () => void; texto: string }) {
+    return (
+        <>
+            <button className="it-btn it-btn-secondary" onClick={onCancelar}>
+                Cancelar
+            </button>
+            <button className="it-btn it-btn-primary" disabled={guardando} onClick={onGuardar}>
+                <Save className="h-4 w-4" />
+                {guardando ? 'Guardando…' : texto}
+            </button>
+        </>
+    );
+}
+
+function Acciones({ onEditar, onEliminar }: { onEditar: () => void; onEliminar: () => void }) {
+    return (
+        <div className="flex justify-end gap-1">
+            <button className="it-icon-btn" title="Editar" aria-label="Editar" onClick={onEditar}>
+                <Edit3 className="h-4 w-4" />
+            </button>
+            <button className="it-icon-btn text-rose-500 hover:bg-rose-50" title="Eliminar" aria-label="Eliminar" onClick={onEliminar}>
+                <Trash2 className="h-4 w-4" />
+            </button>
+        </div>
+    );
+}
+
+// Los números del formulario se editan como texto (un campo opcional puede quedar vacío) y se
+// convierten al guardar: vacío → null, para que el servidor diga qué falta en vez de inventar.
+const num = (v: string) => (v.trim() === '' ? null : Number(v));
+const txt = (v: string) => (v.trim() === '' ? null : v.trim());
+const str = (v: number | string | null | undefined) => (v === null || v === undefined ? '' : String(v));
+
+// Un formulario en ventana emergente: borrador, guardado y su error.
+function useEdicion<B>(guardarEnServidor: (b: B) => Promise<string>, onCambio: () => Promise<void>, avisar: (m: string) => void) {
+    const [editando, setEditando] = useState<B | null>(null);
+    const [guardando, setGuardando] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    function abrir(b: B) {
+        setEditando(b);
+        setError(null);
+    }
+
+    async function guardar() {
+        if (!editando) return;
+        setGuardando(true);
+        setError(null);
+        try {
+            avisar(await guardarEnServidor(editando));
+            setEditando(null);
+            await onCambio();
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'No se pudo guardar.');
+        } finally {
+            setGuardando(false);
+        }
+    }
+
+    return { editando, setEditando, guardando, error, abrir, guardar, cerrar: () => setEditando(null) };
+}
+
+async function eliminarConfirmando(pregunta: string, url: string, hecho: string, onCambio: () => Promise<void>, avisar: (m: string) => void) {
+    if (!window.confirm(pregunta)) return;
+    try {
+        await api(url, 'DELETE');
+        avisar(hecho);
+        await onCambio();
+    } catch (e) {
+        avisar(e instanceof Error ? e.message : 'No se pudo eliminar.');
+    }
+}
+
+/* ============================================================
+   EQUIPOS
+============================================================ */
+
+interface BorradorEquipo {
+    id: number | null;
+    marca: string;
+    modelo: string;
+    descripcion: string;
+    imagen_url: string;
+    tipo: Laptop['tipo'];
+    cpu: string;
+    rendimiento_score: string;
+    ram_gb: string;
+    ram_ampliable_gb: string;
+    almacenamiento_gb: string;
+    almacenamiento_tipo: string;
+    gpu: string;
+    gpu_dedicada: boolean;
+    bateria_horas: string;
+    pantalla_pulgadas: string;
+    pantalla_resolucion: string;
+    pantalla_hz: string;
+    peso_kg: string;
+    puertos: string[];
+    precio_soles: string;
+    tienda: string;
+}
+
+const equipoVacio = (): BorradorEquipo => ({
+    id: null,
+    marca: '',
+    modelo: '',
+    descripcion: '',
+    imagen_url: '',
+    tipo: 'laptop',
+    cpu: '',
+    rendimiento_score: '',
+    ram_gb: '',
+    ram_ampliable_gb: '',
+    almacenamiento_gb: '',
+    almacenamiento_tipo: 'SSD',
+    gpu: '',
+    gpu_dedicada: false,
+    bateria_horas: '',
+    pantalla_pulgadas: '',
+    pantalla_resolucion: '',
+    pantalla_hz: '',
+    peso_kg: '',
+    puertos: [],
+    precio_soles: '',
+    tienda: '',
+});
+
+const equipoABorrador = (l: Laptop): BorradorEquipo => ({
+    id: l.id,
+    marca: l.marca,
+    modelo: l.modelo,
+    descripcion: l.descripcion ?? '',
+    imagen_url: l.imagen_url ?? '',
+    tipo: l.tipo,
+    cpu: l.cpu,
+    rendimiento_score: str(l.rendimiento_score),
+    ram_gb: str(l.ram_gb),
+    ram_ampliable_gb: str(l.ram_ampliable_gb),
+    almacenamiento_gb: str(l.almacenamiento_gb),
+    almacenamiento_tipo: l.almacenamiento_tipo,
+    gpu: l.gpu ?? '',
+    gpu_dedicada: l.gpu_dedicada,
+    bateria_horas: str(l.bateria_horas),
+    pantalla_pulgadas: str(l.pantalla_pulgadas),
+    pantalla_resolucion: l.pantalla_resolucion ?? '',
+    pantalla_hz: str(l.pantalla_hz),
+    peso_kg: str(l.peso_kg),
+    puertos: l.puertos ?? [],
+    precio_soles: str(l.precio_soles),
+    tienda: l.tienda ?? '',
+});
+
+async function guardarEquipo(b: BorradorEquipo): Promise<string> {
+    const payload = {
+        marca: b.marca.trim(),
+        modelo: b.modelo.trim(),
+        descripcion: txt(b.descripcion),
+        // Enlace a una foto, no un archivo subido: el plan gratuito de Render no guarda archivos.
+        imagen_url: txt(b.imagen_url),
+        tipo: b.tipo,
+        cpu: b.cpu.trim(),
+        rendimiento_score: num(b.rendimiento_score),
+        ram_gb: num(b.ram_gb),
+        ram_ampliable_gb: num(b.ram_ampliable_gb),
+        almacenamiento_gb: num(b.almacenamiento_gb),
+        almacenamiento_tipo: b.almacenamiento_tipo.trim(),
+        gpu: txt(b.gpu),
+        gpu_dedicada: b.gpu_dedicada,
+        bateria_horas: num(b.bateria_horas),
+        pantalla_pulgadas: num(b.pantalla_pulgadas),
+        pantalla_resolucion: txt(b.pantalla_resolucion),
+        pantalla_hz: num(b.pantalla_hz),
+        peso_kg: num(b.peso_kg),
+        puertos: b.puertos,
+        precio_soles: num(b.precio_soles),
+        tienda: txt(b.tienda),
+    };
+    if (b.id) {
+        await api(`/api/admin/hardware/${b.id}`, 'PUT', payload);
+        return 'Equipo actualizado.';
+    }
+    await api('/api/admin/hardware', 'POST', payload);
+    // Sin stock no se puede vender ni se recomienda: se avisa dónde registrarlo.
+    return 'Equipo creado. Registra su stock en Inventario para que se pueda vender.';
+}
+
+function PanelEquipos({ equipos, onCambio, avisar }: { equipos: Laptop[]; onCambio: () => Promise<void>; avisar: (m: string) => void }) {
+    const [query, setQuery] = useState('');
+    const edicion = useEdicion(guardarEquipo, onCambio, avisar);
+
+    const filtrados = useMemo(
+        () => equipos.filter((x) => `${x.marca} ${x.modelo} ${x.cpu} ${x.gpu ?? ''}`.toLowerCase().includes(query.toLowerCase())),
+        [equipos, query],
+    );
+
+    return (
+        <section className="space-y-5">
+            <CatalogHeader
+                icon={<LaptopIcon className="h-5 w-5" />}
+                title="Equipos"
+                subtitle={`${equipos.length} laptops en el catálogo que usa el motor de recomendación.`}
+                button="Añadir equipo"
+                onAdd={() => edicion.abrir(equipoVacio())}
+                query={query}
+                setQuery={setQuery}
+            />
+            <div className="it-table-shell">
+                <div className="overflow-x-auto">
+                    <table className="it-table min-w-[1000px]">
+                        <thead>
+                            <tr>
+                                <th>Equipo</th>
+                                <th>Rendimiento</th>
+                                <th>Memoria</th>
+                                <th>GPU</th>
+                                <th>Stock</th>
+                                <th>Precio</th>
+                                <th className="text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filtrados.map((l) => (
+                                <tr key={l.id} className="it-table-row">
+                                    <td className="p-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-12 w-16 shrink-0 overflow-hidden rounded-xl border bg-slate-100 dark:bg-slate-950">
+                                                <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="h-full w-full" />
+                                            </div>
+                                            <div>
+                                                <p className="font-bold">
+                                                    {l.marca} {l.modelo}
+                                                </p>
+                                                <p className="text-xs text-slate-500">{l.cpu}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="p-3">
+                                        <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
+                                            {l.rendimiento_score ?? '—'}/100
+                                        </span>
+                                    </td>
+                                    <td className="p-3 text-sm">
+                                        {l.ram_gb} GB · {l.almacenamiento_gb} GB {l.almacenamiento_tipo}
+                                    </td>
+                                    <td className="p-3 text-sm">{l.gpu_dedicada ? (l.gpu ?? 'Dedicada') : 'Integrada'}</td>
+                                    <td className={`p-3 text-sm font-bold ${l.stock === 0 ? 'text-rose-600' : ''}`}>{l.stock}</td>
+                                    <td className="p-3 font-bold">S/ {Number(l.precio_soles).toLocaleString('es-PE')}</td>
+                                    <td className="p-3">
+                                        <Acciones
+                                            onEditar={() => edicion.abrir(equipoABorrador(l))}
+                                            onEliminar={() =>
+                                                void eliminarConfirmando(
+                                                    `¿Eliminar ${l.marca} ${l.modelo}? Esta acción no se puede deshacer.`,
+                                                    `/api/admin/hardware/${l.id}`,
+                                                    'Equipo eliminado.',
+                                                    onCambio,
+                                                    avisar,
+                                                )
+                                            }
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                {filtrados.length === 0 && <Vacio texto="No encontramos equipos con esa búsqueda." />}
+            </div>
+
+            <Modal
+                open={!!edicion.editando}
+                title={edicion.editando?.id ? 'Editar equipo' : 'Añadir equipo'}
+                description="Lo que guardes aquí lo usan el catálogo, el comparador y el motor de recomendación."
+                onClose={edicion.cerrar}
+                footer={
+                    <PieModal
+                        guardando={edicion.guardando}
+                        onCancelar={edicion.cerrar}
+                        onGuardar={() => void edicion.guardar()}
+                        texto="Guardar equipo"
+                    />
+                }
+            >
+                <ErrorForm texto={edicion.error} />
+                {edicion.editando && <FormEquipo value={edicion.editando} onChange={edicion.setEditando} />}
+            </Modal>
+        </section>
+    );
+}
+
+function FormEquipo({ value, onChange }: { value: BorradorEquipo; onChange: (v: BorradorEquipo) => void }) {
+    const set = <K extends keyof BorradorEquipo>(k: K, v: BorradorEquipo[K]) => onChange({ ...value, [k]: v });
+    const input = (k: keyof BorradorEquipo, props: InputHTMLAttributes<HTMLInputElement> = {}) => (
+        <input className="it-form-input" value={value[k] as string} onChange={(e) => set(k, e.target.value as never)} {...props} />
+    );
+
+    return (
+        <div className="space-y-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                <div className="h-28 w-40 shrink-0 overflow-hidden rounded-2xl border bg-slate-100 dark:bg-slate-950">
+                    <LaptopImage imagenUrl={value.imagen_url || null} marca={value.marca || 'IngeTech'} tipo={value.tipo} className="h-full w-full" />
+                </div>
+                <Campo label="Enlace de la foto (opcional)" className="flex-1">
+                    {input('imagen_url', { type: 'url', placeholder: 'https://…' })}
+                    <span className="text-xs font-normal text-slate-500">Sin foto se muestra la ilustración de la marca.</span>
+                </Campo>
+            </div>
+
+            <div className="it-form-grid">
+                <Campo label="Marca">{input('marca')}</Campo>
+                <Campo label="Modelo">{input('modelo')}</Campo>
+                <Campo label="Procesador">{input('cpu', { placeholder: 'Ryzen 5 7530U' })}</Campo>
+                <Campo label="Rendimiento (0–100)">{input('rendimiento_score', { type: 'number', min: 0, max: 100 })}</Campo>
+                <Campo label="RAM (GB)">{input('ram_gb', { type: 'number', min: 1 })}</Campo>
+                <Campo label="RAM ampliable hasta (GB)">{input('ram_ampliable_gb', { type: 'number', min: 1 })}</Campo>
+                <Campo label="Almacenamiento (GB)">{input('almacenamiento_gb', { type: 'number', min: 1 })}</Campo>
+                <Campo label="Tipo de almacenamiento">{input('almacenamiento_tipo', { placeholder: 'SSD' })}</Campo>
+                <Campo label="GPU">{input('gpu', { placeholder: 'RTX 4050 / Radeon integrada' })}</Campo>
+                <Campo label="Batería (horas)">{input('bateria_horas', { type: 'number', min: 0 })}</Campo>
+                <Campo label="Precio (S/)">{input('precio_soles', { type: 'number', min: 0 })}</Campo>
+                <Campo label="Tienda de referencia">{input('tienda')}</Campo>
+            </div>
+            <label className="flex w-fit items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold">
+                <input type="checkbox" checked={value.gpu_dedicada} onChange={(e) => set('gpu_dedicada', e.target.checked)} /> GPU dedicada
+            </label>
+
+            <div>
+                <h3 className="text-sm font-bold">Pantalla, peso y puertos</h3>
+                <p className="text-xs text-slate-500">Los usan la guía para decidir del comparador y la afinidad del motor.</p>
+                <div className="it-form-grid mt-3">
+                    <Campo label="Pantalla (pulgadas)">{input('pantalla_pulgadas', { type: 'number', step: 0.1 })}</Campo>
+                    <Campo label="Resolución">{input('pantalla_resolucion', { placeholder: '1920x1080' })}</Campo>
+                    <Campo label="Frecuencia (Hz)">{input('pantalla_hz', { type: 'number' })}</Campo>
+                    <Campo label="Peso (kg)">{input('peso_kg', { type: 'number', step: 0.01 })}</Campo>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                    {Object.entries(PUERTO_ETIQUETA).map(([clave, etiqueta]) => (
+                        <label key={clave} className="flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold">
+                            <input
+                                type="checkbox"
+                                checked={value.puertos.includes(clave)}
+                                onChange={(e) =>
+                                    set('puertos', e.target.checked ? [...value.puertos, clave] : value.puertos.filter((p) => p !== clave))
+                                }
+                            />
+                            {etiqueta}
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            <Campo label="Descripción">
+                <textarea
+                    className="min-h-24 rounded-xl border bg-white p-3 text-sm outline-none focus:border-slate-400 dark:bg-slate-950"
+                    value={value.descripcion}
+                    maxLength={500}
+                    onChange={(e) => set('descripcion', e.target.value)}
+                />
+            </Campo>
+        </div>
     );
 }
 
@@ -807,268 +762,193 @@ function CampoCorto({ label, children }: { label: string; children: React.ReactN
    SOFTWARE
 ============================================================ */
 
-function TablaSoftware({ items, onCambio, avisar }: { items: Software[]; onCambio: () => void; avisar: (m: string) => void }) {
-    const [filas, setFilas] = useState<Software[]>(items);
-    const [busqueda, setBusqueda] = useState('');
-    const [guardando, setGuardando] = useState(false);
+interface BorradorSoftware {
+    id: number | null;
+    clave: string;
+    nombre: string;
+    categoria: string;
+    descripcion: string;
+    min_ram_gb: string;
+    min_cpu_score: string;
+    min_gpu_dedicada: boolean;
+    rec_ram_gb: string;
+    rec_cpu_score: string;
+    rec_gpu_dedicada: boolean;
+}
 
-    useEffect(() => {
-        setFilas(items);
-    }, [items]);
+const softwareVacio = (): BorradorSoftware => ({
+    id: null,
+    clave: '',
+    nombre: '',
+    categoria: '',
+    descripcion: '',
+    min_ram_gb: '',
+    min_cpu_score: '',
+    min_gpu_dedicada: false,
+    rec_ram_gb: '',
+    rec_cpu_score: '',
+    rec_gpu_dedicada: false,
+});
 
-    function set(i: number, campo: keyof Software, valor: unknown) {
-        setFilas((f) =>
-            f.map((r, idx) =>
-                idx === i
-                    ? {
-                          ...r,
-                          [campo]: valor,
-                      }
-                    : r,
-            ),
-        );
-    }
+const softwareABorrador = (s: Software): BorradorSoftware => ({
+    id: s.id,
+    clave: s.clave,
+    nombre: s.nombre,
+    categoria: s.categoria,
+    descripcion: s.descripcion ?? '',
+    min_ram_gb: str(s.min_ram_gb),
+    min_cpu_score: str(s.min_cpu_score),
+    min_gpu_dedicada: s.min_gpu_dedicada,
+    rec_ram_gb: str(s.rec_ram_gb),
+    rec_cpu_score: str(s.rec_cpu_score),
+    rec_gpu_dedicada: s.rec_gpu_dedicada,
+});
 
-    const filtrados = useMemo(() => {
-        const texto = busqueda.trim().toLowerCase();
+async function guardarSoftware(b: BorradorSoftware): Promise<string> {
+    const payload = {
+        clave: b.clave.trim(),
+        nombre: b.nombre.trim(),
+        categoria: b.categoria.trim(),
+        descripcion: txt(b.descripcion),
+        min_ram_gb: num(b.min_ram_gb),
+        min_cpu_score: num(b.min_cpu_score),
+        min_gpu_dedicada: b.min_gpu_dedicada,
+        rec_ram_gb: num(b.rec_ram_gb),
+        rec_cpu_score: num(b.rec_cpu_score),
+        rec_gpu_dedicada: b.rec_gpu_dedicada,
+    };
+    await (b.id ? api(`/api/admin/software/${b.id}`, 'PUT', payload) : api('/api/admin/software', 'POST', payload));
+    return b.id ? 'Software actualizado.' : 'Software creado.';
+}
 
-        if (!texto) return filas;
+function PanelSoftware({ items, onCambio, avisar }: { items: Software[]; onCambio: () => Promise<void>; avisar: (m: string) => void }) {
+    const [query, setQuery] = useState('');
+    const edicion = useEdicion(guardarSoftware, onCambio, avisar);
+    const b = edicion.editando;
 
-        return filas.filter((f) => `${f.nombre} ${f.categoria} ${f.clave}`.toLowerCase().includes(texto));
-    }, [filas, busqueda]);
+    const filtrados = useMemo(
+        () => items.filter((x) => `${x.nombre} ${x.categoria} ${x.clave}`.toLowerCase().includes(query.toLowerCase())),
+        [items, query],
+    );
 
-    async function guardarTodo() {
-        try {
-            setGuardando(true);
-
-            for (const f of filas) {
-                await api(`/api/admin/software/${f.id}`, 'PUT', {
-                    clave: f.clave,
-                    nombre: f.nombre,
-                    descripcion: f.descripcion,
-                    categoria: f.categoria,
-                    min_ram_gb: Number(f.min_ram_gb),
-                    min_cpu_score: Number(f.min_cpu_score),
-                    min_gpu_dedicada: f.min_gpu_dedicada,
-                    rec_ram_gb: Number(f.rec_ram_gb),
-                    rec_cpu_score: Number(f.rec_cpu_score),
-                    rec_gpu_dedicada: f.rec_gpu_dedicada,
-                });
-            }
-
-            avisar('Software actualizado correctamente.');
-
-            onCambio();
-        } catch (e) {
-            avisar(e instanceof Error ? e.message : 'No se pudieron guardar los cambios.');
-        } finally {
-            setGuardando(false);
-        }
-    }
-
-    async function agregar() {
-        try {
-            await api('/api/admin/software', 'POST', {
-                clave: `nuevo_${Date.now()}`,
-                nombre: 'Nuevo software',
-                descripcion: '',
-                categoria: 'General',
-                min_ram_gb: 4,
-                min_cpu_score: 20,
-                min_gpu_dedicada: false,
-                rec_ram_gb: 8,
-                rec_cpu_score: 30,
-                rec_gpu_dedicada: false,
-            });
-
-            avisar('Nuevo software agregado.');
-
-            onCambio();
-        } catch (e) {
-            avisar(e instanceof Error ? e.message : 'No se pudo agregar el software.');
-        }
-    }
-
-    async function eliminar(id: number) {
-        const confirmar = window.confirm('¿Estás seguro de eliminar este software?');
-
-        if (!confirmar) return;
-
-        try {
-            await api(`/api/admin/software/${id}`, 'DELETE');
-
-            avisar('Software eliminado correctamente.');
-
-            onCambio();
-        } catch (e) {
-            avisar(e instanceof Error ? e.message : 'No se pudo eliminar el software.');
-        }
-    }
+    const set = <K extends keyof BorradorSoftware>(k: K, v: BorradorSoftware[K]) => b && edicion.setEditando({ ...b, [k]: v });
+    const input = (k: keyof BorradorSoftware, props: InputHTMLAttributes<HTMLInputElement> = {}) =>
+        b && <input className="it-form-input" value={b[k] as string} onChange={(e) => set(k, e.target.value as never)} {...props} />;
 
     return (
-        <div className="space-y-5">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                    <div className="flex items-center gap-2">
-                        <Package className="h-5 w-5 text-cyan-500" />
-                        <h2 className="text-xl font-bold">Catálogo de software</h2>
-                    </div>
-
-                    <p className="text-muted-foreground mt-1 text-sm">Configura los requisitos mínimos y recomendados.</p>
-                </div>
-
-                <div className="flex gap-2">
-                    <button
-                        onClick={agregar}
-                        className="inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-cyan-600"
-                    >
-                        <Plus className="h-4 w-4" />
-                        Nuevo software
-                    </button>
-
-                    <button
-                        onClick={guardarTodo}
-                        disabled={guardando}
-                        className="hover:bg-muted inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-bold transition disabled:opacity-50"
-                    >
-                        <CheckCircle2 className="h-4 w-4" />
-                        {guardando ? 'Guardando...' : 'Guardar cambios'}
-                    </button>
-                </div>
-            </div>
-
-            <div className="relative">
-                <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-
-                <input
-                    className="bg-card w-full rounded-xl border py-3 pr-4 pl-10 text-sm shadow-sm outline-none focus:border-cyan-500"
-                    placeholder="Buscar software, categoría o clave..."
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                />
-            </div>
-
-            <div className="bg-card overflow-hidden rounded-2xl border shadow-sm">
+        <section className="space-y-5">
+            <CatalogHeader
+                icon={<Package className="h-5 w-5" />}
+                title="Software"
+                subtitle="Requisitos de cada programa: el motor toma el más exigente de los que usa la persona."
+                button="Añadir software"
+                onAdd={() => edicion.abrir(softwareVacio())}
+                query={query}
+                setQuery={setQuery}
+            />
+            <div className="it-table-shell">
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[1100px] text-sm">
-                        <thead className="bg-muted/50 text-muted-foreground text-left text-xs tracking-wide uppercase">
+                    <table className="it-table min-w-[900px]">
+                        <thead>
                             <tr>
-                                <th className="px-4 py-3">Software</th>
-                                <th className="px-4 py-3">Categoría</th>
-                                <th className="px-4 py-3">RAM mínima</th>
-                                <th className="px-4 py-3">CPU mínima</th>
-                                <th className="px-4 py-3">RAM recomendada</th>
-                                <th className="px-4 py-3">CPU recomendada</th>
-                                <th className="px-4 py-3 text-right">Acción</th>
+                                <th>Programa</th>
+                                <th>Categoría</th>
+                                <th>Mínimo</th>
+                                <th>Recomendado</th>
+                                <th className="text-right">Acciones</th>
                             </tr>
                         </thead>
-
                         <tbody>
-                            {filtrados.map((f) => {
-                                const i = filas.findIndex((x) => x.id === f.id);
-
-                                return (
-                                    <tr key={f.id} className="hover:bg-muted/30 border-t transition">
-                                        <td className="p-2">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600">
-                                                    <Package className="h-5 w-5" />
-                                                </div>
-
-                                                <div className="min-w-[220px]">
-                                                    <input
-                                                        className="bg-background w-full rounded-lg border px-2 py-1 font-semibold"
-                                                        value={f.nombre}
-                                                        onChange={(e) => set(i, 'nombre', e.target.value)}
-                                                    />
-
-                                                    <p className="text-muted-foreground mt-1 text-xs">{f.clave}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <td className="p-2">
-                                            <input
-                                                className="bg-background w-36 rounded-lg border px-2 py-2"
-                                                value={f.categoria}
-                                                onChange={(e) => set(i, 'categoria', e.target.value)}
-                                            />
-                                        </td>
-
-                                        <td className="p-2">
-                                            <input
-                                                className="bg-background w-20 rounded-lg border px-2 py-2"
-                                                type="number"
-                                                value={f.min_ram_gb}
-                                                onChange={(e) => set(i, 'min_ram_gb', e.target.value)}
-                                            />
-                                        </td>
-
-                                        <td className="p-2">
-                                            <input
-                                                className="bg-background w-20 rounded-lg border px-2 py-2"
-                                                type="number"
-                                                value={f.min_cpu_score}
-                                                onChange={(e) => set(i, 'min_cpu_score', e.target.value)}
-                                            />
-                                        </td>
-
-                                        <td className="p-2">
-                                            <input
-                                                className="bg-background w-20 rounded-lg border px-2 py-2"
-                                                type="number"
-                                                value={f.rec_ram_gb}
-                                                onChange={(e) => set(i, 'rec_ram_gb', e.target.value)}
-                                            />
-                                        </td>
-
-                                        <td className="p-2">
-                                            <input
-                                                className="bg-background w-20 rounded-lg border px-2 py-2"
-                                                type="number"
-                                                value={f.rec_cpu_score}
-                                                onChange={(e) => set(i, 'rec_cpu_score', e.target.value)}
-                                            />
-                                        </td>
-
-                                        <td className="p-2 text-right">
-                                            <button
-                                                title="Eliminar software"
-                                                onClick={() => void eliminar(f.id)}
-                                                className="text-muted-foreground rounded-lg p-2 transition hover:bg-rose-500/10 hover:text-rose-500"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                            {filtrados.map((s) => (
+                                <tr key={s.id} className="it-table-row">
+                                    <td className="p-3">
+                                        <p className="font-bold">{s.nombre}</p>
+                                        <p className="font-mono text-xs text-slate-500">{s.clave}</p>
+                                    </td>
+                                    <td className="p-3 text-sm">{s.categoria}</td>
+                                    <td className="p-3 text-sm">
+                                        {s.min_ram_gb} GB · CPU {s.min_cpu_score}
+                                        {s.min_gpu_dedicada ? ' · GPU' : ''}
+                                    </td>
+                                    <td className="p-3 text-sm font-semibold">
+                                        {s.rec_ram_gb} GB · CPU {s.rec_cpu_score}
+                                        {s.rec_gpu_dedicada ? ' · GPU' : ''}
+                                    </td>
+                                    <td className="p-3">
+                                        <Acciones
+                                            onEditar={() => edicion.abrir(softwareABorrador(s))}
+                                            onEliminar={() =>
+                                                void eliminarConfirmando(
+                                                    `¿Eliminar ${s.nombre}? Las carreras que lo usan dejarán de tenerlo.`,
+                                                    `/api/admin/software/${s.id}`,
+                                                    'Software eliminado.',
+                                                    onCambio,
+                                                    avisar,
+                                                )
+                                            }
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
-
-                {filtrados.length === 0 && <div className="text-muted-foreground p-12 text-center text-sm">No se encontró software.</div>}
+                {filtrados.length === 0 && <Vacio texto="No encontramos software con esa búsqueda." />}
             </div>
 
-            <div className="bg-card rounded-2xl border p-5 shadow-sm">
-                <h3 className="mb-4 font-bold">Descripciones</h3>
-
-                <div className="grid gap-3 md:grid-cols-2">
-                    {filas.map((f, i) => (
-                        <label key={f.id} className="block">
-                            <span className="text-muted-foreground mb-1 block text-xs font-medium">{f.nombre}</span>
-
-                            <input
-                                className="bg-background w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-cyan-500"
-                                value={f.descripcion ?? ''}
-                                onChange={(e) => set(i, 'descripcion', e.target.value)}
-                                placeholder="Descripción..."
+            <Modal
+                open={!!b}
+                title={b?.id ? 'Editar software' : 'Añadir software'}
+                description="El motor compara estos requisitos con cada laptop."
+                onClose={edicion.cerrar}
+                footer={
+                    <PieModal
+                        guardando={edicion.guardando}
+                        onCancelar={edicion.cerrar}
+                        onGuardar={() => void edicion.guardar()}
+                        texto="Guardar software"
+                    />
+                }
+            >
+                <ErrorForm texto={edicion.error} />
+                {b && (
+                    <div className="space-y-6">
+                        <div className="it-form-grid">
+                            <Campo label="Nombre">{input('nombre')}</Campo>
+                            <Campo label="Clave (sin espacios)">{input('clave', { placeholder: 'autocad' })}</Campo>
+                            <Campo label="Categoría">{input('categoria', { placeholder: 'Diseño / CAD' })}</Campo>
+                        </div>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            {(['min', 'rec'] as const).map((n) => (
+                                <div key={n} className="rounded-2xl border p-4">
+                                    <p className="text-sm font-bold">{n === 'min' ? 'Requisitos mínimos' : 'Requisitos recomendados'}</p>
+                                    <div className="mt-3 grid grid-cols-2 gap-3">
+                                        <Campo label="RAM (GB)">{input(`${n}_ram_gb`, { type: 'number', min: 1 })}</Campo>
+                                        <Campo label="CPU (0–100)">{input(`${n}_cpu_score`, { type: 'number', min: 0, max: 100 })}</Campo>
+                                    </div>
+                                    <label className="mt-3 flex items-center gap-2 text-sm font-semibold">
+                                        <input
+                                            type="checkbox"
+                                            checked={b[`${n}_gpu_dedicada`]}
+                                            onChange={(e) => set(`${n}_gpu_dedicada`, e.target.checked)}
+                                        />
+                                        Necesita GPU dedicada
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                        <Campo label="Descripción">
+                            <textarea
+                                className="min-h-20 rounded-xl border bg-white p-3 text-sm outline-none focus:border-slate-400 dark:bg-slate-950"
+                                value={b.descripcion}
+                                maxLength={500}
+                                onChange={(e) => set('descripcion', e.target.value)}
                             />
-                        </label>
-                    ))}
-                </div>
-            </div>
-        </div>
+                        </Campo>
+                    </div>
+                )}
+            </Modal>
+        </section>
     );
 }
 
@@ -1076,7 +956,21 @@ function TablaSoftware({ items, onCambio, avisar }: { items: Software[]; onCambi
    CARRERAS
 ============================================================ */
 
-function TablaCarreras({
+interface BorradorCarrera {
+    id: number | null;
+    clave: string;
+    nombre: string;
+    facultad: string;
+    software_claves: string[];
+}
+
+async function guardarCarrera(b: BorradorCarrera): Promise<string> {
+    const payload = { clave: b.clave.trim(), nombre: b.nombre.trim(), facultad: b.facultad.trim(), software_claves: b.software_claves };
+    await (b.id ? api(`/api/admin/carreras/${b.id}`, 'PUT', payload) : api('/api/admin/carreras', 'POST', payload));
+    return b.id ? 'Carrera actualizada.' : 'Carrera creada.';
+}
+
+function PanelCarreras({
     carreras,
     software,
     onCambio,
@@ -1084,347 +978,210 @@ function TablaCarreras({
 }: {
     carreras: Carrera[];
     software: Software[];
-    onCambio: () => void;
+    onCambio: () => Promise<void>;
     avisar: (m: string) => void;
 }) {
-    const [filas, setFilas] = useState(
-        carreras.map((c) => ({
-            ...c,
-            software_claves: c.software.map((s) => software.find((x) => x.id === s.id)?.clave ?? '').join(', '),
-        })),
-    );
+    const [query, setQuery] = useState('');
+    const edicion = useEdicion(guardarCarrera, onCambio, avisar);
+    const b = edicion.editando;
 
-    const [busqueda, setBusqueda] = useState('');
-    const [guardando, setGuardando] = useState(false);
-
-    useEffect(() => {
-        setFilas(
-            carreras.map((c) => ({
-                ...c,
-                software_claves: c.software.map((s) => software.find((x) => x.id === s.id)?.clave ?? '').join(', '),
-            })),
-        );
-    }, [carreras, software]);
-
-    function set(i: number, campo: string, valor: string) {
-        setFilas((f) =>
-            f.map((r, idx) =>
-                idx === i
-                    ? {
-                          ...r,
-                          [campo]: valor,
-                      }
-                    : r,
-            ),
-        );
-    }
-
-    const filtradas = useMemo(() => {
-        const texto = busqueda.trim().toLowerCase();
-
-        if (!texto) return filas;
-
-        return filas.filter((f) => `${f.nombre} ${f.facultad} ${f.clave}`.toLowerCase().includes(texto));
-    }, [filas, busqueda]);
-
-    async function guardarTodo() {
-        try {
-            setGuardando(true);
-
-            for (const f of filas) {
-                await api(`/api/admin/carreras/${f.id}`, 'PUT', {
-                    clave: f.clave,
-                    nombre: f.nombre,
-                    facultad: f.facultad,
-                    software_claves: f.software_claves
-                        .split(',')
-                        .map((s) => s.trim())
-                        .filter(Boolean),
-                });
-            }
-
-            avisar('Carreras actualizadas correctamente.');
-
-            onCambio();
-        } catch (e) {
-            avisar(e instanceof Error ? e.message : 'No se pudieron guardar las carreras.');
-        } finally {
-            setGuardando(false);
-        }
-    }
-
-    async function agregar() {
-        try {
-            await api('/api/admin/carreras', 'POST', {
-                clave: `nueva_${Date.now()}`,
-                nombre: 'Nueva carrera',
-                facultad: '—',
-                software_claves: [],
-            });
-
-            avisar('Nueva carrera agregada.');
-
-            onCambio();
-        } catch (e) {
-            avisar(e instanceof Error ? e.message : 'No se pudo agregar la carrera.');
-        }
-    }
-
-    async function eliminar(id: number) {
-        const confirmar = window.confirm('¿Estás seguro de eliminar esta carrera?');
-
-        if (!confirmar) return;
-
-        try {
-            await api(`/api/admin/carreras/${id}`, 'DELETE');
-
-            avisar('Carrera eliminada correctamente.');
-
-            onCambio();
-        } catch (e) {
-            avisar(e instanceof Error ? e.message : 'No se pudo eliminar la carrera.');
-        }
-    }
+    const filtradas = carreras.filter((c) => `${c.nombre} ${c.facultad}`.toLowerCase().includes(query.toLowerCase()));
+    const nombreSoftware = (clave: string) => software.find((s) => s.clave === clave)?.nombre ?? clave;
 
     return (
-        <div className="space-y-5">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                    <div className="flex items-center gap-2">
-                        <GraduationCap className="h-5 w-5 text-cyan-500" />
-                        <h2 className="text-xl font-bold">Carreras</h2>
-                    </div>
-
-                    <p className="text-muted-foreground mt-1 text-sm">Relaciona las carreras con el software utilizado.</p>
-                </div>
-
-                <div className="flex gap-2">
-                    <button
-                        onClick={agregar}
-                        className="inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-cyan-600"
-                    >
-                        <Plus className="h-4 w-4" />
-                        Nueva carrera
-                    </button>
-
-                    <button
-                        onClick={guardarTodo}
-                        disabled={guardando}
-                        className="hover:bg-muted inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-bold transition disabled:opacity-50"
-                    >
-                        <CheckCircle2 className="h-4 w-4" />
-                        {guardando ? 'Guardando...' : 'Guardar cambios'}
-                    </button>
-                </div>
-            </div>
-
-            <div className="relative">
-                <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-
-                <input
-                    className="bg-card w-full rounded-xl border py-3 pr-4 pl-10 text-sm shadow-sm outline-none focus:border-cyan-500"
-                    placeholder="Buscar carrera o facultad..."
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                />
-            </div>
-
-            <div className="bg-card overflow-hidden rounded-2xl border shadow-sm">
+        <section className="space-y-5">
+            <CatalogHeader
+                icon={<GraduationCap className="h-5 w-5" />}
+                title="Carreras"
+                subtitle="Cada carrera trae los programas típicos que la IA considera si la persona la elige."
+                button="Añadir carrera"
+                onAdd={() => edicion.abrir({ id: null, clave: '', nombre: '', facultad: '', software_claves: [] })}
+                query={query}
+                setQuery={setQuery}
+            />
+            <div className="it-table-shell">
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[1000px] text-sm">
-                        <thead className="bg-muted/50 text-muted-foreground text-left text-xs tracking-wide uppercase">
+                    <table className="it-table min-w-[900px]">
+                        <thead>
                             <tr>
-                                <th className="px-4 py-3">Carrera</th>
-                                <th className="px-4 py-3">Facultad</th>
-                                <th className="px-4 py-3">Software relacionado</th>
-                                <th className="px-4 py-3 text-right">Acción</th>
+                                <th>Carrera</th>
+                                <th>Facultad</th>
+                                <th>Programas</th>
+                                <th className="text-right">Acciones</th>
                             </tr>
                         </thead>
-
                         <tbody>
-                            {filtradas.map((f) => {
-                                const i = filas.findIndex((x) => x.id === f.id);
-
-                                return (
-                                    <tr key={f.id} className="hover:bg-muted/30 border-t transition">
-                                        <td className="p-2">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-                                                    <GraduationCap className="h-5 w-5" />
-                                                </div>
-
-                                                <input
-                                                    className="bg-background w-72 rounded-lg border px-3 py-2 font-semibold"
-                                                    value={f.nombre}
-                                                    onChange={(e) => set(i, 'nombre', e.target.value)}
-                                                />
-                                            </div>
-                                        </td>
-
-                                        <td className="p-2">
-                                            <input
-                                                className="bg-background w-52 rounded-lg border px-3 py-2"
-                                                value={f.facultad}
-                                                onChange={(e) => set(i, 'facultad', e.target.value)}
-                                            />
-                                        </td>
-
-                                        <td className="p-2">
-                                            <input
-                                                className="bg-background w-full rounded-lg border px-3 py-2"
-                                                value={f.software_claves}
-                                                onChange={(e) => set(i, 'software_claves', e.target.value)}
-                                                placeholder="autocad, matlab, ..."
-                                            />
-                                        </td>
-
-                                        <td className="p-2 text-right">
-                                            <button
-                                                title="Eliminar carrera"
-                                                onClick={() => void eliminar(f.id)}
-                                                className="text-muted-foreground rounded-lg p-2 transition hover:bg-rose-500/10 hover:text-rose-500"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                            {filtradas.map((c) => (
+                                <tr key={c.id} className="it-table-row">
+                                    <td className="p-3 font-bold">{c.nombre}</td>
+                                    <td className="p-3 text-sm">{c.facultad}</td>
+                                    <td className="p-3">
+                                        <div className="flex flex-wrap gap-1">
+                                            {c.software.map((s) => (
+                                                <span key={s.id} className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] dark:bg-slate-800">
+                                                    {nombreSoftware(s.clave)}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </td>
+                                    <td className="p-3">
+                                        <Acciones
+                                            onEditar={() =>
+                                                edicion.abrir({
+                                                    id: c.id,
+                                                    clave: c.clave,
+                                                    nombre: c.nombre,
+                                                    facultad: c.facultad,
+                                                    software_claves: c.software.map((s) => s.clave),
+                                                })
+                                            }
+                                            onEliminar={() =>
+                                                void eliminarConfirmando(
+                                                    `¿Eliminar ${c.nombre}?`,
+                                                    `/api/admin/carreras/${c.id}`,
+                                                    'Carrera eliminada.',
+                                                    onCambio,
+                                                    avisar,
+                                                )
+                                            }
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
-
-                {filtradas.length === 0 && <div className="text-muted-foreground p-12 text-center text-sm">No se encontraron carreras.</div>}
+                {filtradas.length === 0 && <Vacio texto="No encontramos carreras con esa búsqueda." />}
             </div>
 
-            <div className="bg-card rounded-2xl border p-5 shadow-sm">
-                <div className="mb-3 flex items-center gap-2">
-                    <Settings2 className="h-5 w-5 text-cyan-500" />
-                    <div>
-                        <h3 className="font-bold">Claves de software disponibles</h3>
-                        <p className="text-muted-foreground text-xs">Usa estas claves al relacionar software con una carrera.</p>
+            <Modal
+                open={!!b}
+                title={b?.id ? 'Editar carrera' : 'Añadir carrera'}
+                onClose={edicion.cerrar}
+                footer={
+                    <PieModal
+                        guardando={edicion.guardando}
+                        onCancelar={edicion.cerrar}
+                        onGuardar={() => void edicion.guardar()}
+                        texto="Guardar carrera"
+                    />
+                }
+            >
+                <ErrorForm texto={edicion.error} />
+                {b && (
+                    <div className="space-y-5">
+                        <div className="it-form-grid">
+                            <Campo label="Nombre">
+                                <input
+                                    className="it-form-input"
+                                    value={b.nombre}
+                                    onChange={(e) => edicion.setEditando({ ...b, nombre: e.target.value })}
+                                />
+                            </Campo>
+                            <Campo label="Clave (sin espacios)">
+                                <input
+                                    className="it-form-input"
+                                    value={b.clave}
+                                    onChange={(e) => edicion.setEditando({ ...b, clave: e.target.value })}
+                                />
+                            </Campo>
+                            <Campo label="Facultad">
+                                <input
+                                    className="it-form-input"
+                                    value={b.facultad}
+                                    onChange={(e) => edicion.setEditando({ ...b, facultad: e.target.value })}
+                                />
+                            </Campo>
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold">Programas que usa</p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                                {software.map((s) => (
+                                    <label key={s.id} className="flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold">
+                                        <input
+                                            type="checkbox"
+                                            checked={b.software_claves.includes(s.clave)}
+                                            onChange={(e) =>
+                                                edicion.setEditando({
+                                                    ...b,
+                                                    software_claves: e.target.checked
+                                                        ? [...b.software_claves, s.clave]
+                                                        : b.software_claves.filter((k) => k !== s.clave),
+                                                })
+                                            }
+                                        />
+                                        {s.nombre}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
                     </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                    {software.map((s) => (
-                        <span key={s.id} className="bg-muted/40 rounded-full border px-3 py-1.5 text-xs font-medium">
-                            {s.clave}
-                        </span>
-                    ))}
-                </div>
-            </div>
-        </div>
+                )}
+            </Modal>
+        </section>
     );
 }
 
 /* ============================================================
-   CLIENTES
+   CLIENTES (solo lectura)
 ============================================================ */
 
 function PanelClientes({ clientes }: { clientes: Cliente[] | null }) {
-    const [busqueda, setBusqueda] = useState('');
+    const [query, setQuery] = useState('');
 
-    if (!clientes) {
-        return <LoadingPanel />;
-    }
+    if (!clientes) return <LoadingPanel />;
 
-    const filtrados = clientes.filter((c) => `${c.name} ${c.email}`.toLowerCase().includes(busqueda.trim().toLowerCase()));
+    const filtrados = clientes.filter((c) => `${c.name} ${c.email}`.toLowerCase().includes(query.trim().toLowerCase()));
 
     return (
-        <div className="space-y-5">
-            {/* HEADER */}
-            <div className="bg-card rounded-2xl border p-5 shadow-sm">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <Users className="h-5 w-5 text-cyan-500" />
-                            <h2 className="text-xl font-bold">Clientes registrados</h2>
-                        </div>
-
-                        <p className="text-muted-foreground mt-1 text-sm">Usuarios que utilizan el sistema de recomendaciones.</p>
-                    </div>
-
-                    <div className="rounded-xl bg-cyan-500/10 px-4 py-2 text-sm font-bold text-cyan-600">{clientes.length} registrados</div>
-                </div>
-            </div>
-
-            {/* BUSCADOR */}
-            <div className="relative">
-                <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-
-                <input
-                    className="bg-card w-full rounded-xl border py-3 pr-4 pl-10 text-sm shadow-sm outline-none focus:border-cyan-500"
-                    placeholder="Buscar cliente por nombre o email..."
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                />
-            </div>
-
-            {clientes.length === 0 ? (
-                <div className="bg-card rounded-2xl border p-12 text-center shadow-sm">
-                    <Users className="text-muted-foreground mx-auto h-9 w-9" />
-
-                    <h3 className="mt-4 font-bold">Todavía no hay clientes</h3>
-
-                    <p className="text-muted-foreground mt-1 text-sm">Los usuarios registrados aparecerán aquí.</p>
-                </div>
-            ) : (
-                <div className="bg-card overflow-hidden rounded-2xl border shadow-sm">
-                    <div className="overflow-x-auto">
-                        <table className="w-full min-w-[1000px] text-sm">
-                            <thead className="bg-muted/50 text-muted-foreground text-left text-xs tracking-wide uppercase">
-                                <tr>
-                                    <th className="px-5 py-4">Cliente</th>
-                                    <th className="px-5 py-4">Email</th>
-                                    <th className="px-5 py-4">Carrera / ocupación</th>
-                                    <th className="px-5 py-4">Cargo</th>
-                                    <th className="px-5 py-4">Registrado</th>
-                                    <th className="px-5 py-4">Recomendaciones</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {filtrados.map((c) => (
-                                    <tr key={c.id} className="hover:bg-muted/30 border-t transition">
-                                        <td className="px-5 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-500/10 font-bold text-cyan-600">
-                                                    {c.name.charAt(0).toUpperCase()}
-                                                </div>
-
-                                                <span className="font-semibold">{c.name}</span>
-                                            </div>
-                                        </td>
-
-                                        <td className="text-muted-foreground px-5 py-4">{c.email}</td>
-
-                                        <td className="text-muted-foreground px-5 py-4">{c.carrera ?? '—'}</td>
-
-                                        <td className="text-muted-foreground px-5 py-4">{c.cargo ?? '—'}</td>
-
-                                        <td className="text-muted-foreground px-5 py-4">
-                                            {new Date(c.created_at).toLocaleDateString('es-PE', {
-                                                day: '2-digit',
-                                                month: 'short',
-                                                year: 'numeric',
-                                            })}
-                                        </td>
-
-                                        <td className="px-5 py-4">
-                                            <span className="inline-flex items-center rounded-full bg-cyan-500/10 px-3 py-1 text-xs font-bold text-cyan-600 dark:text-cyan-400">
-                                                {c.perfiles_count}
+        <section className="space-y-5">
+            <CatalogHeader
+                icon={<Users className="h-5 w-5" />}
+                title="Clientes"
+                subtitle={`${clientes.length} clientes registrados. Los roles del personal se asignan en Usuarios.`}
+                query={query}
+                setQuery={setQuery}
+            />
+            <div className="it-table-shell">
+                <div className="overflow-x-auto">
+                    <table className="it-table min-w-[900px]">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Correo</th>
+                                <th>Carrera u ocupación</th>
+                                <th>Registrado</th>
+                                <th className="text-right">Recomendaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filtrados.map((c) => (
+                                <tr key={c.id} className="it-table-row">
+                                    <td className="p-3">
+                                        <div className="flex items-center gap-3">
+                                            <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--it-primary-soft)] font-bold text-[var(--it-primary)] dark:text-sky-300">
+                                                {c.name.charAt(0).toUpperCase()}
                                             </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {filtrados.length === 0 && <div className="text-muted-foreground p-12 text-center text-sm">No se encontraron clientes.</div>}
+                                            <span className="font-semibold">{c.name}</span>
+                                        </div>
+                                    </td>
+                                    <td className="p-3 text-sm text-slate-500">{c.email}</td>
+                                    <td className="p-3 text-sm text-slate-500">{[c.carrera, c.cargo].filter(Boolean).join(' · ') || '—'}</td>
+                                    <td className="p-3 text-sm text-slate-500">
+                                        {new Date(c.created_at).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                    </td>
+                                    <td className="p-3 text-right">
+                                        <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
+                                            {c.perfiles_count}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
-            )}
-        </div>
+                {filtrados.length === 0 && <Vacio texto={clientes.length === 0 ? 'Todavía no hay clientes.' : 'No se encontraron clientes.'} />}
+            </div>
+        </section>
     );
 }
