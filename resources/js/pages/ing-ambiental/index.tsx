@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { Battery, Cpu, Leaf, Recycle, ShieldCheck, Truck, Wrench } from 'lucide-react';
+import { ArrowRight, Battery, Cpu, Leaf, Recycle, ShieldCheck, Truck, Wrench } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Reciclaje y sostenibilidad', href: '/ing-ambiental' }];
 
@@ -44,14 +44,37 @@ export default function IngAmbientalIndex({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Reciclaje y sostenibilidad" />
             <main className="it-container max-w-5xl space-y-6 py-7 sm:py-9">
-                <section className="relative overflow-hidden rounded-[2rem] bg-[#0c2340] p-7 text-white shadow-xl sm:p-9">
-                    <div className="absolute top-0 right-0 h-full w-1/2 bg-[radial-gradient(circle_at_center,rgba(52,211,153,.18),transparent_55%)]" />
-                    <div className="relative max-w-3xl">
-                        <span className="it-badge border-white/10 bg-white/10 text-emerald-200">SOSTENIBILIDAD</span>
-                        <h1 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">Reciclaje y sostenibilidad</h1>
-                        <p className="mt-3 text-sm leading-7 text-slate-300">
-                            Comprar una laptop nueva es también una oportunidad para desechar bien la anterior y elegir solo lo que necesitas.
-                        </p>
+                {/* Portada: diseño de Marco (PR #41). */}
+                <section className="relative overflow-hidden rounded-[2.3rem] border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-cyan-50 p-7 text-[#123b35] shadow-xl sm:p-10 dark:border-emerald-900/40 dark:from-emerald-950/40 dark:via-slate-950 dark:to-cyan-950/30 dark:text-white">
+                    <div className="relative grid items-center gap-8 lg:grid-cols-[1fr_320px]">
+                        <div>
+                            <span className="it-badge border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300">
+                                <Leaf className="mr-1.5 h-3.5 w-3.5" /> TECNOLOGÍA RESPONSABLE
+                            </span>
+                            <h1 className="mt-5 max-w-2xl text-4xl font-black tracking-tight sm:text-5xl">
+                                Tu tecnología también puede <span className="text-emerald-600 dark:text-emerald-300">cuidar el planeta.</span>
+                            </h1>
+                            <p className="mt-5 max-w-xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+                                Comprar una laptop nueva es también una oportunidad para desechar bien la anterior y elegir solo lo que necesitas.
+                            </p>
+                            <Link href="/hardware" className="it-btn mt-7 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700">
+                                Elegir una laptop <ArrowRight className="h-4 w-4" />
+                            </Link>
+                        </div>
+                        <div className="relative hidden rounded-[1.8rem] border border-white/70 bg-white/70 p-6 shadow-xl lg:block dark:border-white/10 dark:bg-white/5">
+                            <img src="/images/home/reciclaje.webp" alt="Símbolo de reciclaje con el planeta" className="mx-auto h-48 w-auto" />
+                            <div className="mt-4 flex items-center gap-3 rounded-2xl bg-white/90 p-3 dark:bg-[#0c2340]/90">
+                                <span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                    <Recycle className="h-5 w-5" />
+                                </span>
+                                <span>
+                                    <b className="block text-xs">RAEE</b>
+                                    <span className="text-[11px] text-slate-500 dark:text-slate-300">
+                                        Residuos de aparatos eléctricos y electrónicos
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
