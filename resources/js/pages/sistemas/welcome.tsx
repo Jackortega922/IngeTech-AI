@@ -296,13 +296,14 @@ export default function Welcome({ laptops, pedidas }: { laptops: Laptop[]; pedid
                         </div>
 
                         <div className="mt-10 text-center">
+                            {/* Mismo estilo que el botón principal del carrusel */}
                             <Link
                                 href="/hardware"
-                                className="inline-flex items-center gap-2 rounded-xl border border-cyan-400/60 px-6 py-3 font-bold text-cyan-300 transition hover:bg-cyan-400 hover:text-[#07111f]"
+                                className="it-btn h-12 rounded-2xl bg-sky-500 px-6 text-white shadow-xl shadow-sky-500/20 hover:-translate-y-0.5 hover:bg-sky-600"
                             >
-                                Ver catálogo completo ({laptops.length} modelos) <ArrowRight className="h-4 w-4" />
+                                Ver catálogo completo
+                                <ArrowRight className="h-4 w-4" />
                             </Link>
-                            <p className="mt-2 text-sm text-slate-500">Con filtros por precio, marca, procesador, RAM y más.</p>
                         </div>
                     </div>
                 </section>
