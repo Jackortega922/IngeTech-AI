@@ -16,19 +16,18 @@ npm install
 cp .env.example .env      # ya viene con DB_CONNECTION=sqlite y RECOMMENDER_MODE=mock
 touch database/database.sqlite
 php artisan key:generate
-php artisan migrate --seed   # crea la BD, siembra carreras/software/14 equipos, y 2 cuentas de prueba
+php artisan migrate --seed   # crea la BD, siembra carreras, software y laptops, y el administrador del .env
 composer run dev
 ```
 
-Abre http://localhost:8000 e inicia sesión con una de las cuentas sembradas:
+Antes del `migrate --seed`, pon en el `.env` tu correo real en `ADMIN_EMAIL` (y tu nombre en
+`ADMIN_NAME`): el seeder crea ese único administrador. Para su contraseña, abre
+http://localhost:8000/login → **«¿Olvidaste tu contraseña?»** y sigue el enlace que llega a tu
+correo (necesita el correo configurado: `MAIL_*` en el `.env`).
 
-| Rol | Email | Password |
-|---|---|---|
-| Administrador | `admin@ingetech.test` | `password` |
-| Estudiante | `estudiante@ingetech.test` | `password` |
-
-Solo la cuenta de administrador ve la sección "Administración" en el menú (CRUD de carreras,
-software y hardware + métricas). Con la de estudiante entra a **"Nueva recomendación"**.
+El resto del equipo se registra en el sitio como cualquier cliente, y el administrador le asigna
+su rol (ventas, almacén, contabilidad o admin) en **Administración → Usuarios**. Una cuenta sin rol
+es un cliente.
 El `MockRecommenderClient` (`app/Services/Recommender/MockRecommenderClient.php`) calcula
 compatibilidad en PHP puro contra los laptops sembrados — perfecto para desarrollar el frontend
 sin depender de que el Módulo A tenga el motor Python corriendo. Cuando quieras usar el motor
