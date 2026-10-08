@@ -34,10 +34,11 @@ return [
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
         'url' => env('GEMINI_URL', 'https://generativelanguage.googleapis.com/v1beta/openai'),
-        // Se prueban en orden. En el plan gratuito la saturación cambia minuto a minuto, así que
-        // conviene tener varios: un modelo retirado falla rápido (404) y se pasa al siguiente.
-        'model' => env('GEMINI_MODEL', 'gemini-flash-latest,gemini-3.8-flash,gemini-3.5-flash,gemini-flash-lite-latest'),
-        'timeout' => (int) env('GEMINI_TIMEOUT', 10), // por modelo
+        // Se prueban en orden. Primero los Flash-Lite: en el plan gratuito responden en ~3 s,
+        // mientras los Flash suelen estar saturados (503) o tardar más de 30 s (medido el
+        // 2026-10-08). Si un modelo falla o se retira, se pasa al siguiente.
+        'model' => env('GEMINI_MODEL', 'gemini-flash-lite-latest,gemini-3.5-flash-lite,gemini-flash-latest'),
+        'timeout' => (int) env('GEMINI_TIMEOUT', 8), // por modelo
         'espera_total' => (int) env('GEMINI_ESPERA_TOTAL', 20), // segundos, sumando todos los intentos
     ],
 
