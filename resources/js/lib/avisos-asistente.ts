@@ -200,6 +200,46 @@ export const AVISOS: Record<Audiencia, Aviso[]> = {
     ],
 };
 
+/**
+ * Al volver de su descanso (tras dos cierres seguidos) el bot retoma con humor y calidez, sin
+ * reprochar: "no te decides" haría sentir juzgada a la persona. Rotan, como los demás avisos.
+ */
+export const REGRESOS: Record<'tienda' | 'personal', Aviso[]> = {
+    tienda: [
+        {
+            titulo: '¡Volví! 👋',
+            texto: 'Veo que sigues explorando. Elegir laptop no es fácil: ¿te ayudo a quedarte con 2 o 3?',
+            principio: 'Efecto de mera exposición (Zajonc): volver con el mismo tono amable genera familiaridad y confianza.',
+        },
+        {
+            titulo: 'Sigo por aquí 😄',
+            texto: 'Sin presión, eh. Si alguna laptop te llamó la atención, pregúntame qué tal es para lo tuyo.',
+            principio: 'Reducción de la presión percibida: ofrecer ayuda sin exigir respuesta respeta la autonomía.',
+        },
+        {
+            titulo: '¿Me extrañaste? 😅',
+            texto: 'Yo un poco. Cuéntame qué buscas y lo vemos juntos, paso a paso.',
+            principio: 'Humor y cercanía: un tono ligero baja la tensión de decidir y acerca a la persona.',
+        },
+    ],
+    personal: [
+        {
+            titulo: '¡Volví! ☕',
+            texto: '¿Cómo va la jornada? Si algo se complicó, empieza por la tarea más pequeña: avanzar motiva.',
+            principio: 'Principio del progreso (Amabile): los pequeños avances sostienen la motivación.',
+        },
+        {
+            titulo: 'Sigo por aquí 😄',
+            texto: 'Si algo te traba, pregúntale a un compañero: un buen equipo se apoya.',
+            principio: 'Apoyo social en el trabajo: pedir ayuda reduce el estrés y los errores.',
+        },
+    ],
+};
+
+export function regresosDe(audiencia: Audiencia): Aviso[] {
+    return audiencia === 'invitado' || audiencia === 'cliente' ? REGRESOS.tienda : REGRESOS.personal;
+}
+
 export function audienciaDe(rol: string | undefined): Audiencia {
     if (!rol) return 'invitado';
     return rol in AVISOS ? (rol as Audiencia) : 'cliente';

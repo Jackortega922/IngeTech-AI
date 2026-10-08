@@ -1,4 +1,4 @@
-import { AVISOS, audienciaDe, type Aviso } from '@/lib/avisos-asistente';
+import { AVISOS, audienciaDe, regresosDe, type Aviso } from '@/lib/avisos-asistente';
 import { type SharedData } from '@/types';
 import { router, usePage } from '@inertiajs/react';
 import { Bot, Minimize2, Send, Sparkles, X } from 'lucide-react';
@@ -30,7 +30,7 @@ const SALUDO: Mensaje = {
 // Avisos periódicos (Psicología, ver lib/avisos-asistente.ts): rotan en bucle para acompañar a
 // la persona todo el tiempo, sin agobiarla. Tiempos en milisegundos (1000 ms = 1 s).
 const PRIMER_AVISO_MS = 2500; // el primero, al entrar
-const INTERVALO_MS = 90_000; // entre un aviso y el siguiente
+const INTERVALO_MS = 50_000; // entre un aviso y el siguiente
 const VISIBLE_MS = 15_000; // si no se toca, el globo se va solo
 const MAX_RECHAZOS = 2; // cerrarlo dos veces seguidas = "ahora no"...
 const DESCANSO_MS = 5 * 60_000; // ...y el asistente descansa 5 minutos antes de volver
@@ -41,6 +41,8 @@ interface EstadoAvisos {
     rechazos: number; // cierres seguidos con la X
     ultimo: number; // cuándo se mostró u ocultó el último (ms)
     pausaHasta: number; // descanso tras los rechazos (ms)
+    volviendo: boolean; // el próximo aviso es el de "¡Volví!", tras el descanso
+    regresos: number; // cuántas veces volvió (elige el mensaje de regreso, en bucle)
 }
 
 // En sessionStorage: el chat se monta de nuevo en cada página, y el ritmo debe seguir entre páginas.
@@ -53,7 +55,7 @@ function leerEstado(): EstadoAvisos {
     } catch {
         // Almacenamiento bloqueado o dañado: se empieza de cero.
     }
-    return { mostrados: 0, rechazos: 0, ultimo: 0, pausaHasta: 0 };
+    return { mostrados: 0, rechazos: 0, ultimo: 0, pausaHasta: 0, volviendo: false, regresos: 0 };
 }
 
 function guardarEstado(cambios: Partial<EstadoAvisos>) {
@@ -66,7 +68,9 @@ function guardarEstado(cambios: Partial<EstadoAvisos>) {
 
 export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps = {}) {
     const { auth } = usePage<SharedData>().props;
-    const avisos = AVISOS[audienciaDe(auth.user?.rol)];
+    const audiencia = audienciaDe(auth.user?.rol);
+    const avisos = AVISOS[audiencia];
+    const saludosDeRegreso = regresosDe(audiencia);
     const [abierto, setAbierto] = useState(false);
     const [mensajes, setMensajes] = useState<Mensaje[]>([SALUDO]);
     const [entrada, setEntrada] = useState('');
@@ -102,11 +106,18 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
                 setTurno((n) => n + 1); // se reintenta cuando vuelva a mirar
                 return;
             }
+            if (estado.volviendo) {
+                // Primer aviso tras el descanso: retoma con un saludo cercano.
+                const regresos = estado.regresos ?? 0;
+                setBurbuja(saludosDeRegreso[regresos % saludosDeRegreso.length]);
+                guardarEstado({ volviendo: false, regresos: regresos + 1, ultimo: Date.now() });
+                return;
+            }
             setBurbuja(avisos[estado.mostrados % avisos.length]);
             guardarEstado({ mostrados: estado.mostrados + 1, ultimo: Date.now() });
         }, espera);
         return () => window.clearTimeout(t);
-    }, [abierto, burbuja, despedida, turno, avisos]);
+    }, [abierto, burbuja, despedida, turno, avisos, saludosDeRegreso]);
 
     useEffect(() => {
         if (!despedida) return;
@@ -131,7 +142,7 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
     function rechazarBurbuja() {
         const rechazos = leerEstado().rechazos + 1;
         if (rechazos >= MAX_RECHAZOS) {
-            ocultarBurbuja({ rechazos: 0, pausaHasta: Date.now() + DESCANSO_MS });
+            ocultarBurbuja({ rechazos: 0, pausaHasta: Date.now() + DESCANSO_MS, volviendo: true });
             setDespedida(true);
         } else ocultarBurbuja({ rechazos });
     }
