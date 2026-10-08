@@ -27,18 +27,19 @@ const SALUDO: Mensaje = {
     texto: 'Hola 👋 Soy el asistente de IngeTech AI. Cuéntame qué vas a hacer con tu laptop y tu presupuesto, o pregúntame por un modelo del catálogo.',
 };
 
-// Avisos periódicos (Psicología, ver lib/avisos-asistente.ts): acompañar sin agobiar.
-const PRIMER_AVISO_MS = 2500;
+// Avisos periódicos (Psicología, ver lib/avisos-asistente.ts): rotan en bucle para acompañar a
+// la persona todo el tiempo, sin agobiarla. Tiempos en milisegundos (1000 ms = 1 s).
+const PRIMER_AVISO_MS = 2500; // el primero, al entrar
 const INTERVALO_MS = 90_000; // entre un aviso y el siguiente
 const VISIBLE_MS = 15_000; // si no se toca, el globo se va solo
-const MAX_AVISOS = 4; // por visita
-const MAX_RECHAZOS = 2; // cerrarlo dos veces = "no me interesa": no se insiste más
+const MAX_RECHAZOS = 2; // cerrarlo dos veces seguidas = "ahora no"...
+const DESCANSO_MS = 5 * 60_000; // ...y el asistente descansa 5 minutos antes de volver
 
 interface EstadoAvisos {
-    mostrados: number;
-    rechazos: number;
+    mostrados: number; // cuántos se mostraron (elige el siguiente de la lista, en bucle)
+    rechazos: number; // cierres seguidos con la X
     ultimo: number; // cuándo se mostró u ocultó el último (ms)
-    detenido: boolean;
+    pausaHasta: number; // descanso tras los rechazos (ms)
 }
 
 // En sessionStorage: el chat se monta de nuevo en cada página, y el ritmo debe seguir entre páginas.
@@ -51,7 +52,7 @@ function leerEstado(): EstadoAvisos {
     } catch {
         // Almacenamiento bloqueado o dañado: se empieza de cero.
     }
-    return { mostrados: 0, rechazos: 0, ultimo: 0, detenido: false };
+    return { mostrados: 0, rechazos: 0, ultimo: 0, pausaHasta: 0 };
 }
 
 function guardarEstado(cambios: Partial<EstadoAvisos>) {
@@ -84,13 +85,15 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
         if (abierto) window.setTimeout(() => inputRef.current?.focus(), 120);
     }, [abierto]);
 
-    // Programa el siguiente aviso. Solo aparece con la pestaña a la vista y el chat cerrado.
+    // Programa el siguiente aviso (en bucle, sin límite). Solo aparece con la pestaña a la vista y
+    // el chat cerrado: mientras conversa no se le interrumpe.
     useEffect(() => {
         if (abierto || burbuja) return;
         const estado = leerEstado();
-        if (estado.detenido || estado.mostrados >= MAX_AVISOS) return;
 
-        const espera = estado.mostrados === 0 ? PRIMER_AVISO_MS : Math.max(5000, estado.ultimo + INTERVALO_MS - Date.now());
+        const ahora = Date.now();
+        const espera =
+            estado.mostrados === 0 ? PRIMER_AVISO_MS : Math.max(5000, estado.ultimo + INTERVALO_MS - ahora, (estado.pausaHasta ?? 0) - ahora);
         const t = window.setTimeout(() => {
             if (document.hidden) {
                 setTurno((n) => n + 1); // se reintenta cuando vuelva a mirar
@@ -115,28 +118,30 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
         setTurno((n) => n + 1);
     }
 
-    // Cerrarlo con la X: al segundo rechazo no se insiste más en esta visita.
+    // Cerrarlo con la X: tras dos cierres seguidos, el asistente descansa antes de volver.
     function rechazarBurbuja() {
         const rechazos = leerEstado().rechazos + 1;
-        ocultarBurbuja({ rechazos, detenido: rechazos >= MAX_RECHAZOS });
+        ocultarBurbuja(rechazos >= MAX_RECHAZOS ? { rechazos: 0, pausaHasta: Date.now() + DESCANSO_MS } : { rechazos });
     }
 
+    // Tocarlo es interés: se reinicia la cuenta de cierres.
     function tocarBurbuja() {
         if (burbuja?.enlace) {
-            ocultarBurbuja();
+            ocultarBurbuja({ rechazos: 0 });
             router.visit(burbuja.enlace);
         } else abrir();
     }
 
     function abrir() {
-        // Ya usa el chat: no hace falta invitarlo más en esta visita.
         if (burbuja) setBurbuja(null);
-        guardarEstado({ detenido: true });
+        guardarEstado({ rechazos: 0 });
         setAbierto(true);
     }
 
+    // Al cerrar el chat, el siguiente aviso llega un intervalo después (no de inmediato).
     function cerrar() {
         setAbierto(false);
+        guardarEstado({ ultimo: Date.now() });
         onCerrado?.();
     }
 
