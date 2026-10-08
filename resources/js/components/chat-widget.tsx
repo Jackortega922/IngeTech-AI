@@ -1,3 +1,6 @@
+import { AVISOS, audienciaDe, regresosDe, type Aviso } from '@/lib/avisos-asistente';
+import { type SharedData } from '@/types';
+import { router, usePage } from '@inertiajs/react';
 import { Bot, Minimize2, Send, Sparkles, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -24,14 +27,60 @@ const SALUDO: Mensaje = {
     texto: 'Hola 👋 Soy el asistente de IngeTech AI. Cuéntame qué vas a hacer con tu laptop y tu presupuesto, o pregúntame por un modelo del catálogo.',
 };
 
+// Avisos periódicos (Psicología, ver lib/avisos-asistente.ts): rotan en bucle para acompañar a
+// la persona todo el tiempo, sin agobiarla. Tiempos en milisegundos (1000 ms = 1 s).
+const PRIMER_AVISO_MS = 2500; // el primero, al entrar
+const INTERVALO_MS = 50_000; // entre un aviso y el siguiente
+const VISIBLE_MS = 15_000; // si no se toca, el globo se va solo
+const MAX_RECHAZOS = 2; // cerrarlo dos veces seguidas = "ahora no"...
+const DESCANSO_MS = 5 * 60_000; // ...y el asistente descansa 5 minutos antes de volver
+const DESPEDIDA_MS = 4000; // cuánto se ve el mensaje de "te dejo tranquilo"
+
+interface EstadoAvisos {
+    mostrados: number; // cuántos se mostraron (elige el siguiente de la lista, en bucle)
+    rechazos: number; // cierres seguidos con la X
+    ultimo: number; // cuándo se mostró u ocultó el último (ms)
+    pausaHasta: number; // descanso tras los rechazos (ms)
+    volviendo: boolean; // el próximo aviso es el de "¡Volví!", tras el descanso
+    regresos: number; // cuántas veces volvió (elige el mensaje de regreso, en bucle)
+}
+
+// En sessionStorage: el chat se monta de nuevo en cada página, y el ritmo debe seguir entre páginas.
+const CLAVE_AVISOS = 'chat_avisos';
+
+function leerEstado(): EstadoAvisos {
+    try {
+        const guardado = JSON.parse(sessionStorage.getItem(CLAVE_AVISOS) ?? 'null');
+        if (guardado) return guardado;
+    } catch {
+        // Almacenamiento bloqueado o dañado: se empieza de cero.
+    }
+    return { mostrados: 0, rechazos: 0, ultimo: 0, pausaHasta: 0, volviendo: false, regresos: 0 };
+}
+
+function guardarEstado(cambios: Partial<EstadoAvisos>) {
+    try {
+        sessionStorage.setItem(CLAVE_AVISOS, JSON.stringify({ ...leerEstado(), ...cambios }));
+    } catch {
+        // Sin almacenamiento, los avisos solo se ordenan dentro de esta página.
+    }
+}
+
 export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps = {}) {
+    const { auth } = usePage<SharedData>().props;
+    const audiencia = audienciaDe(auth.user?.rol);
+    const avisos = AVISOS[audiencia];
+    const saludosDeRegreso = regresosDe(audiencia);
     const [abierto, setAbierto] = useState(false);
     const [mensajes, setMensajes] = useState<Mensaje[]>([SALUDO]);
     const [entrada, setEntrada] = useState('');
     const [enviando, setEnviando] = useState(false);
-    // Globo de invitación junto al botón (Psicología: una pregunta abierta y sin presión baja la
-    // barrera para pedir ayuda). Aparece una vez por visita y no vuelve si se cierra o se usa el chat.
-    const [burbuja, setBurbuja] = useState(false);
+    // Globo junto al botón con el aviso de turno (null = no hay globo).
+    const [burbuja, setBurbuja] = useState<Aviso | null>(null);
+    // Cambia cada vez que se oculta un globo, para programar el siguiente.
+    const [turno, setTurno] = useState(0);
+    // Al segundo cierre seguido el bot se despide antes de descansar (confirma que entendió).
+    const [despedida, setDespedida] = useState(false);
     const listaRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -43,34 +92,79 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
         if (abierto) window.setTimeout(() => inputRef.current?.focus(), 120);
     }, [abierto]);
 
+    // Programa el siguiente aviso (en bucle, sin límite). Solo aparece con la pestaña a la vista y
+    // el chat cerrado: mientras conversa no se le interrumpe.
     useEffect(() => {
-        let vista = false;
-        try {
-            vista = sessionStorage.getItem('chat_burbuja_vista') === '1';
-        } catch {
-            // Almacenamiento bloqueado: se muestra igual.
-        }
-        if (vista) return;
-        const t = window.setTimeout(() => setBurbuja(true), 2500);
-        return () => window.clearTimeout(t);
-    }, []);
+        if (abierto || burbuja || despedida) return;
+        const estado = leerEstado();
 
-    function ocultarBurbuja() {
-        setBurbuja(false);
-        try {
-            sessionStorage.setItem('chat_burbuja_vista', '1');
-        } catch {
-            // Sin almacenamiento solo se oculta en esta página.
-        }
+        const ahora = Date.now();
+        const espera =
+            estado.mostrados === 0 ? PRIMER_AVISO_MS : Math.max(5000, estado.ultimo + INTERVALO_MS - ahora, (estado.pausaHasta ?? 0) - ahora);
+        const t = window.setTimeout(() => {
+            if (document.hidden) {
+                setTurno((n) => n + 1); // se reintenta cuando vuelva a mirar
+                return;
+            }
+            if (estado.volviendo) {
+                // Primer aviso tras el descanso: retoma con un saludo cercano.
+                const regresos = estado.regresos ?? 0;
+                setBurbuja(saludosDeRegreso[regresos % saludosDeRegreso.length]);
+                guardarEstado({ volviendo: false, regresos: regresos + 1, ultimo: Date.now() });
+                return;
+            }
+            setBurbuja(avisos[estado.mostrados % avisos.length]);
+            guardarEstado({ mostrados: estado.mostrados + 1, ultimo: Date.now() });
+        }, espera);
+        return () => window.clearTimeout(t);
+    }, [abierto, burbuja, despedida, turno, avisos, saludosDeRegreso]);
+
+    useEffect(() => {
+        if (!despedida) return;
+        const t = window.setTimeout(() => setDespedida(false), DESPEDIDA_MS);
+        return () => window.clearTimeout(t);
+    }, [despedida]);
+
+    // Si no lo toca, el globo se va solo (ignorarlo no cuenta como rechazo).
+    useEffect(() => {
+        if (!burbuja) return;
+        const t = window.setTimeout(() => ocultarBurbuja(), VISIBLE_MS);
+        return () => window.clearTimeout(t);
+    }, [burbuja]);
+
+    function ocultarBurbuja(cambios: Partial<EstadoAvisos> = {}) {
+        setBurbuja(null);
+        guardarEstado({ ultimo: Date.now(), ...cambios });
+        setTurno((n) => n + 1);
+    }
+
+    // Cerrarlo con la X: tras dos cierres seguidos, el asistente descansa antes de volver.
+    function rechazarBurbuja() {
+        const rechazos = leerEstado().rechazos + 1;
+        if (rechazos >= MAX_RECHAZOS) {
+            ocultarBurbuja({ rechazos: 0, pausaHasta: Date.now() + DESCANSO_MS, volviendo: true });
+            setDespedida(true);
+        } else ocultarBurbuja({ rechazos });
+    }
+
+    // Tocarlo es interés: se reinicia la cuenta de cierres.
+    function tocarBurbuja() {
+        if (burbuja?.enlace) {
+            ocultarBurbuja({ rechazos: 0 });
+            router.visit(burbuja.enlace);
+        } else abrir();
     }
 
     function abrir() {
-        ocultarBurbuja();
+        if (burbuja) setBurbuja(null);
+        guardarEstado({ rechazos: 0 });
         setAbierto(true);
     }
 
+    // Al cerrar el chat, el siguiente aviso llega un intervalo después (no de inmediato).
     function cerrar() {
         setAbierto(false);
+        guardarEstado({ ultimo: Date.now() });
         onCerrado?.();
     }
 
@@ -113,20 +207,29 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
         // Abierto: el panel llega casi hasta el borde inferior y el botón de cerrar queda a su
         // izquierda (en celular no hay espacio: se cierra con el botón de la cabecera del chat).
         <div className="fixed right-4 bottom-4 z-[90] flex items-end justify-end gap-3">
+            {despedida && !abierto && (
+                <div
+                    role="status"
+                    className="it-chat-panel mb-1 w-[min(250px,calc(100vw-7rem))] rounded-2xl rounded-br-sm border border-slate-200 bg-white p-3 text-left shadow-[0_15px_40px_rgba(15,23,42,.2)] dark:border-slate-700 dark:bg-slate-900"
+                >
+                    <span className="block text-sm font-bold text-[#0c2340] dark:text-white">Entendido, no te interrumpo por un rato 😊</span>
+                    <span className="mt-0.5 block text-xs leading-5 text-slate-500 dark:text-slate-400">
+                        Si me necesitas, toca el bot cuando quieras.
+                    </span>
+                </div>
+            )}
             {burbuja && !abierto && (
                 <div
                     role="status"
                     className="it-chat-panel relative mb-1 w-[min(250px,calc(100vw-7rem))] rounded-2xl rounded-br-sm border border-slate-200 bg-white p-3 pr-8 text-left shadow-[0_15px_40px_rgba(15,23,42,.2)] dark:border-slate-700 dark:bg-slate-900"
                 >
-                    <button type="button" onClick={abrir} className="block text-left">
-                        <span className="block text-sm font-bold text-[#0c2340] dark:text-white">¿No sabes por dónde empezar? 👋</span>
-                        <span className="mt-0.5 block text-xs leading-5 text-slate-500 dark:text-slate-400">
-                            Pregúntame cómo funciona la tienda o qué laptop te conviene. Te respondo al instante.
-                        </span>
+                    <button type="button" onClick={tocarBurbuja} className="block text-left">
+                        <span className="block text-sm font-bold text-[#0c2340] dark:text-white">{burbuja.titulo}</span>
+                        <span className="mt-0.5 block text-xs leading-5 text-slate-500 dark:text-slate-400">{burbuja.texto}</span>
                     </button>
                     <button
                         type="button"
-                        onClick={ocultarBurbuja}
+                        onClick={rechazarBurbuja}
                         aria-label="Cerrar mensaje"
                         className="absolute top-2 right-2 rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
                     >
