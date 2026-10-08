@@ -92,8 +92,8 @@ export default function ParaTi({ afinidades, equipos }: { afinidades: Afinidad[]
                 <p className="text-slate-500">
                     Esto solo mira cómo eres tú. La recomendación con IA además considera tu carrera, tus programas y tu presupuesto.
                 </p>
-                <Link href="/perfil" className="it-btn it-btn-secondary shrink-0">
-                    <Sparkles className="h-4 w-4" /> Recomiéndame con IA
+                <Link href="/perfil" className="it-btn it-btn-primary shrink-0">
+                    <Sparkles className="h-4 w-4" /> Pedir recomendación
                 </Link>
             </div>
         </section>

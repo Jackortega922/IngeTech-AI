@@ -251,16 +251,19 @@ export default function ComparadorIndex() {
 
                         <GuiaCompra equipos={equipos} despuesDelPrecio={afinidades && <ParaTi afinidades={afinidades} equipos={equipos} />} />
 
-                        <div className="mt-6 flex flex-col items-start gap-3 rounded-2xl border border-[var(--it-primary)]/20 bg-sky-50 p-5 sm:flex-row sm:items-center sm:justify-between dark:bg-sky-950/40">
-                            <p className="text-sm">
-                                Esta guía usa reglas fijas. Si le cuentas tu carrera u ocupación, tus actividades y tu presupuesto, la{' '}
-                                <strong>recomendación con IA</strong> calcula qué laptop te conviene a ti.
-                            </p>
-                            <Link href={auth.user ? '/perfil' : '/register'} className="it-btn it-btn-primary shrink-0">
-                                <Sparkles className="h-4 w-4" />
-                                {auth.user ? 'Pedir recomendación' : 'Crear cuenta y probar la IA'}
-                            </Link>
-                        </div>
+                        {/* Con "Para ti" visible, este aviso repetiría su invitación a la IA. */}
+                        {!afinidades && (
+                            <div className="mt-6 flex flex-col items-start gap-3 rounded-2xl border border-[var(--it-primary)]/20 bg-sky-50 p-5 sm:flex-row sm:items-center sm:justify-between dark:bg-sky-950/40">
+                                <p className="text-sm">
+                                    Esta guía usa reglas fijas. Si le cuentas tu carrera u ocupación, tus actividades y tu presupuesto, la{' '}
+                                    <strong>recomendación con IA</strong> calcula qué laptop te conviene a ti.
+                                </p>
+                                <Link href={auth.user ? '/perfil' : '/register'} className="it-btn it-btn-primary shrink-0">
+                                    <Sparkles className="h-4 w-4" />
+                                    {auth.user ? 'Pedir recomendación' : 'Crear cuenta y probar la IA'}
+                                </Link>
+                            </div>
+                        )}
                     </>
                 )}
             </main>
