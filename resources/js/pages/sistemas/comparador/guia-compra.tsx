@@ -254,8 +254,6 @@ export default function GuiaCompra({ equipos, despuesDelPrecio }: { equipos: Lap
                 )}
             </div>
 
-            <p className="text-muted-foreground mt-3 text-xs">Pantalla, peso y puertos son datos de referencia del fabricante.</p>
-
             {despuesDelPrecio}
 
             {/* ─────────────────────────────────────────────

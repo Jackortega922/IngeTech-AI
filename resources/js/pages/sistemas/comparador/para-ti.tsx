@@ -1,7 +1,6 @@
 import LaptopImage from '@/components/laptop-image';
 import type { Laptop } from '@/types/flujo';
-import { Link } from '@inertiajs/react';
-import { AlertTriangle, CheckCircle2, Heart, Sparkles } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Heart } from 'lucide-react';
 
 // Respuesta del motor (operación "afinidad", docs/arquitectura/contrato-motor.md).
 export interface Afinidad {
@@ -14,7 +13,7 @@ export interface Afinidad {
 /**
  * "Para ti": ordena las laptops comparadas según el cuestionario de bienvenida. Solo aparece si la
  * persona lo respondió; la recomendación con IA sigue siendo la más completa (usa además su
- * carrera, programas y presupuesto), por eso se la invita al final.
+ * carrera, programas y presupuesto): el aviso final del comparador invita a usarla.
  */
 export default function ParaTi({ afinidades, equipos }: { afinidades: Afinidad[]; equipos: Laptop[] }) {
     const filas = afinidades
@@ -92,9 +91,6 @@ export default function ParaTi({ afinidades, equipos }: { afinidades: Afinidad[]
                 <p className="text-slate-500">
                     Esto solo mira cómo eres tú. La recomendación con IA además considera tu carrera, tus programas y tu presupuesto.
                 </p>
-                <Link href="/perfil" className="it-btn it-btn-primary shrink-0">
-                    <Sparkles className="h-4 w-4" /> Pedir recomendación
-                </Link>
             </div>
         </section>
     );
