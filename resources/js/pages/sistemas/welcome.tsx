@@ -25,6 +25,7 @@ import {
     Sparkles,
     Truck,
     User,
+    X,
 } from 'lucide-react';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
@@ -91,8 +92,16 @@ export default function Welcome({
     }
 
     useEffect(() => {
+        // Recargar la portada (F5) empieza una comparación nueva; navegar por la tienda la conserva.
+        const navegacion = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+        if (navegacion?.type === 'reload') flujoStorage.guardarComparar([]);
         setComparar(flujoStorage.leerComparar());
     }, []);
+
+    function limpiarComparar() {
+        flujoStorage.guardarComparar([]);
+        setComparar([]);
+    }
 
     function irAProductos() {
         document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' });
@@ -376,15 +385,28 @@ export default function Welcome({
 
                 <StoreFooter />
 
-                {/* Barra de comparación: aparece al elegir 2 o más */}
-                {comparar.length >= 2 && (
-                    <div className="fixed bottom-5 left-1/2 z-40 -translate-x-1/2">
-                        <Link
-                            href="/comparador"
-                            className="flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-[#07111f] shadow-2xl hover:bg-cyan-300"
+                {/* Barra de comparación: aparece al elegir la primera; con 2 o más ya se puede comparar */}
+                {comparar.length >= 1 && (
+                    <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2">
+                        {comparar.length >= 2 ? (
+                            <Link
+                                href="/comparador"
+                                className="flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold whitespace-nowrap text-[#07111f] shadow-2xl hover:bg-cyan-300"
+                            >
+                                <Scale className="h-4 w-4" /> Comparar ({comparar.length})
+                            </Link>
+                        ) : (
+                            <span className="flex items-center gap-2 rounded-full bg-white/90 px-5 py-3 text-sm font-semibold whitespace-nowrap text-[#07111f] shadow-2xl">
+                                <Scale className="h-4 w-4" /> Elige 1 más para comparar
+                            </span>
+                        )}
+                        <button
+                            type="button"
+                            onClick={limpiarComparar}
+                            className="flex items-center gap-1.5 rounded-full border border-white/20 bg-[#0b1a2c] px-4 py-3 text-sm font-semibold whitespace-nowrap text-slate-200 shadow-2xl hover:border-red-400 hover:text-red-300"
                         >
-                            <Scale className="h-4 w-4" /> Comparar ({comparar.length})
-                        </Link>
+                            <X className="h-4 w-4" /> Limpiar
+                        </button>
                     </div>
                 )}
 
