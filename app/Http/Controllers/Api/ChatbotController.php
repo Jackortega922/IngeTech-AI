@@ -37,7 +37,7 @@ class ChatbotController extends Controller
     private const CIERRES = [
         '¿Quieres que armemos tu recomendación con estos datos?',
         '¿Seguimos con tu recomendación personalizada?',
-        'Cuando quieras, dale a "Nueva recomendación" y lo vemos con calma.',
+        'Cuando quieras, pulsa "Recomiéndame con IA" y lo vemos con calma.',
     ];
 
     public function responder(Request $request, GeminiAsistente $llm)
@@ -145,7 +145,13 @@ class ChatbotController extends Controller
         $faq = [
             'presupuesto' => 'El presupuesto se ingresa en el formulario de Perfil — el sistema solo te muestra equipos que no lo excedan, así que puedes explorar sin miedo a pasarte de precio.',
             'compatib' => 'La compatibilidad se calcula comparando la RAM, el procesador y la GPU de cada equipo contra lo que exige el software de tu carrera.',
-            'compara' => 'Puedes marcar hasta 3 equipos en el Catálogo de Hardware y luego abrir "Comparador" para verlos lado a lado, sin presión, a tu ritmo.',
+            'compara' => 'Puedes marcar hasta 3 laptops en el catálogo (ícono de balanza) y luego abrir el Comparador para verlas lado a lado, a tu ritmo.',
+            'garantia' => 'Todas tienen la garantía de fábrica, típicamente 12 meses contra defectos de fabricación. Detalle en Términos y Garantía.',
+            'devol' => 'Puedes pedir cambio o devolución dentro de los 7 días calendario después de la compra, si el equipo está como se entregó. Detalle en Términos y Garantía.',
+            'reclam' => 'Si algo salió mal, presenta tu reclamo o queja en el Libro de Reclamaciones (enlace al pie de la página). Te respondemos en máximo 15 días hábiles.',
+            'envio' => 'Hacemos envíos a todo el Perú. Puedes seguir tu pedido en "Seguimiento de pedido" con tu código y tu correo.',
+            'pedido' => 'Para ver tu pedido entra a "Seguimiento de pedido" con el código que te llegó al correo, o a "Mis pedidos" si compraste con tu cuenta.',
+            'pago' => 'Se paga en el sitio con tarjeta al terminar de personalizar la laptop (en este proyecto el pago es simulado: no se cobra nada).',
             'personaliz' => 'Desde tu recomendación puedes personalizar RAM, almacenamiento, kits y accesorios antes de confirmar.',
             'kit' => 'Los kits agrupan accesorios (mochila, mouse, cooler, etc.) con un precio conjunto, normalmente más barato que comprarlos sueltos.',
             'admin' => 'El panel de Administración permite editar el catálogo de hardware, software y carreras, además de ver métricas de uso.',
@@ -156,8 +162,34 @@ class ChatbotController extends Controller
             }
         }
 
-        return response()->json(['respuesta' => 'No encontré eso en el catálogo, pero no te preocupes — puedes preguntarme por una carrera (ej. "Ingeniería Civil"), '.
-            'un software (ej. "AutoCAD") o un equipo (ej. "Legion 5"), o cómo funciona la compatibilidad, el comparador o los kits. Estoy para ayudarte a decidir con calma.',
+        // 5. Quiere comprar o no sabe cuál elegir (después de las respuestas específicas, que ganan): los dos caminos de la tienda, sin presión.
+        $quiereComprar = ['comprar', 'compra', 'quiero una laptop', 'necesito una laptop', 'busco una laptop', 'recomiend', 'que laptop', 'cual laptop', 'me conviene'];
+        foreach ($quiereComprar as $clave) {
+            if (Str::contains($texto, $clave)) {
+                return response()->json(['respuesta' => "¡Genial, te ayudo a elegir! Tienes dos caminos:\n".
+                    "- Recomiéndame con IA (botón celeste de arriba): cuentas para qué usarás la laptop y tu presupuesto, y la IA calcula cuál te conviene y por qué.\n".
+                    "- Nuestras laptops: miras el catálogo, comparas hasta 3 y compras directo, con o sin cuenta.\n".
+                    'Si prefieres, cuéntame aquí para qué la usarás y cuánto quieres gastar.',
+                ]);
+            }
+        }
+
+        // 6. No sabe cómo usar la tienda.
+        $comoFunciona = ['como funciona', 'que hace', 'para que sirve', 'como uso', 'como se usa', 'que es ingetech', 'como compro'];
+        foreach ($comoFunciona as $clave) {
+            if (Str::contains($texto, $clave)) {
+                return response()->json(['respuesta' => "Es sencillo:\n".
+                    "1. Pulsa \"Recomiéndame con IA\" y cuéntanos qué harás con la laptop, qué programas usas y tu presupuesto.\n".
+                    "2. La IA compara eso con cada laptop del catálogo y te muestra las que mejor encajan, con su porcentaje de compatibilidad y el porqué.\n".
+                    "3. Elige una, personalízala (RAM, almacenamiento, accesorios) y cómprala con envío a todo el Perú.\n".
+                    'También puedes ver el catálogo y comparar laptops sin crear cuenta.',
+                ]);
+            }
+        }
+
+        return response()->json(['respuesta' => 'Mmm, esa no la tengo clara. Puedo ayudarte con cosas como: qué laptop te conviene, cómo funciona la tienda, '.
+            'un programa (ej. "AutoCAD"), una carrera (ej. "Ingeniería Civil"), un modelo (ej. "Legion 5"), envíos, garantía o reclamos. '.
+            'Si quieres una recomendación a tu medida, pulsa "Recomiéndame con IA".',
         ]);
     }
 
