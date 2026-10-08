@@ -3,6 +3,7 @@ import { criteriosDeCompra, idealPara, justificarPrecios, rolesPorPrecio, type C
 import type { Laptop } from '@/types/flujo';
 import { Link } from '@inertiajs/react';
 import { BadgeCheck, BatteryFull, CheckCircle2, Cpu, HardDrive, Monitor, Scale, Usb, Weight, Zap } from 'lucide-react';
+import { type ReactNode } from 'react';
 
 const PUNTO: Record<Calidad, string> = {
     alta: 'bg-emerald-500',
@@ -45,7 +46,8 @@ function cifra(clave: string, l: Laptop): { valor: string; unidad: string } | nu
 
 // Diseño: Marco (PR #41). Lógica: lib/guia-compra.ts. A diferencia de su versión, las cifras salen
 // del dato de la laptop y siempre se muestra el detalle (ampliable, resolución, avisos de puertos).
-export default function GuiaCompra({ equipos }: { equipos: Laptop[] }) {
+// `despuesDelPrecio`: lo que va tras "¿Vale la diferencia de precio?" (el bloque "Para ti").
+export default function GuiaCompra({ equipos, despuesDelPrecio }: { equipos: Laptop[]; despuesDelPrecio?: ReactNode }) {
     const roles = rolesPorPrecio(equipos);
     const criterios = criteriosDeCompra(equipos);
     const precios = justificarPrecios(equipos);
@@ -298,6 +300,8 @@ export default function GuiaCompra({ equipos }: { equipos: Laptop[] }) {
                     </div>
                 </article>
             )}
+
+            {despuesDelPrecio}
 
             {/* ─────────────────────────────────────────────
                 GARANTÍA

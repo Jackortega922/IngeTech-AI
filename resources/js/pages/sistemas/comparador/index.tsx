@@ -204,8 +204,6 @@ export default function ComparadorIndex() {
                     <EmptyComparison selected={equipos[0]} onAdd={() => openSelector()} onRemove={() => equipos[0] && remove(equipos[0].id)} />
                 ) : (
                     <>
-                        {afinidades && <ParaTi afinidades={afinidades} equipos={equipos} />}
-
                         <section className="mt-8 overflow-hidden rounded-[2rem] border bg-white shadow-sm dark:bg-slate-950">
                             <div className={grid.fila}>
                                 <div className="hidden border-r bg-slate-50 p-5 md:block dark:bg-slate-900">
@@ -251,9 +249,9 @@ export default function ComparadorIndex() {
                             />
                         </div>
 
-                        <GuiaCompra equipos={equipos} />
+                        <GuiaCompra equipos={equipos} despuesDelPrecio={afinidades && <ParaTi afinidades={afinidades} equipos={equipos} />} />
 
-                        <div className="mt-6 flex flex-col items-start gap-3 rounded-2xl border border-[var(--it-primary)]/20 bg-[var(--it-primary-soft)] p-5 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="mt-6 flex flex-col items-start gap-3 rounded-2xl border border-[var(--it-primary)]/20 bg-sky-50 p-5 sm:flex-row sm:items-center sm:justify-between dark:bg-sky-950/40">
                             <p className="text-sm">
                                 Esta guía usa reglas fijas. Si le cuentas tu carrera u ocupación, tus actividades y tu presupuesto, la{' '}
                                 <strong>recomendación con IA</strong> calcula qué laptop te conviene a ti.

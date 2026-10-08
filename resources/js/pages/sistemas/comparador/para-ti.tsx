@@ -26,7 +26,7 @@ export default function ParaTi({ afinidades, equipos }: { afinidades: Afinidad[]
     const empate = mejor.afinidad_pct === resto[0].afinidad_pct;
 
     return (
-        <section className="mt-8 overflow-hidden rounded-[2rem] border border-[var(--it-primary)]/30 bg-white shadow-sm dark:bg-slate-950">
+        <section className="mt-6 overflow-hidden rounded-[2rem] border border-[var(--it-primary)]/30 bg-white shadow-sm dark:bg-slate-950">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-sky-50 px-5 py-4 sm:px-6 dark:bg-sky-950/40">
                 <div className="flex items-center gap-3">
                     <span className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--it-primary)] text-white">
