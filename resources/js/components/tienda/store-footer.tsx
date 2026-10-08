@@ -87,7 +87,7 @@ export default function StoreFooter() {
                     <ul className="mt-4 space-y-2.5">
                         {MARCAS.map((m) => (
                             <li key={m}>
-                                <a href={`/?marca=${encodeURIComponent(m)}#productos`} className="transition hover:text-cyan-400">
+                                <a href={`/hardware?marca=${encodeURIComponent(m)}`} className="transition hover:text-cyan-400">
                                     Laptops {m}
                                 </a>
                             </li>

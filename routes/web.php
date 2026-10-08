@@ -12,10 +12,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Portada tipo tienda: la vitrina muestra el catálogo real (sin IA); la recomendación con IA
-// es el valor agregado que se ofrece encima.
+// Portada tipo tienda: muestra una selección (más pedidas y novedades) y lleva al catálogo
+// completo con filtros en /hardware; la recomendación con IA es el valor agregado encima.
+// `pedidas`: id de laptop => pedidos que la incluyen (sin contar los cancelados).
 Route::get('/', fn () => Inertia::render('sistemas/welcome', [
     'laptops' => Laptop::orderBy('precio_soles')->get(),
+    'pedidas' => Pedido::where('pedidos.estado', '!=', 'cancelado')
+        ->join('personalizaciones', 'personalizaciones.id', '=', 'pedidos.personalizacion_id')
+        ->whereNotNull('personalizaciones.laptop_id')
+        ->groupBy('personalizaciones.laptop_id')
+        ->selectRaw('personalizaciones.laptop_id, count(*) as total')
+        ->pluck('total', 'laptop_id')
+        ->map(fn ($n) => (int) $n),
 ]))->name('home');
 
 // Catálogo abierto al público: navegar y comparar specs no pide cuenta, como en cualquier
