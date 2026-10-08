@@ -130,6 +130,8 @@ return [
     'admin' => [
         'name' => env('ADMIN_NAME', 'Administrador'),
         'email' => env('ADMIN_EMAIL'),
+        // Solo para probar en local (AdministradorSeeder la ignora en producción).
+        'password' => env('ADMIN_PASSWORD'),
     ],
 
 ];
