@@ -28,11 +28,10 @@ createInertiaApp({
 // This will set light / dark mode on load...
 initializeTheme();
 
-// Color de acento elegido en el selector de tema (ThemeCustomizer). En try/catch porque el
-// navegador puede bloquear localStorage (modo privado estricto) y eso no debe romper la app.
+// Ya no hay selector de color de acento: todos ven el azul marino. Se borra el que haya quedado
+// guardado de antes. En try/catch porque el navegador puede bloquear localStorage (modo privado).
 try {
-    const acento = localStorage.getItem('ingetech:accent');
-    if (acento) document.documentElement.dataset.accent = acento;
+    localStorage.removeItem('ingetech:accent');
 } catch {
-    // sin acento guardado: se usa el azul marino por defecto
+    // nada que borrar
 }

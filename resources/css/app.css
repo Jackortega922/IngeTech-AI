@@ -223,52 +223,9 @@
     }
 }
 
-:root[data-accent='blue'] {
-    --it-primary: #173a63;
-    --it-primary-strong: #102d4e;
-    --it-primary-soft: #eaf2fb;
-    --it-primary-rgb: 23 58 99;
-}
-:root[data-accent='cyan'] {
-    --it-primary: #0891b2;
-    --it-primary-strong: #0e7490;
-    --it-primary-soft: #e8f9fc;
-    --it-primary-rgb: 8 145 178;
-}
-:root[data-accent='violet'] {
-    --it-primary: #6d5dfc;
-    --it-primary-strong: #5748d8;
-    --it-primary-soft: #f0eeff;
-    --it-primary-rgb: 109 93 252;
-}
-:root[data-accent='emerald'] {
-    --it-primary: #0f9f75;
-    --it-primary-strong: #087b5b;
-    --it-primary-soft: #e9faf5;
-    --it-primary-rgb: 15 159 117;
-}
-
 @layer components {
     .it-icon-btn {
         @apply grid h-9 w-9 place-items-center rounded-xl border text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white;
-    }
-    .it-theme-trigger {
-        @apply fixed right-5 bottom-[5.75rem] z-[80] grid h-12 w-12 place-items-center rounded-2xl text-white shadow-xl transition hover:-translate-y-0.5;
-        background: var(--it-primary);
-        box-shadow: 0 14px 35px rgb(var(--it-primary-rgb) / 0.28);
-    }
-    .it-theme-panel {
-        @apply fixed top-0 right-0 z-[130] h-full w-full max-w-md overflow-y-auto border-l bg-white p-7 shadow-2xl dark:bg-slate-950;
-    }
-    .it-theme-option {
-        @apply flex items-center gap-3 rounded-2xl border p-3 transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800;
-    }
-    .it-theme-option.is-active {
-        box-shadow: 0 0 0 2px rgb(var(--it-primary-rgb) / 0.18);
-        border-color: var(--it-primary);
-    }
-    .it-theme-option small {
-        @apply mt-0.5 block text-xs text-slate-500 dark:text-slate-400;
     }
     .it-primary {
         background: var(--it-primary);
@@ -399,28 +356,6 @@
 }
 
 @layer components {
-    .it-theme-mode {
-        @apply flex min-h-24 items-center gap-3 rounded-2xl border bg-white p-4 text-left transition hover:-translate-y-0.5 hover:shadow-lg dark:bg-slate-900;
-    }
-    .it-theme-mode.is-active {
-        border-color: var(--it-primary);
-        box-shadow: 0 0 0 3px rgb(var(--it-primary-rgb) / 0.1);
-    }
-    .it-theme-mode b {
-        @apply block text-sm font-black;
-    }
-    .it-theme-mode small {
-        @apply mt-1 block text-xs leading-5 text-slate-500 dark:text-slate-400;
-    }
-    .it-theme-preview {
-        @apply grid h-12 w-12 shrink-0 place-items-center rounded-xl;
-    }
-    .it-theme-preview-light {
-        @apply bg-white text-slate-700 ring-1 ring-slate-200;
-    }
-    .it-theme-preview-dark {
-        @apply bg-[#0c2340] text-sky-200 ring-1 ring-sky-900;
-    }
     .it-home-grid {
         background-image:
             linear-gradient(rgb(148 163 184 / 0.07) 1px, transparent 1px), linear-gradient(90deg, rgb(148 163 184 / 0.07) 1px, transparent 1px);
