@@ -30,7 +30,7 @@ const ICONO: Record<string, { icon: typeof Cpu; color: string }> = {
     precio: { icon: Wallet, color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
 };
 
-const ETIQUETA_CALIDAD: Record<Calidad, string> = { alta: 'Destaca', media: 'Cumple', baja: 'Considerar' };
+const ETIQUETA_CALIDAD: Record<Calidad, string> = { alta: 'Destaca', media: 'Cumple', baja: 'Tenlo en cuenta' };
 
 // Cifra destacada de cada criterio, tomada del dato de la laptop (no del texto).
 function cifra(clave: string, l: Laptop): { valor: string; unidad: string } | null {
@@ -134,7 +134,27 @@ export default function GuiaCompra({ equipos, despuesDelPrecio }: { equipos: Lap
             {/* ─────────────────────────────────────────────
                 CRITERIOS (compactos; "Precio" va como uno más)
             ───────────────────────────────────────────── */}
-            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {/* Leyenda antes de las tarjetas: así se sabe qué significa cada color al leerlas. */}
+            <div className="mt-6 flex flex-wrap items-center gap-2 text-[11px]">
+                <span className="text-muted-foreground font-semibold">Cómo leer las tarjetas:</span>
+                {(
+                    [
+                        ['bg-emerald-500', 'Destaca', 'lo mejor de la comparación'],
+                        ['bg-cyan-500', 'Cumple', 'suficiente para la mayoría'],
+                        ['bg-amber-500', 'Tenlo en cuenta', 'puede quedarse corto'],
+                    ] as const
+                ).map(([color, nombre, significado]) => (
+                    <span key={nombre} className="bg-card inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5">
+                        <span className={`h-2 w-2 rounded-full ${color}`} />
+                        <b className="font-semibold">{nombre}</b>
+                        <span className="text-muted-foreground">· {significado}</span>
+                    </span>
+                ))}
+            </div>
+
+            {/* Fila flexible centrada (no grilla): si la última fila queda incompleta, sus tarjetas
+                van al centro en vez de dejar un hueco a la derecha. */}
+            <div className="mt-4 flex flex-wrap justify-center gap-4">
                 {criterios.map((c) => {
                     const { icon: Icono, color } = ICONO[c.clave] ?? { icon: CheckCircle2, color: 'bg-emerald-500/10 text-emerald-600' };
 
@@ -234,27 +254,7 @@ export default function GuiaCompra({ equipos, despuesDelPrecio }: { equipos: Lap
                 )}
             </div>
 
-            {/* ─────────────────────────────────────────────
-                LEYENDA
-            ───────────────────────────────────────────── */}
-            <div className="mt-4 flex flex-wrap gap-2">
-                <span className="bg-card inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                    Destaca
-                </span>
-
-                <span className="bg-card inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium">
-                    <span className="h-2 w-2 rounded-full bg-cyan-500" />
-                    Cumple
-                </span>
-
-                <span className="bg-card inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium">
-                    <span className="h-2 w-2 rounded-full bg-amber-500" />
-                    Tenlo en cuenta
-                </span>
-            </div>
-
-            <p className="text-muted-foreground mt-2 text-xs">Pantalla, peso y puertos son datos de referencia del fabricante.</p>
+            <p className="text-muted-foreground mt-3 text-xs">Pantalla, peso y puertos son datos de referencia del fabricante.</p>
 
             {despuesDelPrecio}
 
@@ -295,7 +295,7 @@ function TarjetaCriterio({
     children: ReactNode;
 }) {
     return (
-        <article className="bg-card overflow-hidden rounded-2xl border shadow-sm">
+        <article className="bg-card w-full overflow-hidden rounded-2xl border shadow-sm md:w-[calc((100%-1rem)/2)] xl:w-[calc((100%-2rem)/3)]">
             <div className="bg-muted/20 flex items-start gap-2.5 border-b px-4 py-3">
                 <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${color}`}>{icono}</div>
                 <div className="min-w-0">
