@@ -1,9 +1,11 @@
 import ChatWidget from '@/components/chat-widget';
 import LaptopImage from '@/components/laptop-image';
+import FiltrosVitrina from '@/components/tienda/filtros-vitrina';
 import HeroCarousel from '@/components/tienda/hero-carousel';
 import StoreFooter from '@/components/tienda/store-footer';
 import WhatsappButton, { enlaceWhatsapp, WhatsappIcon } from '@/components/tienda/whatsapp-button';
 import { useInitials } from '@/hooks/use-initials';
+import { conteos, filtrar, gruposDe, ordenar, ORDENES, usoDe, type Orden, type Seleccion, type Uso } from '@/lib/filtros-vitrina';
 import { flujoStorage } from '@/lib/flujo-storage';
 import { disponibilidad } from '@/lib/inventario';
 import { type SharedData } from '@/types';
@@ -20,67 +22,68 @@ import {
     Scale,
     Search,
     ShoppingCart,
+    SlidersHorizontal,
     Sparkles,
     Truck,
     User,
+    X,
 } from 'lucide-react';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
-// Categorías por uso, derivadas de las specs (no hay columna "categoría" en la BD): así cada
-// laptop nueva que se cargue en el admin cae sola en su categoría.
-type Uso = 'estudio' | 'productividad' | 'creativo';
-
+// Categorías por uso (usoDe en lib/filtros-vitrina): se derivan de las specs, así cada laptop
+// nueva que se cargue en el admin cae sola en su categoría.
 const USOS: { value: Uso; titulo: string; texto: string; icon: typeof BookOpen }[] = [
     { value: 'estudio', titulo: 'Estudio y oficina', texto: 'Clases virtuales, documentos y navegación.', icon: BookOpen },
     { value: 'productividad', titulo: 'Productividad y programación', texto: 'Multitarea, código y apps pesadas.', icon: Briefcase },
     { value: 'creativo', titulo: 'Diseño, ingeniería y gaming', texto: 'Con tarjeta gráfica dedicada.', icon: Gamepad2 },
 ];
 
-function usoDe(l: Laptop): Uso {
-    if (l.gpu_dedicada) return 'creativo';
-    return (l.rendimiento_score ?? 0) >= 60 ? 'productividad' : 'estudio';
-}
-
 const soles = (n: number | string) => `S/ ${Number(n).toLocaleString('es-PE')}`;
 
 export default function Welcome({ laptops }: { laptops: Laptop[] }) {
     const { auth, contacto } = usePage<SharedData>().props;
     const [busqueda, setBusqueda] = useState('');
-    const [marca, setMarca] = useState<string | null>(null);
-    const [uso, setUso] = useState<Uso | null>(null);
-    const [orden, setOrden] = useState<'precio_asc' | 'precio_desc' | 'rendimiento'>('precio_asc');
+    const [seleccion, setSeleccion] = useState<Seleccion>({});
+    const [orden, setOrden] = useState<Orden>('precio_asc');
+    const [filtrosAbiertos, setFiltrosAbiertos] = useState(false); // panel de filtros en celular
     const [comparar, setComparar] = useState<number[]>([]);
 
-    const marcas = useMemo(() => Array.from(new Set(laptops.map((l) => l.marca))), [laptops]);
+    const grupos = useMemo(() => gruposDe(laptops), [laptops]);
 
     useEffect(() => {
         setComparar(flujoStorage.leerComparar());
         // El footer enlaza "Laptops Lenovo" como /?marca=Lenovo#productos.
         const m = new URLSearchParams(window.location.search).get('marca');
-        if (m) setMarca(m);
+        if (m) setSeleccion({ marca: [m] });
     }, []);
 
-    const visibles = useMemo(() => {
-        const q = busqueda.trim().toLowerCase();
-        const lista = laptops.filter(
-            (l) =>
-                (!marca || l.marca === marca) &&
-                (!uso || usoDe(l) === uso) &&
-                (!q || `${l.marca} ${l.modelo} ${l.cpu} ${l.gpu ?? ''}`.toLowerCase().includes(q)),
-        );
-        return lista.sort((a, b) =>
-            orden === 'rendimiento'
-                ? (b.rendimiento_score ?? 0) - (a.rendimiento_score ?? 0)
-                : (Number(a.precio_soles) - Number(b.precio_soles)) * (orden === 'precio_asc' ? 1 : -1),
-        );
-    }, [laptops, busqueda, marca, uso, orden]);
+    const visibles = useMemo(() => ordenar(filtrar(laptops, grupos, seleccion, busqueda), orden), [laptops, grupos, seleccion, busqueda, orden]);
+    const cuantas = useMemo(() => conteos(laptops, grupos, seleccion, busqueda), [laptops, grupos, seleccion, busqueda]);
+
+    // Filtros marcados, como etiquetas con su × encima de la lista.
+    const activos = grupos.flatMap((g) =>
+        (seleccion[g.id] ?? []).map((v) => ({ grupo: g.id, valor: v, etiqueta: g.opciones.find((o) => o.valor === v)?.etiqueta ?? v })),
+    );
+
+    function alternar(grupo: string, valor: string) {
+        setSeleccion((s) => {
+            const actuales = s[grupo] ?? [];
+            const siguientes = actuales.includes(valor) ? actuales.filter((v) => v !== valor) : [...actuales, valor];
+            return { ...s, [grupo]: siguientes };
+        });
+    }
+
+    function limpiarFiltros() {
+        setSeleccion({});
+        setBusqueda('');
+    }
 
     function irAProductos() {
         document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' });
     }
 
     function filtrarUso(u: Uso) {
-        setUso(u);
+        setSeleccion((s) => ({ ...s, uso: [u] }));
         irAProductos();
     }
 
@@ -252,86 +255,136 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
                 {/* Productos */}
                 <section id="productos" className="scroll-mt-32 border-t border-white/10 bg-[#091827]">
                     <div className="mx-auto max-w-7xl px-6 py-14 lg:px-10">
-                        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                             <div>
-                                <h2 className="text-3xl font-bold">{marca ? `Laptops ${marca}` : 'Nuestras laptops'}</h2>
+                                <h2 className="text-3xl font-bold">
+                                    {seleccion.marca?.length === 1 ? `Laptops ${seleccion.marca[0]}` : 'Nuestras laptops'}
+                                </h2>
                                 <p className="mt-1 text-slate-400">
                                     {visibles.length} de {laptops.length} modelos
-                                    {uso && ` · ${USOS.find((u) => u.value === uso)?.titulo}`}
                                 </p>
                             </div>
-                            <div className="flex flex-wrap items-center gap-2 text-sm">
-                                {USOS.map((u) => (
-                                    <button
-                                        key={u.value}
-                                        onClick={() => setUso(uso === u.value ? null : u.value)}
-                                        className={`rounded-full border px-3 py-1.5 ${
-                                            uso === u.value
-                                                ? 'border-cyan-400 bg-cyan-400/10 text-cyan-300'
-                                                : 'border-white/10 text-slate-300 hover:border-white/30'
-                                        }`}
-                                    >
-                                        {u.titulo}
-                                    </button>
-                                ))}
-                                {/* Filtro por marca (antes era una barra bajo la cabecera, que repetía la vitrina).
-                                    Lo siguen usando los enlaces del pie de página: /?marca=Lenovo#productos. */}
-                                <select
-                                    value={marca ?? ''}
-                                    onChange={(e) => setMarca(e.target.value || null)}
-                                    className="rounded-full border border-white/10 bg-[#07111f] px-3 py-1.5 text-slate-300 [color-scheme:dark]"
-                                    aria-label="Marca"
+                            <div className="flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => setFiltrosAbiertos(true)}
+                                    className="flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-slate-300 lg:hidden"
                                 >
-                                    <option value="">Todas las marcas</option>
-                                    {marcas.map((m) => (
-                                        <option key={m} value={m}>
-                                            {m}
-                                        </option>
-                                    ))}
-                                </select>
+                                    <SlidersHorizontal className="h-4 w-4" /> Filtros{activos.length > 0 && ` (${activos.length})`}
+                                </button>
                                 <select
                                     value={orden}
-                                    onChange={(e) => setOrden(e.target.value as typeof orden)}
+                                    onChange={(e) => setOrden(e.target.value as Orden)}
                                     className="rounded-full border border-white/10 bg-[#07111f] px-3 py-1.5 text-slate-300 [color-scheme:dark]"
                                     aria-label="Ordenar"
                                 >
-                                    <option value="precio_asc">Menor precio</option>
-                                    <option value="precio_desc">Mayor precio</option>
-                                    <option value="rendimiento">Más potentes</option>
+                                    {ORDENES.map((o) => (
+                                        <option key={o.valor} value={o.valor}>
+                                            {o.etiqueta}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
 
-                        {visibles.length === 0 ? (
-                            <div className="mt-8 rounded-2xl border border-dashed border-white/15 p-10 text-center text-slate-400">
-                                No encontramos laptops con esos filtros.{' '}
-                                <button
-                                    onClick={() => {
-                                        setBusqueda('');
-                                        setMarca(null);
-                                        setUso(null);
-                                    }}
-                                    className="text-cyan-400 underline"
-                                >
-                                    Ver todas
-                                </button>
+                        <div className="mt-8 grid gap-8 lg:grid-cols-[250px_1fr]">
+                            {/* Filtros: columna fija en escritorio */}
+                            <aside className="hidden lg:block">
+                                <div className="sticky top-28 max-h-[calc(100svh-8rem)] overflow-y-auto pr-2 [scrollbar-width:thin]">
+                                    <FiltrosVitrina grupos={grupos} seleccion={seleccion} conteos={cuantas} onCambiar={alternar} />
+                                </div>
+                            </aside>
+
+                            <div className="min-w-0">
+                                {(activos.length > 0 || busqueda.trim()) && (
+                                    <div className="mb-5 flex flex-wrap items-center gap-2 text-sm">
+                                        {busqueda.trim() && (
+                                            <span className="flex items-center gap-1.5 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-3 py-1 text-cyan-200">
+                                                «{busqueda.trim()}»
+                                                <button type="button" onClick={() => setBusqueda('')} aria-label="Quitar búsqueda">
+                                                    <X className="h-3.5 w-3.5" />
+                                                </button>
+                                            </span>
+                                        )}
+                                        {activos.map((a) => (
+                                            <span
+                                                key={`${a.grupo}-${a.valor}`}
+                                                className="flex items-center gap-1.5 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-3 py-1 text-cyan-200"
+                                            >
+                                                {a.etiqueta}
+                                                <button type="button" onClick={() => alternar(a.grupo, a.valor)} aria-label={`Quitar ${a.etiqueta}`}>
+                                                    <X className="h-3.5 w-3.5" />
+                                                </button>
+                                            </span>
+                                        ))}
+                                        <button type="button" onClick={limpiarFiltros} className="px-2 text-slate-400 underline hover:text-white">
+                                            Limpiar todo
+                                        </button>
+                                    </div>
+                                )}
+
+                                {visibles.length === 0 ? (
+                                    <div className="rounded-2xl border border-dashed border-white/15 p-10 text-center text-slate-400">
+                                        No encontramos laptops con esos filtros.{' '}
+                                        <button onClick={limpiarFiltros} className="text-cyan-400 underline">
+                                            Ver todas
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                                        {visibles.map((l) => (
+                                            <TarjetaProducto
+                                                key={l.id}
+                                                l={l}
+                                                enComparar={comparar.includes(l.id)}
+                                                compararLleno={comparar.length >= 3}
+                                                whatsapp={contacto.whatsapp}
+                                                onComparar={() => toggleComparar(l.id)}
+                                                onPersonalizar={() => personalizar(l)}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        ) : (
-                            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                                {visibles.map((l) => (
-                                    <TarjetaProducto
-                                        key={l.id}
-                                        l={l}
-                                        enComparar={comparar.includes(l.id)}
-                                        compararLleno={comparar.length >= 3}
-                                        whatsapp={contacto.whatsapp}
-                                        onComparar={() => toggleComparar(l.id)}
-                                        onPersonalizar={() => personalizar(l)}
-                                    />
-                                ))}
-                            </div>
-                        )}
+                        </div>
                     </div>
+
+                    {/* Filtros en celular: panel que sube desde abajo */}
+                    {filtrosAbiertos && (
+                        <div className="fixed inset-0 z-[95] flex items-end bg-black/60 lg:hidden" onClick={() => setFiltrosAbiertos(false)}>
+                            <div
+                                className="flex max-h-[85svh] w-full flex-col rounded-t-3xl border-t border-white/10 bg-[#0b1a2c]"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                                    <p className="font-bold">Filtros</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFiltrosAbiertos(false)}
+                                        aria-label="Cerrar filtros"
+                                        className="text-slate-400"
+                                    >
+                                        <X className="h-5 w-5" />
+                                    </button>
+                                </div>
+                                <div className="flex-1 overflow-y-auto px-5 py-4">
+                                    <FiltrosVitrina grupos={grupos} seleccion={seleccion} conteos={cuantas} onCambiar={alternar} />
+                                </div>
+                                <div className="flex gap-3 border-t border-white/10 px-5 py-4">
+                                    <button type="button" onClick={limpiarFiltros} className="rounded-xl border border-white/15 px-4 py-3 text-sm">
+                                        Limpiar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFiltrosAbiertos(false)}
+                                        className="flex-1 rounded-xl bg-cyan-400 py-3 text-sm font-bold text-[#07111f]"
+                                    >
+                                        Ver {visibles.length} laptops
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </section>
 
                 {/* La IA como valor agregado */}
