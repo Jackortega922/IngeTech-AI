@@ -41,26 +41,54 @@ const soles = (n: number | string) => `S/ ${Number(n).toLocaleString('es-PE')}`;
 // Cuántas laptops se muestran en la portada; el resto está en el catálogo completo (/hardware).
 const DESTACADAS = 8;
 
-type Vista = 'pedidas' | 'novedades';
+type Vista = 'vendidas' | 'novedades';
 
-export default function Welcome({ laptops, pedidas }: { laptops: Laptop[]; pedidas: Record<number, number> }) {
+// Etiquetas pensadas para el cliente (el panel muestra las mismas cifras en Inventario).
+const ETIQUETA_VENDIDO = { texto: 'Más vendido', clase: 'bg-rose-500 text-white' };
+const ETIQUETA_NUEVO = { texto: 'Nuevo', clase: 'bg-emerald-400 text-[#07111f]' };
+
+export default function Welcome({
+    laptops,
+    vendidas,
+    nuevas,
+    etiquetas,
+}: {
+    laptops: Laptop[];
+    vendidas: Record<number, number>; // id => unidades vendidas en los últimos 30 días
+    nuevas: number[]; // ids con etiqueta "Nuevo"
+    etiquetas: number; // cuántas laptops llevan "Más vendido", como máximo
+}) {
     const { auth, contacto } = usePage<SharedData>().props;
     const [busqueda, setBusqueda] = useState('');
     const [comparar, setComparar] = useState<number[]>([]);
 
-    // "Más pedidas" solo tiene sentido cuando ya hay pedidos; mientras tanto, novedades.
-    const hayPedidos = Object.keys(pedidas).length > 0;
-    const [vista, setVista] = useState<Vista>(hayPedidos ? 'pedidas' : 'novedades');
+    // "Más vendidas" solo tiene sentido cuando ya hay ventas; mientras tanto, novedades.
+    const hayVentas = Object.keys(vendidas).length > 0;
+    const [vista, setVista] = useState<Vista>(hayVentas ? 'vendidas' : 'novedades');
 
     const destacadas = useMemo(() => {
         // Novedades: las últimas cargadas en el admin (id más alto = más reciente).
         const novedades = [...laptops].sort((a, b) => b.id - a.id);
         if (vista === 'novedades') return novedades.slice(0, DESTACADAS);
         return novedades
-            .filter((l) => (pedidas[l.id] ?? 0) > 0)
-            .sort((a, b) => pedidas[b.id] - pedidas[a.id])
+            .filter((l) => (vendidas[l.id] ?? 0) > 0)
+            .sort((a, b) => vendidas[b.id] - vendidas[a.id])
             .slice(0, DESTACADAS);
-    }, [laptops, pedidas, vista]);
+    }, [laptops, vendidas, vista]);
+
+    // "Más vendido" para las que más se vendieron (empates: la más reciente).
+    const masVendidas = useMemo(
+        () =>
+            Object.entries(vendidas)
+                .sort(([idA, a], [idB, b]) => b - a || Number(idB) - Number(idA))
+                .slice(0, etiquetas)
+                .map(([id]) => Number(id)),
+        [vendidas, etiquetas],
+    );
+
+    function etiquetasDe(l: Laptop) {
+        return [...(masVendidas.includes(l.id) ? [ETIQUETA_VENDIDO] : []), ...(nuevas.includes(l.id) ? [ETIQUETA_NUEVO] : [])];
+    }
 
     useEffect(() => {
         setComparar(flujoStorage.leerComparar());
@@ -250,18 +278,18 @@ export default function Welcome({ laptops, pedidas }: { laptops: Laptop[]; pedid
                     <div className="mx-auto max-w-7xl px-6 py-14 lg:px-10">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                             <div>
-                                <h2 className="text-3xl font-bold">{vista === 'pedidas' ? 'Las más pedidas' : 'Recién llegadas'}</h2>
+                                <h2 className="text-3xl font-bold">{vista === 'vendidas' ? 'Las más vendidas' : 'Recién llegadas'}</h2>
                                 <p className="mt-1 text-slate-400">
-                                    {vista === 'pedidas'
+                                    {vista === 'vendidas'
                                         ? 'Las laptops que más eligen nuestros clientes.'
                                         : 'Los últimos modelos que sumamos al catálogo.'}
                                 </p>
                             </div>
-                            {hayPedidos && (
+                            {hayVentas && (
                                 <div className="flex rounded-full border border-white/10 p-1 text-sm">
                                     {(
                                         [
-                                            ['pedidas', 'Más pedidas'],
+                                            ['vendidas', 'Más vendidas'],
                                             ['novedades', 'Novedades'],
                                         ] as const
                                     ).map(([valor, etiqueta]) => (
@@ -286,6 +314,7 @@ export default function Welcome({ laptops, pedidas }: { laptops: Laptop[]; pedid
                                 <TarjetaProducto
                                     key={l.id}
                                     l={l}
+                                    etiquetas={etiquetasDe(l)}
                                     enComparar={comparar.includes(l.id)}
                                     compararLleno={comparar.length >= 3}
                                     whatsapp={contacto.whatsapp}
@@ -368,6 +397,7 @@ export default function Welcome({ laptops, pedidas }: { laptops: Laptop[]; pedid
 
 function TarjetaProducto({
     l,
+    etiquetas,
     enComparar,
     compararLleno,
     whatsapp,
@@ -375,6 +405,7 @@ function TarjetaProducto({
     onPersonalizar,
 }: {
     l: Laptop;
+    etiquetas: { texto: string; clase: string }[];
     enComparar: boolean;
     compararLleno: boolean;
     whatsapp: string | null;
@@ -385,9 +416,15 @@ function TarjetaProducto({
         <article className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0b1a2c] transition hover:-translate-y-0.5 hover:border-cyan-400/50">
             <div className="relative">
                 <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="h-40 w-full" />
-                {l.gpu_dedicada && (
-                    <span className="absolute top-3 left-3 rounded-full bg-violet-500 px-2.5 py-0.5 text-[11px] font-bold">GPU dedicada</span>
-                )}
+                {/* Etiquetas pequeñas arriba a la izquierda: más vendido, nuevo y GPU dedicada */}
+                <div className="absolute top-3 left-3 flex max-w-[65%] flex-wrap gap-1.5">
+                    {etiquetas.map((e) => (
+                        <span key={e.texto} className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${e.clase}`}>
+                            {e.texto}
+                        </span>
+                    ))}
+                    {l.gpu_dedicada && <span className="rounded-full bg-violet-500 px-2.5 py-0.5 text-[11px] font-bold">GPU dedicada</span>}
+                </div>
                 {disponibilidad(l.stock).texto && (
                     <span
                         className={`absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${disponibilidad(l.stock).agotada ? 'bg-slate-700 text-slate-200' : 'bg-amber-400 text-[#07111f]'}`}
