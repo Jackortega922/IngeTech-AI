@@ -24,7 +24,7 @@ import {
     Truck,
     User,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
 // Categorías por uso, derivadas de las specs (no hay columna "categoría" en la BD): así cada
 // laptop nueva que se cargue en el admin cae sola en su categoría.
@@ -99,6 +99,17 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
     }
 
     const getInitials = useInitials();
+    const barraRef = useRef<HTMLDivElement>(null);
+    const cabeceraRef = useRef<HTMLElement>(null);
+    const [altoCabecera, setAltoCabecera] = useState(110);
+
+    // Alto real de la barra superior + cabecera (cambia con el ancho de la pantalla).
+    useLayoutEffect(() => {
+        const medir = () => setAltoCabecera((barraRef.current?.offsetHeight ?? 0) + (cabeceraRef.current?.offsetHeight ?? 0));
+        medir();
+        window.addEventListener('resize', medir);
+        return () => window.removeEventListener('resize', medir);
+    }, []);
     const cuentaHref = auth.user ? (auth.user.es_personal ? '/admin' : '/dashboard') : '/login';
     const iaHref = auth.user ? '/perfil' : '/register';
 
@@ -108,7 +119,7 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
 
             <div className="min-h-screen bg-[#07111f] text-white">
                 {/* Barra superior */}
-                <div className="bg-cyan-400 text-[#07111f]">
+                <div ref={barraRef} className="bg-cyan-400 text-[#07111f]">
                     <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-6 gap-y-1 px-6 py-2 text-xs font-semibold sm:justify-between lg:px-10">
                         <span className="flex items-center gap-1.5">
                             <Truck className="h-3.5 w-3.5" /> Envíos a todo el Perú
@@ -131,7 +142,7 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
                 </div>
 
                 {/* Encabezado */}
-                <header className="sticky top-0 z-40 border-b border-white/10 bg-[#07111f]/95 backdrop-blur">
+                <header ref={cabeceraRef} className="sticky top-0 z-40 border-b border-white/10 bg-[#07111f]/95 backdrop-blur">
                     <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-4 lg:px-10">
                         <Link href="/" className="flex shrink-0 items-center gap-2 text-xl font-bold">
                             <span className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-400 text-lg text-[#07111f]">✦</span>
@@ -194,43 +205,49 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
                     </div>
                 </header>
 
-                {/* Primera vista: cabecera + carrusel + categorías por uso caben en la pantalla del
-                    escritorio sin desplazarse (el carrusel ajusta su altura); el resto, bajando. */}
-                {/* Carrusel de bienvenida (diseño de Marco) */}
-                <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-10 lg:pt-5">
-                    <HeroCarousel onVerLaptops={irAProductos} onGamer={() => filtrarUso('creativo')} iaHref={iaHref} />
-                </div>
+                {/* Primera vista: en escritorio, carrusel + categorías por uso ocupan EXACTAMENTE lo que
+                    queda de la pantalla bajo la cabecera (el carrusel se estira o encoge); el resto de
+                    la tienda aparece bajando. La altura de la cabecera se mide en el navegador. */}
+                <div
+                    className="lg:flex lg:h-[calc(100svh-var(--alto-cabecera,110px))] lg:flex-col"
+                    style={{ '--alto-cabecera': `${altoCabecera}px` } as CSSProperties}
+                >
+                    {/* Carrusel de bienvenida (diseño de Marco) */}
+                    <div className="mx-auto w-full max-w-7xl px-4 pt-6 sm:px-6 lg:min-h-0 lg:flex-1 lg:px-10 lg:pt-5">
+                        <HeroCarousel onVerLaptops={irAProductos} onGamer={() => filtrarUso('creativo')} iaHref={iaHref} />
+                    </div>
 
-                {/* Categorías por uso: filtran la vitrina con el catálogo real */}
-                <section className="mx-auto grid max-w-7xl gap-3 px-4 py-8 sm:grid-cols-3 sm:px-6 lg:px-10 lg:pt-5">
-                    {USOS.map((u) => {
-                        const deUso = laptops.filter((l) => usoDe(l) === u.value);
-                        const desde = deUso.length ? Math.min(...deUso.map((l) => Number(l.precio_soles))) : null;
-                        return (
-                            <button
-                                key={u.value}
-                                onClick={() => filtrarUso(u.value)}
-                                className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition hover:border-cyan-400/60"
-                            >
-                                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-cyan-400/10 text-cyan-400">
-                                    <u.icon className="h-6 w-6" />
-                                </span>
-                                <span className="flex-1">
-                                    <span className="block font-bold">{u.titulo}</span>
-                                    <span className="block text-xs text-slate-400">
-                                        {deUso.length} modelos
-                                        {desde !== null && (
-                                            <>
-                                                {' '}
-                                                · desde <b className="font-mono text-cyan-300">{soles(desde)}</b>
-                                            </>
-                                        )}
+                    {/* Categorías por uso: filtran la vitrina con el catálogo real */}
+                    <section className="mx-auto grid w-full max-w-7xl gap-3 px-4 py-8 sm:grid-cols-3 sm:px-6 lg:px-10 lg:pt-5 lg:pb-6">
+                        {USOS.map((u) => {
+                            const deUso = laptops.filter((l) => usoDe(l) === u.value);
+                            const desde = deUso.length ? Math.min(...deUso.map((l) => Number(l.precio_soles))) : null;
+                            return (
+                                <button
+                                    key={u.value}
+                                    onClick={() => filtrarUso(u.value)}
+                                    className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition hover:border-cyan-400/60"
+                                >
+                                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-cyan-400/10 text-cyan-400">
+                                        <u.icon className="h-6 w-6" />
                                     </span>
-                                </span>
-                            </button>
-                        );
-                    })}
-                </section>
+                                    <span className="flex-1">
+                                        <span className="block font-bold">{u.titulo}</span>
+                                        <span className="block text-xs text-slate-400">
+                                            {deUso.length} modelos
+                                            {desde !== null && (
+                                                <>
+                                                    {' '}
+                                                    · desde <b className="font-mono text-cyan-300">{soles(desde)}</b>
+                                                </>
+                                            )}
+                                        </span>
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </section>
+                </div>
 
                 {/* Productos */}
                 <section id="productos" className="scroll-mt-32 border-t border-white/10 bg-[#091827]">

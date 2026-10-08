@@ -71,7 +71,7 @@ export default function HeroCarousel({ onVerLaptops, onGamer, iaHref }: { onVerL
     const cardImage = slide.cardImage ?? slide.image;
 
     return (
-        <section className="relative h-[640px] overflow-hidden rounded-[2.6rem] border border-white/10 bg-[#061322] shadow-[0_35px_100px_rgba(2,12,27,.25)] sm:h-[600px] lg:h-[clamp(460px,calc(100svh-17rem),620px)]">
+        <section className="relative h-[640px] overflow-hidden rounded-[2.6rem] border border-white/10 bg-[#061322] shadow-[0_35px_100px_rgba(2,12,27,.25)] sm:h-[600px] lg:h-full lg:min-h-[460px]">
             <div className="absolute inset-0 bg-gradient-to-br from-sky-500/30 via-[#061322] to-[#061322]" />
             <div className="it-home-grid absolute inset-0 opacity-70" />
             <div className="absolute inset-0 bg-gradient-to-r from-[#030c18]/95 via-[#061322]/80 to-[#061322]/25" />
