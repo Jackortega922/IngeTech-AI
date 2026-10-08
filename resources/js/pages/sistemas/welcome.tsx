@@ -3,6 +3,7 @@ import LaptopImage from '@/components/laptop-image';
 import HeroCarousel from '@/components/tienda/hero-carousel';
 import StoreFooter from '@/components/tienda/store-footer';
 import WhatsappButton, { enlaceWhatsapp, WhatsappIcon } from '@/components/tienda/whatsapp-button';
+import { useInitials } from '@/hooks/use-initials';
 import { flujoStorage } from '@/lib/flujo-storage';
 import { disponibilidad } from '@/lib/inventario';
 import { type SharedData } from '@/types';
@@ -97,6 +98,7 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
         router.visit('/personalizar');
     }
 
+    const getInitials = useInitials();
     const cuentaHref = auth.user ? (auth.user.es_personal ? '/admin' : '/dashboard') : '/login';
     const iaHref = auth.user ? '/perfil' : '/register';
 
@@ -164,10 +166,23 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
                             </Link>
                             <Link
                                 href={cuentaHref}
-                                className="flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2.5 text-slate-200 hover:border-cyan-400"
+                                title={auth.user ? `Sesión iniciada: ${auth.user.name}` : undefined}
+                                className="flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-slate-200 hover:border-cyan-400"
                             >
-                                <User className="h-4 w-4" />
-                                <span className="hidden sm:inline">{auth.user ? 'Mi cuenta' : 'Ingresar'}</span>
+                                {auth.user ? (
+                                    // Con sesión: iniciales y nombre de quien entró, para que se vea a simple vista.
+                                    <>
+                                        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-cyan-400 text-xs font-bold text-[#07111f]">
+                                            {getInitials(auth.user.name)}
+                                        </span>
+                                        <span className="hidden max-w-[10rem] truncate sm:inline">{auth.user.name}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <User className="h-4 w-4" />
+                                        <span className="hidden sm:inline">Ingresar</span>
+                                    </>
+                                )}
                             </Link>
                             <Link
                                 href={iaHref}
