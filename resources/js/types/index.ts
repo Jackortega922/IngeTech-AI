@@ -26,6 +26,12 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+// Bloque del menú lateral con su título (p. ej. una disciplina del proyecto).
+export interface NavGrupo {
+    titulo: string;
+    items: NavItem[];
+}
+
 export interface Contacto {
     whatsapp: string | null;
     email: string | null;
