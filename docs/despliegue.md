@@ -39,38 +39,77 @@ Guarda esa cadena completa — es lo único que se necesita de la base de datos 
    automáticamente el archivo `render.yaml` de la raíz y propone crear el servicio `ingetech-ai`
    ya configurado (Docker, healthcheck en `/up`, variables de entorno declaradas).
 
-## 3. Completar las variables de entorno secretas
+## 3. Correo con Brevo (el plan gratuito bloquea SMTP)
+
+Desde septiembre de 2025 el plan gratuito de Render **bloquea los puertos SMTP** (25, 465, 587):
+Gmail por SMTP no funciona ahí. Por eso en producción el correo sale por la API HTTPS de Brevo
+([ADR 0007](adr/0007-correo-brevo-api.md)). Sin correo, el administrador no puede poner su
+contraseña (se pone con «¿Olvidaste tu contraseña?»).
+
+1. Crea una cuenta gratuita en https://www.brevo.com (300 correos al día).
+2. **Senders, Domains & Dedicated IPs → Senders → Add a sender**: agrega el correo que firmará
+   los mensajes (p. ej. tu Gmail) y confírmalo con el enlace que te llega.
+3. **SMTP & API → API Keys → Generate a new API key**: cópiala (empieza con `xkeysib-`). Solo
+   se muestra una vez.
+
+Para probarlo antes en local: en tu `.env` pon `MAIL_MAILER=brevo`, `BREVO_API_KEY=...` y
+`MAIL_FROM_ADDRESS=` el remitente verificado, y haz una compra de prueba.
+
+## 4. Completar las variables de entorno secretas
 
 `render.yaml` deja varias variables como "sync: false" (secretas) a propósito, para no
-commitear credenciales. Render pedirá completarlas al crear el Blueprint:
+commitear credenciales. Render las pide al crear el Blueprint; si el servicio **ya existe**, las
+nuevas se agregan a mano en **Environment → Add Environment Variable**:
 
 | Variable | De dónde sale |
 |---|---|
 | `APP_KEY` | Correr localmente `php artisan key:generate --show` y pegar el valor (empieza con `base64:`) |
-| `APP_URL` | La URL que Render asigna al servicio (ej. `https://ingetech-ai.onrender.com`) — se sabe después del primer deploy, se puede dejar vacío y completar después |
+| `APP_URL` | La URL que Render asigna al servicio (ej. `https://ingetech-ai.onrender.com`). Los enlaces de los correos se arman con ella |
 | `DB_URL` | La cadena de conexión completa del paso 1, tal cual (`postgresql://...?sslmode=require`) |
+| `BREVO_API_KEY` | La clave del paso 3 |
+| `MAIL_FROM_ADDRESS` | El remitente verificado en Brevo |
+| `GEMINI_API_KEY` | Google AI Studio (opcional: sin ella el chat responde por palabras clave) |
+| `ADMIN_NAME` / `ADMIN_EMAIL` | Tu nombre y el correo del administrador |
 
-## 4. Primer deploy
+Las claves se pegan solo en el panel de Render y en tu `.env`, nunca en el código ni en chats.
 
-Render construye la imagen (`Dockerfile`) y arranca el contenedor. `docker/entrypoint.sh`
-corre `php artisan migrate --force` automáticamente en cada arranque — así que las tablas se
-crean solas en el primer deploy, sin pasos manuales.
+## 5. Primer deploy y datos iniciales
 
-**Sembrar datos de ejemplo (una sola vez):** las migraciones no cargan carreras, software,
-laptops ni las cuentas demo — eso lo hacen los seeders. Desde el dashboard de Render:
-`Shell` (en el servicio `ingetech-ai`) → correr:
-```bash
-php artisan db:seed
+Render construye la imagen (`Dockerfile`) y arranca el contenedor. `docker/entrypoint.sh`:
+- corre `php artisan migrate --force` en cada arranque (las tablas se crean solas), y
+- deja procesando la cola de correos en segundo plano en el mismo contenedor (el plan gratuito
+  no tiene "worker" aparte).
+
+**Sembrar los datos (una sola vez, desde tu PC):** el plan gratuito no tiene la pestaña
+`Shell`, así que los seeders (carreras, software, laptops, kits y el administrador) se corren
+desde tu computadora apuntando a la base de Neon. En PowerShell, en la carpeta del proyecto
+(la cadena se pega solo en tu terminal):
+
+```powershell
+$env:DB_CONNECTION = "pgsql"
+$env:DB_URL = "postgresql://...?sslmode=require"   # la de Neon
+$env:ADMIN_NAME = "Tu nombre"
+$env:ADMIN_EMAIL = "tu-correo@gmail.com"
+php artisan migrate:fresh --seed --force             # BORRA todo en Neon y lo vuelve a crear
+Remove-Item Env:DB_URL, Env:DB_CONNECTION, Env:ADMIN_NAME, Env:ADMIN_EMAIL
 ```
 
-## 5. Si algo falla: dónde mirar
+`migrate:fresh` **borra todas las tablas** de esa base: úsalo solo para empezar de cero. Al cerrar
+la terminal (o con la última línea) tu PC vuelve a usar la base local del `.env`.
+
+Luego, en la URL de Render: **/login → ¿Olvidaste tu contraseña?** con `ADMIN_EMAIL` para poner
+tu contraseña. El resto del equipo se registra en el sitio y el admin le asigna su rol en
+**Panel → Usuarios**.
+
+## 6. Si algo falla: dónde mirar
 
 Los logs de Render (pestaña **Logs**) muestran las peticiones que atiende el servidor y las
 excepciones de la app — esto último funciona porque `render.yaml` fija `LOG_CHANNEL=stderr`.
 Sin eso, Laravel escribiría los errores en `storage/logs/laravel.log` *dentro* del contenedor
 y en Render solo se verían las peticiones, sin la causa.
 
-Si aun así hace falta hurgar dentro del contenedor, la pestaña **Shell** da una terminal:
+Si aun así hace falta hurgar dentro del contenedor, la pestaña **Shell** da una terminal (solo
+en planes de pago):
 
 ```bash
 tail -n 40 storage/logs/laravel.log   # errores viejos, previos a LOG_CHANNEL=stderr
@@ -78,17 +117,17 @@ php artisan about                     # resumen de configuración efectiva
 php artisan migrate:status            # ¿conectó a la BD? ¿qué migraciones corrieron?
 ```
 
-## 6. Verificar
+## 7. Verificar
 
 Abrir la URL que Render asignó. Debería verse la landing de IngeTech AI con estilos
 (si se ve sin estilos, revisar que `npm run build` haya corrido bien en los logs del build —
 ver la nota sobre `public/build` en `docs/arquitectura/`).
 
 Probar login con el administrador del seeder (`ADMIN_EMAIL`; su contraseña se pone con «¿Olvidaste
-tu contraseña?», que necesita `MAIL_*` configurado en Render) y correr el flujo completo (Perfil → Resultado) para confirmar que el
+tu contraseña?», que necesita Brevo configurado, paso 3) y correr el flujo completo (Perfil → Resultado) para confirmar que el
 motor de recomendación (modo `cli`, subproceso) responde bien contra la base de datos real.
 
-## 7. El día de la sustentación
+## 8. El día de la sustentación
 
 El plan gratuito de Render duerme el servicio tras 15 minutos sin tráfico y tarda ~1 minuto en
 despertar con la primera visita. **Entra a la URL 2-3 minutos antes de presentar** para que ya

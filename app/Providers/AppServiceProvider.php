@@ -8,7 +8,10 @@ use App\Services\Recommender\HttpRecommenderClient;
 use App\Services\Recommender\MockRecommenderClient;
 use App\Services\Recommender\RecommenderClient;
 use App\Services\Recommender\SegmentadorClientes;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
+use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoTransportFactory;
+use Symfony\Component\Mailer\Transport\Dsn;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -49,6 +52,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // MAIL_MAILER=brevo: envía por la API HTTPS de Brevo (ADR 0007), que sí funciona en el
+        // plan gratuito de Render, donde SMTP está bloqueado.
+        Mail::extend('brevo', fn () => (new BrevoTransportFactory)->create(
+            new Dsn('brevo+api', 'default', config('services.brevo.key'))
+        ));
     }
 }
