@@ -34,6 +34,7 @@ const INTERVALO_MS = 90_000; // entre un aviso y el siguiente
 const VISIBLE_MS = 15_000; // si no se toca, el globo se va solo
 const MAX_RECHAZOS = 2; // cerrarlo dos veces seguidas = "ahora no"...
 const DESCANSO_MS = 5 * 60_000; // ...y el asistente descansa 5 minutos antes de volver
+const DESPEDIDA_MS = 4000; // cuánto se ve el mensaje de "te dejo tranquilo"
 
 interface EstadoAvisos {
     mostrados: number; // cuántos se mostraron (elige el siguiente de la lista, en bucle)
@@ -74,6 +75,8 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
     const [burbuja, setBurbuja] = useState<Aviso | null>(null);
     // Cambia cada vez que se oculta un globo, para programar el siguiente.
     const [turno, setTurno] = useState(0);
+    // Al segundo cierre seguido el bot se despide antes de descansar (confirma que entendió).
+    const [despedida, setDespedida] = useState(false);
     const listaRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -88,7 +91,7 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
     // Programa el siguiente aviso (en bucle, sin límite). Solo aparece con la pestaña a la vista y
     // el chat cerrado: mientras conversa no se le interrumpe.
     useEffect(() => {
-        if (abierto || burbuja) return;
+        if (abierto || burbuja || despedida) return;
         const estado = leerEstado();
 
         const ahora = Date.now();
@@ -103,7 +106,13 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
             guardarEstado({ mostrados: estado.mostrados + 1, ultimo: Date.now() });
         }, espera);
         return () => window.clearTimeout(t);
-    }, [abierto, burbuja, turno, avisos]);
+    }, [abierto, burbuja, despedida, turno, avisos]);
+
+    useEffect(() => {
+        if (!despedida) return;
+        const t = window.setTimeout(() => setDespedida(false), DESPEDIDA_MS);
+        return () => window.clearTimeout(t);
+    }, [despedida]);
 
     // Si no lo toca, el globo se va solo (ignorarlo no cuenta como rechazo).
     useEffect(() => {
@@ -121,7 +130,10 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
     // Cerrarlo con la X: tras dos cierres seguidos, el asistente descansa antes de volver.
     function rechazarBurbuja() {
         const rechazos = leerEstado().rechazos + 1;
-        ocultarBurbuja(rechazos >= MAX_RECHAZOS ? { rechazos: 0, pausaHasta: Date.now() + DESCANSO_MS } : { rechazos });
+        if (rechazos >= MAX_RECHAZOS) {
+            ocultarBurbuja({ rechazos: 0, pausaHasta: Date.now() + DESCANSO_MS });
+            setDespedida(true);
+        } else ocultarBurbuja({ rechazos });
     }
 
     // Tocarlo es interés: se reinicia la cuenta de cierres.
@@ -184,6 +196,17 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
         // Abierto: el panel llega casi hasta el borde inferior y el botón de cerrar queda a su
         // izquierda (en celular no hay espacio: se cierra con el botón de la cabecera del chat).
         <div className="fixed right-4 bottom-4 z-[90] flex items-end justify-end gap-3">
+            {despedida && !abierto && (
+                <div
+                    role="status"
+                    className="it-chat-panel mb-1 w-[min(250px,calc(100vw-7rem))] rounded-2xl rounded-br-sm border border-slate-200 bg-white p-3 text-left shadow-[0_15px_40px_rgba(15,23,42,.2)] dark:border-slate-700 dark:bg-slate-900"
+                >
+                    <span className="block text-sm font-bold text-[#0c2340] dark:text-white">Entendido, no te interrumpo por un rato 😊</span>
+                    <span className="mt-0.5 block text-xs leading-5 text-slate-500 dark:text-slate-400">
+                        Si me necesitas, toca el bot cuando quieras.
+                    </span>
+                </div>
+            )}
             {burbuja && !abierto && (
                 <div
                     role="status"
