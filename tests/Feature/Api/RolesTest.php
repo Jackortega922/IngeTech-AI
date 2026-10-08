@@ -108,7 +108,7 @@ class RolesTest extends TestCase
     public function test_el_rol_no_se_puede_poner_desde_el_registro_ni_el_perfil()
     {
         $this->post('/register', [
-            'name' => 'Intruso', 'email' => 'intruso@correo.test', 'password' => 'password', 'password_confirmation' => 'password', 'rol' => 'admin',
+            'nombres' => 'Intruso', 'apellidos' => 'Pérez', 'email' => 'intruso@correo.test', 'password' => 'password', 'password_confirmation' => 'password', 'rol' => 'admin',
         ]);
 
         $this->assertSame('cliente', User::where('email', 'intruso@correo.test')->value('rol'));

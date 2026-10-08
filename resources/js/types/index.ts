@@ -45,7 +45,9 @@ export interface SharedData {
 
 export interface User {
     id: number;
-    name: string;
+    name: string; // nombre completo (nombres + apellidos)
+    nombres: string | null;
+    apellidos: string | null;
     email: string;
     avatar?: string;
     // cliente · admin · ventas · almacen · contabilidad (App\Support\Roles).

@@ -27,6 +27,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name',
+        'nombres',
+        'apellidos',
         'email',
         'password',
         // `rol` no es asignable en masa: solo lo cambia un administrador (Admin\UsuarioController).
@@ -64,6 +66,19 @@ class User extends Authenticatable implements MustVerifyEmail
 
     // Igual que el default de la columna: un usuario recién creado ya sabe que es cliente.
     protected $attributes = ['rol' => Roles::CLIENTE];
+
+    /**
+     * `name` es el nombre completo que usan el panel, los correos y la boleta. Si cambian nombres o
+     * apellidos se arma solo; quien guarda solo `name` (seeders, panel) lo sigue pudiendo hacer.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (User $user) {
+            if ($user->isDirty(['nombres', 'apellidos']) && filled($user->nombres)) {
+                $user->name = trim("{$user->nombres} {$user->apellidos}");
+            }
+        });
+    }
 
     /**
      * Atajo para "es administrador", calculado desde el rol. Asignarlo (p. ej. en el seeder o en

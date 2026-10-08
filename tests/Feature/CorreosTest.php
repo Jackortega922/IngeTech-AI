@@ -87,7 +87,7 @@ class CorreosTest extends TestCase
 
     public function test_al_registrarse_se_pide_confirmar_el_correo()
     {
-        $this->post('/register', ['name' => 'Rosa', 'email' => 'rosa@correo.test', 'password' => 'password', 'password_confirmation' => 'password']);
+        $this->post('/register', ['nombres' => 'Rosa', 'apellidos' => 'Quispe', 'email' => 'rosa@correo.test', 'password' => 'password', 'password_confirmation' => 'password']);
 
         Notification::assertSentTo(User::where('email', 'rosa@correo.test')->first(), VerifyEmail::class);
     }
