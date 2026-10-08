@@ -71,7 +71,7 @@ export default function HeroCarousel({ onVerLaptops, onGamer, iaHref }: { onVerL
     const cardImage = slide.cardImage ?? slide.image;
 
     return (
-        <section className="relative h-[640px] overflow-hidden rounded-[2.6rem] border border-white/10 bg-[#061322] shadow-[0_35px_100px_rgba(2,12,27,.25)] sm:h-[600px] lg:h-[620px]">
+        <section className="relative h-[640px] overflow-hidden rounded-[2.6rem] border border-white/10 bg-[#061322] shadow-[0_35px_100px_rgba(2,12,27,.25)] sm:h-[600px] lg:h-[clamp(460px,calc(100svh-17rem),620px)]">
             <div className="absolute inset-0 bg-gradient-to-br from-sky-500/30 via-[#061322] to-[#061322]" />
             <div className="it-home-grid absolute inset-0 opacity-70" />
             <div className="absolute inset-0 bg-gradient-to-r from-[#030c18]/95 via-[#061322]/80 to-[#061322]/25" />
@@ -87,7 +87,7 @@ export default function HeroCarousel({ onVerLaptops, onGamer, iaHref }: { onVerL
             <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-sky-400/15 blur-3xl" />
 
             <div className="relative grid h-full lg:grid-cols-[1.03fr_.97fr]">
-                <div className="flex flex-col justify-center p-7 text-white sm:p-12 lg:p-16">
+                <div className="flex flex-col justify-center p-7 text-white sm:p-12 lg:px-16 lg:py-8">
                     <div className="flex flex-wrap items-center gap-2">
                         <span className="it-badge w-fit border-white/10 bg-white/10 text-sky-200">
                             <Sparkles className="mr-1.5 h-3.5 w-3.5" /> {slide.eyebrow}
@@ -97,13 +97,15 @@ export default function HeroCarousel({ onVerLaptops, onGamer, iaHref }: { onVerL
                         </span>
                     </div>
 
-                    <h1 className="mt-6 line-clamp-3 max-w-3xl text-4xl leading-[.95] font-black tracking-[-.045em] sm:text-5xl lg:text-[4.2rem]">
+                    <h1 className="mt-6 line-clamp-3 max-w-3xl text-4xl leading-[.95] font-black tracking-[-.045em] sm:text-5xl lg:text-[clamp(2.6rem,7svh,4.2rem)]">
                         {slide.title}
                     </h1>
 
-                    <p className="mt-6 line-clamp-3 max-w-xl text-base leading-8 text-slate-300 sm:text-lg">{slide.text}</p>
+                    <p className="mt-6 line-clamp-3 max-w-xl text-base leading-8 text-slate-300 sm:text-lg lg:mt-[clamp(.75rem,2.5svh,1.5rem)] lg:leading-7">
+                        {slide.text}
+                    </p>
 
-                    <div className="mt-9 flex flex-wrap gap-3">
+                    <div className="mt-9 flex flex-wrap gap-3 lg:mt-[clamp(1rem,3svh,2.25rem)]">
                         <button
                             type="button"
                             onClick={slide.accion === 'gamer' ? onGamer : onVerLaptops}
@@ -117,7 +119,7 @@ export default function HeroCarousel({ onVerLaptops, onGamer, iaHref }: { onVerL
                         </Link>
                     </div>
 
-                    <div className="mt-8 grid max-w-xl grid-cols-3 gap-3 text-xs text-slate-400">
+                    <div className="mt-8 grid max-w-xl grid-cols-3 gap-3 text-xs text-slate-400 lg:mt-[clamp(.75rem,2.5svh,2rem)]">
                         <span className="flex items-center gap-2">
                             <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Catálogo vivo
                         </span>
@@ -133,7 +135,7 @@ export default function HeroCarousel({ onVerLaptops, onGamer, iaHref }: { onVerL
                 <div className="relative hidden items-center justify-center p-10 lg:flex">
                     <div className="absolute top-16 right-14 h-72 w-72 rounded-full border border-sky-300/15 bg-sky-300/5 blur-[1px]" />
 
-                    <div className="relative w-full max-w-[470px] overflow-hidden rounded-[2rem] border border-white/15 bg-white/[.07] p-3 shadow-2xl backdrop-blur-xl">
+                    <div className="relative w-full max-w-[clamp(320px,calc(100svh-30rem),470px)] overflow-hidden rounded-[2rem] border border-white/15 bg-white/[.07] p-3 shadow-2xl backdrop-blur-xl">
                         <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-slate-100">
                             {/* Imagen de la card flotante (sincronizada con el slide) */}
                             <img
