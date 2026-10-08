@@ -21,17 +21,13 @@ class InventarioController extends Controller
         $cfg = config('tienda.inventario');
         $ventana = (int) $cfg['ventana_demanda_dias'];
 
-        // Unidades vendidas en la ventana: ventas menos anulaciones (las ventas restan stock).
-        $vendidas = MovimientoInventario::whereIn('tipo', ['venta', 'anulacion'])
-            ->where('created_at', '>=', now()->subDays($ventana))
-            ->groupBy('laptop_id')
-            ->selectRaw('laptop_id, -SUM(cantidad) as unidades')
-            ->pluck('unidades', 'laptop_id');
+        // Unidades vendidas en la ventana (el mismo dato da la etiqueta "Más vendido" de la portada).
+        $vendidas = MovimientoInventario::unidadesVendidas($ventana);
 
         $orden = ['agotado' => 0, 'reponer' => 1, 'ok' => 2];
         $laptops = Laptop::orderBy('marca')->orderBy('modelo')->get()
             ->map(function (Laptop $l) use ($vendidas, $ventana, $cfg) {
-                $unidades = max(0, (int) ($vendidas[$l->id] ?? 0));
+                $unidades = $vendidas[$l->id] ?? 0;
                 $demanda = $unidades / $ventana;
                 $puntoReorden = (int) ceil($demanda * $cfg['dias_reposicion']) + $l->stock_minimo;
                 $estado = $l->stock === 0 ? 'agotado' : ($l->stock <= $puntoReorden ? 'reponer' : 'ok');

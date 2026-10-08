@@ -4,12 +4,14 @@ import HeroCarousel from '@/components/tienda/hero-carousel';
 import StoreFooter from '@/components/tienda/store-footer';
 import WhatsappButton, { enlaceWhatsapp, WhatsappIcon } from '@/components/tienda/whatsapp-button';
 import { useInitials } from '@/hooks/use-initials';
+import { usoDe, type Uso } from '@/lib/filtros-vitrina';
 import { flujoStorage } from '@/lib/flujo-storage';
 import { disponibilidad } from '@/lib/inventario';
 import { type SharedData } from '@/types';
 import type { Laptop } from '@/types/flujo';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
+    ArrowRight,
     BookOpen,
     Briefcase,
     Check,
@@ -26,62 +28,84 @@ import {
 } from 'lucide-react';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
-// Categorías por uso, derivadas de las specs (no hay columna "categoría" en la BD): así cada
-// laptop nueva que se cargue en el admin cae sola en su categoría.
-type Uso = 'estudio' | 'productividad' | 'creativo';
-
+// Categorías por uso (usoDe en lib/filtros-vitrina): se derivan de las specs, así cada laptop
+// nueva que se cargue en el admin cae sola en su categoría.
 const USOS: { value: Uso; titulo: string; texto: string; icon: typeof BookOpen }[] = [
     { value: 'estudio', titulo: 'Estudio y oficina', texto: 'Clases virtuales, documentos y navegación.', icon: BookOpen },
     { value: 'productividad', titulo: 'Productividad y programación', texto: 'Multitarea, código y apps pesadas.', icon: Briefcase },
     { value: 'creativo', titulo: 'Diseño, ingeniería y gaming', texto: 'Con tarjeta gráfica dedicada.', icon: Gamepad2 },
 ];
 
-function usoDe(l: Laptop): Uso {
-    if (l.gpu_dedicada) return 'creativo';
-    return (l.rendimiento_score ?? 0) >= 60 ? 'productividad' : 'estudio';
-}
-
 const soles = (n: number | string) => `S/ ${Number(n).toLocaleString('es-PE')}`;
 
-export default function Welcome({ laptops }: { laptops: Laptop[] }) {
+// Cuántas laptops se muestran en la portada; el resto está en el catálogo completo (/hardware).
+const DESTACADAS = 8;
+
+type Vista = 'vendidas' | 'novedades';
+
+// Etiquetas pensadas para el cliente (el panel muestra las mismas cifras en Inventario).
+const ETIQUETA_VENDIDO = { texto: 'Más vendido', clase: 'bg-rose-500 text-white' };
+const ETIQUETA_NUEVO = { texto: 'Nuevo', clase: 'bg-emerald-400 text-[#07111f]' };
+
+export default function Welcome({
+    laptops,
+    vendidas,
+    nuevas,
+    etiquetas,
+}: {
+    laptops: Laptop[];
+    vendidas: Record<number, number>; // id => unidades vendidas en los últimos 30 días
+    nuevas: number[]; // ids con etiqueta "Nuevo"
+    etiquetas: number; // cuántas laptops llevan "Más vendido", como máximo
+}) {
     const { auth, contacto } = usePage<SharedData>().props;
     const [busqueda, setBusqueda] = useState('');
-    const [marca, setMarca] = useState<string | null>(null);
-    const [uso, setUso] = useState<Uso | null>(null);
-    const [orden, setOrden] = useState<'precio_asc' | 'precio_desc' | 'rendimiento'>('precio_asc');
     const [comparar, setComparar] = useState<number[]>([]);
 
-    const marcas = useMemo(() => Array.from(new Set(laptops.map((l) => l.marca))), [laptops]);
+    // "Más vendidas" solo tiene sentido cuando ya hay ventas; mientras tanto, novedades.
+    const hayVentas = Object.keys(vendidas).length > 0;
+    const [vista, setVista] = useState<Vista>(hayVentas ? 'vendidas' : 'novedades');
+
+    const destacadas = useMemo(() => {
+        // Novedades: las últimas cargadas en el admin (id más alto = más reciente).
+        const novedades = [...laptops].sort((a, b) => b.id - a.id);
+        if (vista === 'novedades') return novedades.slice(0, DESTACADAS);
+        return novedades
+            .filter((l) => (vendidas[l.id] ?? 0) > 0)
+            .sort((a, b) => vendidas[b.id] - vendidas[a.id])
+            .slice(0, DESTACADAS);
+    }, [laptops, vendidas, vista]);
+
+    // "Más vendido" para las que más se vendieron (empates: la más reciente).
+    const masVendidas = useMemo(
+        () =>
+            Object.entries(vendidas)
+                .sort(([idA, a], [idB, b]) => b - a || Number(idB) - Number(idA))
+                .slice(0, etiquetas)
+                .map(([id]) => Number(id)),
+        [vendidas, etiquetas],
+    );
+
+    function etiquetasDe(l: Laptop) {
+        return [...(masVendidas.includes(l.id) ? [ETIQUETA_VENDIDO] : []), ...(nuevas.includes(l.id) ? [ETIQUETA_NUEVO] : [])];
+    }
 
     useEffect(() => {
         setComparar(flujoStorage.leerComparar());
-        // El footer enlaza "Laptops Lenovo" como /?marca=Lenovo#productos.
-        const m = new URLSearchParams(window.location.search).get('marca');
-        if (m) setMarca(m);
     }, []);
-
-    const visibles = useMemo(() => {
-        const q = busqueda.trim().toLowerCase();
-        const lista = laptops.filter(
-            (l) =>
-                (!marca || l.marca === marca) &&
-                (!uso || usoDe(l) === uso) &&
-                (!q || `${l.marca} ${l.modelo} ${l.cpu} ${l.gpu ?? ''}`.toLowerCase().includes(q)),
-        );
-        return lista.sort((a, b) =>
-            orden === 'rendimiento'
-                ? (b.rendimiento_score ?? 0) - (a.rendimiento_score ?? 0)
-                : (Number(a.precio_soles) - Number(b.precio_soles)) * (orden === 'precio_asc' ? 1 : -1),
-        );
-    }, [laptops, busqueda, marca, uso, orden]);
 
     function irAProductos() {
         document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' });
     }
 
+    // El buscador, las categorías por uso y el carrusel llevan al catálogo completo ya filtrado.
+    function buscar() {
+        const q = busqueda.trim();
+        router.visit(q ? `/hardware?q=${encodeURIComponent(q)}` : '/hardware');
+    }
+
     function filtrarUso(u: Uso) {
-        setUso(u);
-        irAProductos();
+        router.visit(`/hardware?uso=${u}`);
     }
 
     function toggleComparar(id: number) {
@@ -156,7 +180,7 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
                             <input
                                 value={busqueda}
                                 onChange={(e) => setBusqueda(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && irAProductos()}
+                                onKeyDown={(e) => e.key === 'Enter' && buscar()}
                                 placeholder="¿Qué laptop estás buscando?"
                                 className="w-full rounded-xl border border-white/10 bg-white/[0.06] py-2.5 pr-3 pl-9 text-sm placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
                             />
@@ -217,7 +241,7 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
                         <HeroCarousel onVerLaptops={irAProductos} onGamer={() => filtrarUso('creativo')} iaHref={iaHref} />
                     </div>
 
-                    {/* Categorías por uso: filtran la vitrina con el catálogo real */}
+                    {/* Categorías por uso: abren el catálogo completo filtrado por ese uso */}
                     <section className="mx-auto grid w-full max-w-7xl gap-3 px-4 py-8 sm:grid-cols-3 sm:px-6 lg:px-10 lg:pt-5 lg:pb-6">
                         {USOS.map((u) => {
                             const deUso = laptops.filter((l) => usoDe(l) === u.value);
@@ -249,88 +273,67 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
                     </section>
                 </div>
 
-                {/* Productos */}
+                {/* Destacadas: una selección; el catálogo completo con filtros está en /hardware */}
                 <section id="productos" className="scroll-mt-32 border-t border-white/10 bg-[#091827]">
                     <div className="mx-auto max-w-7xl px-6 py-14 lg:px-10">
-                        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                             <div>
-                                <h2 className="text-3xl font-bold">{marca ? `Laptops ${marca}` : 'Nuestras laptops'}</h2>
+                                <h2 className="text-3xl font-bold">{vista === 'vendidas' ? 'Las más vendidas' : 'Recién llegadas'}</h2>
                                 <p className="mt-1 text-slate-400">
-                                    {visibles.length} de {laptops.length} modelos
-                                    {uso && ` · ${USOS.find((u) => u.value === uso)?.titulo}`}
+                                    {vista === 'vendidas'
+                                        ? 'Las laptops que más eligen nuestros clientes.'
+                                        : 'Los últimos modelos que sumamos al catálogo.'}
                                 </p>
                             </div>
-                            <div className="flex flex-wrap items-center gap-2 text-sm">
-                                {USOS.map((u) => (
-                                    <button
-                                        key={u.value}
-                                        onClick={() => setUso(uso === u.value ? null : u.value)}
-                                        className={`rounded-full border px-3 py-1.5 ${
-                                            uso === u.value
-                                                ? 'border-cyan-400 bg-cyan-400/10 text-cyan-300'
-                                                : 'border-white/10 text-slate-300 hover:border-white/30'
-                                        }`}
-                                    >
-                                        {u.titulo}
-                                    </button>
-                                ))}
-                                {/* Filtro por marca (antes era una barra bajo la cabecera, que repetía la vitrina).
-                                    Lo siguen usando los enlaces del pie de página: /?marca=Lenovo#productos. */}
-                                <select
-                                    value={marca ?? ''}
-                                    onChange={(e) => setMarca(e.target.value || null)}
-                                    className="rounded-full border border-white/10 bg-[#07111f] px-3 py-1.5 text-slate-300 [color-scheme:dark]"
-                                    aria-label="Marca"
-                                >
-                                    <option value="">Todas las marcas</option>
-                                    {marcas.map((m) => (
-                                        <option key={m} value={m}>
-                                            {m}
-                                        </option>
+                            {hayVentas && (
+                                <div className="flex rounded-full border border-white/10 p-1 text-sm">
+                                    {(
+                                        [
+                                            ['vendidas', 'Más vendidas'],
+                                            ['novedades', 'Novedades'],
+                                        ] as const
+                                    ).map(([valor, etiqueta]) => (
+                                        <button
+                                            key={valor}
+                                            type="button"
+                                            onClick={() => setVista(valor)}
+                                            aria-pressed={vista === valor}
+                                            className={`rounded-full px-4 py-1.5 font-semibold transition ${
+                                                vista === valor ? 'bg-cyan-400 text-[#07111f]' : 'text-slate-300 hover:text-white'
+                                            }`}
+                                        >
+                                            {etiqueta}
+                                        </button>
                                     ))}
-                                </select>
-                                <select
-                                    value={orden}
-                                    onChange={(e) => setOrden(e.target.value as typeof orden)}
-                                    className="rounded-full border border-white/10 bg-[#07111f] px-3 py-1.5 text-slate-300 [color-scheme:dark]"
-                                    aria-label="Ordenar"
-                                >
-                                    <option value="precio_asc">Menor precio</option>
-                                    <option value="precio_desc">Mayor precio</option>
-                                    <option value="rendimiento">Más potentes</option>
-                                </select>
-                            </div>
+                                </div>
+                            )}
                         </div>
 
-                        {visibles.length === 0 ? (
-                            <div className="mt-8 rounded-2xl border border-dashed border-white/15 p-10 text-center text-slate-400">
-                                No encontramos laptops con esos filtros.{' '}
-                                <button
-                                    onClick={() => {
-                                        setBusqueda('');
-                                        setMarca(null);
-                                        setUso(null);
-                                    }}
-                                    className="text-cyan-400 underline"
-                                >
-                                    Ver todas
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                                {visibles.map((l) => (
-                                    <TarjetaProducto
-                                        key={l.id}
-                                        l={l}
-                                        enComparar={comparar.includes(l.id)}
-                                        compararLleno={comparar.length >= 3}
-                                        whatsapp={contacto.whatsapp}
-                                        onComparar={() => toggleComparar(l.id)}
-                                        onPersonalizar={() => personalizar(l)}
-                                    />
-                                ))}
-                            </div>
-                        )}
+                        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                            {destacadas.map((l) => (
+                                <TarjetaProducto
+                                    key={l.id}
+                                    l={l}
+                                    etiquetas={etiquetasDe(l)}
+                                    enComparar={comparar.includes(l.id)}
+                                    compararLleno={comparar.length >= 3}
+                                    whatsapp={contacto.whatsapp}
+                                    onComparar={() => toggleComparar(l.id)}
+                                    onPersonalizar={() => personalizar(l)}
+                                />
+                            ))}
+                        </div>
+
+                        <div className="mt-10 text-center">
+                            {/* Mismo estilo que el botón principal del carrusel */}
+                            <Link
+                                href="/hardware"
+                                className="it-btn h-12 rounded-2xl bg-sky-500 px-6 text-white shadow-xl shadow-sky-500/20 hover:-translate-y-0.5 hover:bg-sky-600"
+                            >
+                                Ver catálogo completo
+                                <ArrowRight className="h-4 w-4" />
+                            </Link>
+                        </div>
                     </div>
                 </section>
 
@@ -394,6 +397,7 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
 
 function TarjetaProducto({
     l,
+    etiquetas,
     enComparar,
     compararLleno,
     whatsapp,
@@ -401,6 +405,7 @@ function TarjetaProducto({
     onPersonalizar,
 }: {
     l: Laptop;
+    etiquetas: { texto: string; clase: string }[];
     enComparar: boolean;
     compararLleno: boolean;
     whatsapp: string | null;
@@ -411,9 +416,15 @@ function TarjetaProducto({
         <article className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0b1a2c] transition hover:-translate-y-0.5 hover:border-cyan-400/50">
             <div className="relative">
                 <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="h-40 w-full" />
-                {l.gpu_dedicada && (
-                    <span className="absolute top-3 left-3 rounded-full bg-violet-500 px-2.5 py-0.5 text-[11px] font-bold">GPU dedicada</span>
-                )}
+                {/* Etiquetas pequeñas arriba a la izquierda: más vendido, nuevo y GPU dedicada */}
+                <div className="absolute top-3 left-3 flex max-w-[65%] flex-wrap gap-1.5">
+                    {etiquetas.map((e) => (
+                        <span key={e.texto} className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${e.clase}`}>
+                            {e.texto}
+                        </span>
+                    ))}
+                    {l.gpu_dedicada && <span className="rounded-full bg-violet-500 px-2.5 py-0.5 text-[11px] font-bold">GPU dedicada</span>}
+                </div>
                 {disponibilidad(l.stock).texto && (
                     <span
                         className={`absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${disponibilidad(l.stock).agotada ? 'bg-slate-700 text-slate-200' : 'bg-amber-400 text-[#07111f]'}`}

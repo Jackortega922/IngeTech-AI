@@ -6,16 +6,25 @@ use App\Http\Controllers\Tienda\LibroReclamacionesController;
 use App\Http\Controllers\Tienda\PedidoConfirmacionController;
 use App\Http\Controllers\Tienda\SeguimientoController;
 use App\Models\Laptop;
+use App\Models\MovimientoInventario;
 use App\Models\Pedido;
 use App\Support\UbigeoHuanuco;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Portada tipo tienda: la vitrina muestra el catálogo real (sin IA); la recomendación con IA
-// es el valor agregado que se ofrece encima.
+// Portada tipo tienda: muestra una selección (más vendidas y novedades) y lleva al catálogo
+// completo con filtros en /hardware; la recomendación con IA es el valor agregado encima.
 Route::get('/', fn () => Inertia::render('sistemas/welcome', [
     'laptops' => Laptop::orderBy('precio_soles')->get(),
+    // id de laptop => unidades vendidas: el mismo dato que "vendidas" en Inventario del panel.
+    'vendidas' => MovimientoInventario::unidadesVendidas(config('tienda.inventario.ventana_demanda_dias')),
+    // Etiqueta "Nuevo": las últimas agregadas, solo si entraron hace poco.
+    'nuevas' => Laptop::where('created_at', '>=', now()->subDays(config('tienda.vitrina.dias_nuevo')))
+        ->latest()->orderByDesc('id')
+        ->limit(config('tienda.vitrina.etiquetas'))
+        ->pluck('id'),
+    'etiquetas' => config('tienda.vitrina.etiquetas'),
 ]))->name('home');
 
 // Catálogo abierto al público: navegar y comparar specs no pide cuenta, como en cualquier

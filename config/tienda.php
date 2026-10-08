@@ -49,4 +49,16 @@ return [
         'dias_reposicion' => 7, // cuánto tarda el proveedor en entregar
         'dias_cobertura' => 30, // para cuántos días alcanza un pedido de reposición
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Etiquetas de la vitrina (portada)
+    |--------------------------------------------------------------------------
+    | "Más vendido": las que más unidades vendieron en la ventana de Inventario.
+    | "Nuevo": las últimas agregadas al catálogo, solo si entraron hace pocos días.
+    */
+    'vitrina' => [
+        'etiquetas' => 3, // cuántas laptops llevan cada etiqueta, como máximo
+        'dias_nuevo' => 30, // pasado este plazo una laptop deja de ser "Nuevo"
+    ],
 ];
