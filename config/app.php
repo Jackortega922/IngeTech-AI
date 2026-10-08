@@ -123,4 +123,13 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    | Administrador inicial que crea DatabaseSeeder (con un correo real). El resto del personal se
+    | registra en el sitio y el admin le asigna su rol.
+    */
+    'admin' => [
+        'name' => env('ADMIN_NAME', 'Administrador'),
+        'email' => env('ADMIN_EMAIL'),
+    ],
+
 ];

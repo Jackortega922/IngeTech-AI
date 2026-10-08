@@ -84,8 +84,8 @@ Abrir la URL que Render asignó. Debería verse la landing de IngeTech AI con es
 (si se ve sin estilos, revisar que `npm run build` haya corrido bien en los logs del build —
 ver la nota sobre `public/build` en `docs/arquitectura/`).
 
-Probar login con las cuentas demo del seeder (`admin@ingetech.test` / `estudiante@ingetech.test`,
-contraseña `password`) y correr el flujo completo (Perfil → Resultado) para confirmar que el
+Probar login con el administrador del seeder (`ADMIN_EMAIL`; su contraseña se pone con «¿Olvidaste
+tu contraseña?», que necesita `MAIL_*` configurado en Render) y correr el flujo completo (Perfil → Resultado) para confirmar que el
 motor de recomendación (modo `cli`, subproceso) responde bien contra la base de datos real.
 
 ## 7. El día de la sustentación
