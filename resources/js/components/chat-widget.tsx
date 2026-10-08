@@ -1,4 +1,4 @@
-import { Bot, MessageCircle, Minimize2, Send, Sparkles, X } from 'lucide-react';
+import { Bot, Minimize2, Send, Sparkles, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 // Diseño: Marco (PR #41). Lógica: la del chat con Gemini (A13) — historial, límite de mensajes,
@@ -29,6 +29,9 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
     const [mensajes, setMensajes] = useState<Mensaje[]>([SALUDO]);
     const [entrada, setEntrada] = useState('');
     const [enviando, setEnviando] = useState(false);
+    // Globo de invitación junto al botón (Psicología: una pregunta abierta y sin presión baja la
+    // barrera para pedir ayuda). Aparece una vez por visita y no vuelve si se cierra o se usa el chat.
+    const [burbuja, setBurbuja] = useState(false);
     const listaRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -39,6 +42,32 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
     useEffect(() => {
         if (abierto) window.setTimeout(() => inputRef.current?.focus(), 120);
     }, [abierto]);
+
+    useEffect(() => {
+        let vista = false;
+        try {
+            vista = sessionStorage.getItem('chat_burbuja_vista') === '1';
+        } catch {
+            // Almacenamiento bloqueado: se muestra igual.
+        }
+        if (vista) return;
+        const t = window.setTimeout(() => setBurbuja(true), 2500);
+        return () => window.clearTimeout(t);
+    }, []);
+
+    function ocultarBurbuja() {
+        setBurbuja(false);
+        try {
+            sessionStorage.setItem('chat_burbuja_vista', '1');
+        } catch {
+            // Sin almacenamiento solo se oculta en esta página.
+        }
+    }
+
+    function abrir() {
+        ocultarBurbuja();
+        setAbierto(true);
+    }
 
     function cerrar() {
         setAbierto(false);
@@ -81,9 +110,42 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
     }
 
     return (
-        <div className="fixed right-5 bottom-5 z-[90]">
+        // Abierto: el panel llega casi hasta el borde inferior y el botón de cerrar queda a su
+        // izquierda (en celular no hay espacio: se cierra con el botón de la cabecera del chat).
+        <div className="fixed right-4 bottom-4 z-[90] flex items-end justify-end gap-3">
+            {burbuja && !abierto && (
+                <div
+                    role="status"
+                    className="it-chat-panel relative mb-1 w-[min(250px,calc(100vw-7rem))] rounded-2xl rounded-br-sm border border-slate-200 bg-white p-3 pr-8 text-left shadow-[0_15px_40px_rgba(15,23,42,.2)] dark:border-slate-700 dark:bg-slate-900"
+                >
+                    <button type="button" onClick={abrir} className="block text-left">
+                        <span className="block text-sm font-bold text-[#0c2340] dark:text-white">¿No sabes por dónde empezar? 👋</span>
+                        <span className="mt-0.5 block text-xs leading-5 text-slate-500 dark:text-slate-400">
+                            Pregúntame cómo funciona la tienda o qué laptop te conviene. Te respondo al instante.
+                        </span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={ocultarBurbuja}
+                        aria-label="Cerrar mensaje"
+                        className="absolute top-2 right-2 rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
+                    >
+                        <X className="h-3.5 w-3.5" />
+                    </button>
+                </div>
+            )}
+            <button
+                onClick={() => (abierto ? cerrar() : abrir())}
+                className={`it-chat-trigger group shrink-0 ${abierto ? 'max-sm:hidden' : ''}`}
+                aria-label={abierto ? 'Cerrar asistente' : 'Abrir asistente'}
+            >
+                <span className="absolute inset-0 rounded-full bg-sky-400/30 blur-xl transition group-hover:bg-sky-400/50" />
+                {abierto ? <X className="relative h-6 w-6" /> : <Bot className="relative h-7 w-7" />}
+                {/* Punto verde: el asistente está disponible. */}
+                {!abierto && <span className="absolute top-1 right-1 h-3 w-3 rounded-full border-2 border-[var(--it-primary)] bg-emerald-400" />}
+            </button>
             {abierto && (
-                <section className="it-chat-panel mb-3 flex h-[min(620px,calc(100vh-7rem))] w-[min(390px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[1.7rem] border border-slate-200 bg-white shadow-[0_25px_80px_rgba(15,23,42,.25)] dark:border-slate-800 dark:bg-slate-950">
+                <section className="it-chat-panel flex h-[min(680px,calc(100svh-2rem))] w-[min(390px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[1.7rem] border border-slate-200 bg-white shadow-[0_25px_80px_rgba(15,23,42,.25)] dark:border-slate-800 dark:bg-slate-950">
                     <header className="relative overflow-hidden bg-[#0b2442] px-5 py-4 text-white">
                         <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full bg-sky-400/20 blur-2xl" />
                         <div className="relative flex items-center gap-3">
@@ -175,14 +237,6 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
                     </form>
                 </section>
             )}
-            <button
-                onClick={() => (abierto ? cerrar() : setAbierto(true))}
-                className="it-chat-trigger group"
-                aria-label={abierto ? 'Cerrar asistente' : 'Abrir asistente'}
-            >
-                <span className="absolute inset-0 rounded-full bg-sky-400/30 blur-xl transition group-hover:bg-sky-400/50" />
-                {abierto ? <X className="relative h-6 w-6" /> : <MessageCircle className="relative h-6 w-6" />}
-            </button>
         </div>
     );
 }
