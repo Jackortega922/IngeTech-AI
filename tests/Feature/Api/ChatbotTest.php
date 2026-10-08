@@ -194,6 +194,19 @@ class ChatbotTest extends TestCase
         }
     }
 
+    public function test_sin_ia_guia_a_quien_quiere_comprar_o_no_sabe_usar_la_tienda()
+    {
+        $compra = $this->postJson('/api/chatbot', ['mensaje' => 'quisiera comprar una laptop'])->json('respuesta');
+        $this->assertStringContainsString('Recomiéndame con IA', $compra);
+        $this->assertStringNotContainsString('No encontré', $compra);
+
+        $uso = $this->postJson('/api/chatbot', ['mensaje' => '¿cómo funciona la página?'])->json('respuesta');
+        $this->assertStringContainsString('compatibilidad', $uso);
+
+        // Lo específico gana a lo general: "cómo funciona el comparador" habla del comparador.
+        $this->assertStringContainsString('Comparador', $this->postJson('/api/chatbot', ['mensaje' => '¿cómo funciona el comparador?'])->json('respuesta'));
+    }
+
     public function test_sin_api_key_no_llama_a_gemini()
     {
         Http::fake();
