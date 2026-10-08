@@ -5,7 +5,7 @@ namespace App\Services\Recommender;
 use Illuminate\Support\Facades\Http;
 use Throwable;
 
-class HttpRecommenderClient implements RecommenderClient, SegmentadorClientes
+class HttpRecommenderClient implements AfinidadLaptops, RecommenderClient, SegmentadorClientes
 {
     public function recomendar(array $payload): array
     {
@@ -15,6 +15,11 @@ class HttpRecommenderClient implements RecommenderClient, SegmentadorClientes
     public function segmentar(array $clientes): array
     {
         return $this->post('/segmentar', ['clientes' => $clientes]);
+    }
+
+    public function afinidad(array $preferencias, array $laptopIds): array
+    {
+        return $this->post('/afinidad', ['preferencias' => $preferencias, 'laptop_ids' => $laptopIds]);
     }
 
     private function post(string $ruta, array $payload): array

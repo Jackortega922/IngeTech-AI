@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\Recommender\AfinidadLaptops;
 use App\Services\Recommender\CliRecommenderClient;
 use App\Services\Recommender\HttpRecommenderClient;
 use App\Services\Recommender\MockRecommenderClient;
@@ -26,6 +27,15 @@ class AppServiceProvider extends ServiceProvider
 
         // Segmentación de clientes (Marketing): mismo motor y mismo modo que la recomendación.
         $this->app->bind(SegmentadorClientes::class, function () {
+            return match (config('recommender.mode')) {
+                'cli' => new CliRecommenderClient,
+                'mock' => new MockRecommenderClient,
+                default => new HttpRecommenderClient,
+            };
+        });
+
+        // "Para ti" del comparador: afinidad con el cuestionario, mismo motor y mismo modo.
+        $this->app->bind(AfinidadLaptops::class, function () {
             return match (config('recommender.mode')) {
                 'cli' => new CliRecommenderClient,
                 'mock' => new MockRecommenderClient,

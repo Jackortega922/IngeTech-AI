@@ -5,7 +5,7 @@ namespace App\Services\Recommender;
 use Illuminate\Process\Exceptions\ProcessTimedOutException;
 use Illuminate\Support\Facades\Process;
 
-class CliRecommenderClient implements RecommenderClient, SegmentadorClientes
+class CliRecommenderClient implements AfinidadLaptops, RecommenderClient, SegmentadorClientes
 {
     public function recomendar(array $payload): array
     {
@@ -16,6 +16,11 @@ class CliRecommenderClient implements RecommenderClient, SegmentadorClientes
     public function segmentar(array $clientes): array
     {
         return $this->ejecutar(['operacion' => 'segmentar', 'clientes' => $clientes]);
+    }
+
+    public function afinidad(array $preferencias, array $laptopIds): array
+    {
+        return $this->ejecutar(['operacion' => 'afinidad', 'preferencias' => $preferencias, 'laptop_ids' => $laptopIds]);
     }
 
     private function ejecutar(array $payload): array
