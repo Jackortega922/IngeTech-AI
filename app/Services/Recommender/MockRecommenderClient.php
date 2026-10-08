@@ -16,7 +16,7 @@ use App\Models\Software;
  * servicio Python (ml-engine) esté corriendo. Actívalo con
  * RECOMMENDER_MODE=mock en el .env.
  */
-class MockRecommenderClient implements RecommenderClient, SegmentadorClientes
+class MockRecommenderClient implements AfinidadLaptops, RecommenderClient, SegmentadorClientes
 {
     /**
      * Sin Python no hay K-Means: separa en "compraron" y "no compraron" para que el panel de
@@ -40,6 +40,15 @@ class MockRecommenderClient implements RecommenderClient, SegmentadorClientes
         ])->values()->all();
 
         return ['version' => 'v0', 'k' => count($segmentos), 'silueta' => null, 'segmentos' => $segmentos];
+    }
+
+    /**
+     * La afinidad vive solo en Python (recommender/preferencias.py); copiarla aquí sería una
+     * segunda fórmula que se desincroniza. Sin motor, el comparador simplemente no muestra "Para ti".
+     */
+    public function afinidad(array $preferencias, array $laptopIds): array
+    {
+        return ['version' => 'v0', 'error' => 'sin_preferencias', 'mensaje' => 'El modo mock no calcula afinidad.'];
     }
 
     public function recomendar(array $payload): array

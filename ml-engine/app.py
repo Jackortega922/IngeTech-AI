@@ -1,13 +1,15 @@
 """Motor de recomendación — modo servidor (desarrollo local).
 
-Solo expone HTTP y delega en ``recommender.scoring.recomendar`` y
-``recommender.segmentacion.segmentar``. Nada de lógica aquí.
+Solo expone HTTP y delega en ``recommender.scoring.recomendar``,
+``recommender.segmentacion.segmentar`` y ``recommender.comparar.comparar_afinidad``. Nada de
+lógica aquí.
 En producción se usa ``cli_entry.py`` en su lugar (ver ADR 0003).
 """
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
+from recommender.comparar import comparar_afinidad
 from recommender.scoring import recomendar
 from recommender.segmentacion import segmentar
 
@@ -75,3 +77,15 @@ class SolicitudSegmentacion(BaseModel):
 @app.post("/segmentar")
 def post_segmentar(solicitud: SolicitudSegmentacion) -> dict:
     return segmentar(solicitud.model_dump())
+
+
+class SolicitudAfinidad(BaseModel):
+    """Comparador: las laptops elegidas y el cuestionario de la persona."""
+
+    preferencias: Preferencias | None = None
+    laptop_ids: list[int] = Field(default_factory=list)
+
+
+@app.post("/afinidad")
+def post_afinidad(solicitud: SolicitudAfinidad) -> dict:
+    return comparar_afinidad(solicitud.model_dump())

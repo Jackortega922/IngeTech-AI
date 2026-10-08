@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Admin\SoftwareController;
 use App\Http\Controllers\Api\Admin\UsuarioController;
 use App\Http\Controllers\Api\CatalogoController;
 use App\Http\Controllers\Api\ChatbotController;
+use App\Http\Controllers\Api\ComparadorController;
 use App\Http\Controllers\Api\CuponController;
 use App\Http\Controllers\Api\EleccionController;
 use App\Http\Controllers\Api\HistorialController;
@@ -27,6 +28,8 @@ Route::get('/health', function () {
 
 Route::get('/catalogos', [CatalogoController::class, 'index']);
 Route::post('/recomendaciones', [RecomendacionController::class, 'store']);
+// Comparador "Para ti": abierto (sin sesión responde disponible: false), con límite porque llama al motor.
+Route::post('/comparador/afinidad', [ComparadorController::class, 'afinidad'])->middleware('throttle:30,1');
 // Límite por minuto: con Gemini configurado, cada mensaje es una llamada a la API (el plan
 // gratuito también tiene un límite de llamadas por minuto).
 Route::post('/chatbot', [ChatbotController::class, 'responder'])->middleware('throttle:20,1');

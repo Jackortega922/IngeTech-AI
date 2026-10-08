@@ -168,6 +168,49 @@ Salida:
   reglas legibles sobre el cliente promedio del grupo.
 - Error propio: `datos_insuficientes` (menos de 6 clientes, o todos iguales).
 
+## Operación: afinidad (comparador)
+
+Tercera operación del mismo motor: ordena las 2-3 laptops que la persona está comparando según
+su cuestionario de bienvenida ("Para ti" en `/comparador`). Usa **la misma** función
+`preferencias.afinidad()` que el 30% de afinidad de la recomendación, así el comparador y la IA
+no se contradicen. HTTP: `POST /afinidad`. CLI: `cli_entry.py` con `"operacion": "afinidad"`.
+Laravel la llama desde `App\Services\Recommender\AfinidadLaptops` (`POST /api/comparador/afinidad`).
+
+No reemplaza a la recomendación: no usa carrera, actividades, programas, presupuesto ni el
+clasificador; solo cómo es la persona.
+
+Entrada — `preferencias` con el mismo formato que `perfil.preferencias` (ver arriba):
+
+```json
+{
+  "preferencias": { "movilidad": "diario", "lejos_enchufe": "muchas_horas", "marcas_evitar": ["HP"] },
+  "laptop_ids": [1, 2, 3]
+}
+```
+
+Salida — de mayor a menor afinidad:
+
+```json
+{
+  "version": "v0",
+  "afinidades": [
+    {
+      "laptop_id": 2,
+      "afinidad_pct": 91,
+      "factores": [{ "criterio": "Ligera para llevarla contigo (1.49 kg)", "aporte": 35 }],
+      "advertencias": []
+    }
+  ]
+}
+```
+
+- `afinidad_pct`: 0-100. El "precio" se compara solo entre las laptops enviadas.
+- `factores[].aporte`: % de la afinidad que explica ese motivo (solo los que cumple).
+- `advertencias`: lo que no encaja, más "Es de una marca que prefieres evitar." si aplica.
+- Errores propios: `sin_preferencias` (cuestionario vacío o sin criterios), `sin_resultados`
+  (menos de 2 laptops del catálogo), además de `catalogo_vacio`. Laravel responde
+  `disponible: false` ante cualquier error y el comparador se muestra como siempre.
+
 ## Modo CLI (producción)
 
 ```bash

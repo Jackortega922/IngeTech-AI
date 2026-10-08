@@ -62,3 +62,15 @@ def test_el_modelo_http_de_segmentacion_conserva_las_variables():
         "gasto_soles": 2360,
         "dias_inactivo": 4,
     }
+
+
+def test_el_modelo_http_de_afinidad_conserva_preferencias_y_laptops():
+    from app import SolicitudAfinidad
+
+    datos = SolicitudAfinidad(
+        preferencias={"movilidad": "diario", "marcas_evitar": ["Acer"]}, laptop_ids=[2, 5]
+    ).model_dump()
+
+    assert datos["preferencias"]["movilidad"] == "diario"
+    assert datos["preferencias"]["marcas_evitar"] == ["Acer"]
+    assert datos["laptop_ids"] == [2, 5]

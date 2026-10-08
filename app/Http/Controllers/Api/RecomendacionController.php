@@ -204,27 +204,12 @@ class RecomendacionController extends Controller
     }
 
     /**
-     * Respuestas del cuestionario de bienvenida en el formato del contrato del motor
-     * (perfil.preferencias). Vacío si no hay sesión o si no lo completó: el motor recomienda
-     * igual que siempre.
+     * Cuestionario de bienvenida en el formato del contrato (perfil.preferencias). Vacío si no hay
+     * sesión o si no lo completó: el motor recomienda igual que siempre.
      */
     private function preferenciasParaMotor(?User $user): array
     {
-        $p = $user?->preferencias;
-        if (! $p || ! $p->completado_at) {
-            return [];
-        }
-
-        $preferencias = array_filter([
-            'movilidad' => $p->movilidad,
-            'lejos_enchufe' => $p->lejos_enchufe,
-            'molestias' => $p->molestias,
-            'anios_uso' => $p->anios_uso,
-            'prioridades' => $p->prioridades,
-            'marcas_preferidas' => $p->marcas_preferidas,
-            'marcas_evitar' => $p->marcas_evitar,
-            'perifericos' => $p->perifericos,
-        ], fn ($v) => ! empty($v));
+        $preferencias = $user?->preferencias?->paraMotor() ?? [];
 
         return $preferencias ? ['preferencias' => $preferencias] : [];
     }

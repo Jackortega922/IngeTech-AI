@@ -47,4 +47,29 @@ class PreferenciaCliente extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Respuestas en el formato del contrato del motor (perfil.preferencias). Vacío si no completó
+     * el cuestionario (o lo omitió): entonces el motor no ajusta nada a la persona. Lo usan la
+     * recomendación con IA y el comparador ("Para ti").
+     *
+     * @return array<string, mixed>
+     */
+    public function paraMotor(): array
+    {
+        if (! $this->completado_at) {
+            return [];
+        }
+
+        return array_filter([
+            'movilidad' => $this->movilidad,
+            'lejos_enchufe' => $this->lejos_enchufe,
+            'molestias' => $this->molestias,
+            'anios_uso' => $this->anios_uso,
+            'prioridades' => $this->prioridades,
+            'marcas_preferidas' => $this->marcas_preferidas,
+            'marcas_evitar' => $this->marcas_evitar,
+            'perifericos' => $this->perifericos,
+        ], fn ($v) => ! empty($v));
+    }
 }

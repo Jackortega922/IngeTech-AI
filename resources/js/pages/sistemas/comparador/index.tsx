@@ -3,6 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import { flujoStorage } from '@/lib/flujo-storage';
 import { PUERTO_ETIQUETA } from '@/lib/guia-compra';
 import GuiaCompra from '@/pages/sistemas/comparador/guia-compra';
+import ParaTi, { type Afinidad } from '@/pages/sistemas/comparador/para-ti';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import type { Catalogos, Laptop } from '@/types/flujo';
 import { Head, Link, usePage } from '@inertiajs/react';
@@ -104,6 +105,35 @@ export default function ComparadorIndex() {
         return ids.map((id) => catalogos.hardware.find((h) => h.id === id)).filter(Boolean) as Laptop[];
     }, [catalogos, ids]);
 
+    // "Para ti": solo si la persona respondió el cuestionario (si no, el servidor dice
+    // disponible: false y el comparador se ve como siempre).
+    const [afinidades, setAfinidades] = useState<Afinidad[] | null>(null);
+    const clave = equipos.map((e) => e.id).join(',');
+    useEffect(() => {
+        setAfinidades(null);
+        if (!auth.user || equipos.length < 2) return;
+
+        let vigente = true; // si cambia la selección antes de responder, se ignora la respuesta vieja
+        fetch('/api/comparador/afinidad', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ laptop_ids: equipos.map((e) => e.id) }),
+        })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((data: { disponible: boolean; afinidades?: Afinidad[] } | null) => {
+                if (vigente) setAfinidades(data?.disponible ? (data.afinidades ?? null) : null);
+            })
+            .catch(() => undefined);
+        return () => {
+            vigente = false;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- `clave` resume a `equipos`
+    }, [auth.user, clave]);
+
+    // Sin empate, la primera es la que mejor encaja con la persona.
+    const mejorParaTi =
+        afinidades && afinidades.length > 1 && afinidades[0].afinidad_pct > afinidades[1].afinidad_pct ? afinidades[0].laptop_id : null;
+
     function guardar(next: number[]) {
         flujoStorage.guardarComparar(next);
         setIds(next);
@@ -174,6 +204,8 @@ export default function ComparadorIndex() {
                     <EmptyComparison selected={equipos[0]} onAdd={() => openSelector()} onRemove={() => equipos[0] && remove(equipos[0].id)} />
                 ) : (
                     <>
+                        {afinidades && <ParaTi afinidades={afinidades} equipos={equipos} />}
+
                         <section className="mt-8 overflow-hidden rounded-[2rem] border bg-white shadow-sm dark:bg-slate-950">
                             <div className={grid.fila}>
                                 <div className="hidden border-r bg-slate-50 p-5 md:block dark:bg-slate-900">
@@ -181,7 +213,13 @@ export default function ComparadorIndex() {
                                     <p className="mt-2 text-sm text-slate-500">{equipos.length} seleccionados</p>
                                 </div>
                                 {equipos.map((e) => (
-                                    <ComparisonHeader key={e.id} equipo={e} onRemove={() => remove(e.id)} onChange={() => openSelector(e.id)} />
+                                    <ComparisonHeader
+                                        key={e.id}
+                                        equipo={e}
+                                        mejorParaTi={e.id === mejorParaTi}
+                                        onRemove={() => remove(e.id)}
+                                        onChange={() => openSelector(e.id)}
+                                    />
                                 ))}
                             </div>
 
@@ -288,12 +326,27 @@ function EmptyComparison({ selected, onAdd, onRemove }: { selected?: Laptop; onA
     );
 }
 
-function ComparisonHeader({ equipo, onRemove, onChange }: { equipo: Laptop; onRemove: () => void; onChange: () => void }) {
+function ComparisonHeader({
+    equipo,
+    mejorParaTi,
+    onRemove,
+    onChange,
+}: {
+    equipo: Laptop;
+    mejorParaTi: boolean;
+    onRemove: () => void;
+    onChange: () => void;
+}) {
     return (
         <div className="min-w-0 border-r p-3 last:border-r-0 sm:p-4 md:p-5">
             <div className="flex flex-col gap-3 lg:flex-row">
                 <EquipoThumb equipo={equipo} className="h-16 w-full shrink-0 sm:h-20 lg:w-28" />
                 <div className="min-w-0 flex-1">
+                    {mejorParaTi && (
+                        <span className="mb-1 inline-block rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-black text-emerald-700 uppercase dark:text-emerald-300">
+                            Mejor para ti
+                        </span>
+                    )}
                     <p className="text-[10px] font-black tracking-wider text-[var(--it-primary)] uppercase dark:text-sky-300">{equipo.marca}</p>
                     <h2 className="mt-1 text-sm font-black sm:text-base">{equipo.modelo}</h2>
                     <p className="mt-1 text-base font-black sm:text-lg">{soles(equipo.precio_soles)}</p>
