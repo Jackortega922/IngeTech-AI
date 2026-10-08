@@ -78,11 +78,6 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
         document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function filtrarMarca(m: string | null) {
-        setMarca(m);
-        irAProductos();
-    }
-
     function filtrarUso(u: Uso) {
         setUso(u);
         irAProductos();
@@ -182,36 +177,17 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
                             </Link>
                         </nav>
                     </div>
-
-                    {/* Marcas */}
-                    <div className="border-t border-white/5">
-                        <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-6 py-2 text-sm lg:px-10">
-                            <button
-                                onClick={() => filtrarMarca(null)}
-                                className={`shrink-0 rounded-lg px-3 py-1.5 ${marca === null ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'}`}
-                            >
-                                Todas las laptops
-                            </button>
-                            {marcas.map((m) => (
-                                <button
-                                    key={m}
-                                    onClick={() => filtrarMarca(m)}
-                                    className={`shrink-0 rounded-lg px-3 py-1.5 ${marca === m ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'}`}
-                                >
-                                    {m}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
                 </header>
 
+                {/* Primera vista: cabecera + carrusel + categorías por uso caben en la pantalla del
+                    escritorio sin desplazarse (el carrusel ajusta su altura); el resto, bajando. */}
                 {/* Carrusel de bienvenida (diseño de Marco) */}
-                <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-10">
+                <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-10 lg:pt-5">
                     <HeroCarousel onVerLaptops={irAProductos} onGamer={() => filtrarUso('creativo')} iaHref={iaHref} />
                 </div>
 
                 {/* Categorías por uso: filtran la vitrina con el catálogo real */}
-                <section className="mx-auto grid max-w-7xl gap-3 px-4 py-8 sm:grid-cols-3 sm:px-6 lg:px-10">
+                <section className="mx-auto grid max-w-7xl gap-3 px-4 py-8 sm:grid-cols-3 sm:px-6 lg:px-10 lg:pt-5">
                     {USOS.map((u) => {
                         const deUso = laptops.filter((l) => usoDe(l) === u.value);
                         const desde = deUso.length ? Math.min(...deUso.map((l) => Number(l.precio_soles))) : null;
@@ -266,6 +242,21 @@ export default function Welcome({ laptops }: { laptops: Laptop[] }) {
                                         {u.titulo}
                                     </button>
                                 ))}
+                                {/* Filtro por marca (antes era una barra bajo la cabecera, que repetía la vitrina).
+                                    Lo siguen usando los enlaces del pie de página: /?marca=Lenovo#productos. */}
+                                <select
+                                    value={marca ?? ''}
+                                    onChange={(e) => setMarca(e.target.value || null)}
+                                    className="rounded-full border border-white/10 bg-[#07111f] px-3 py-1.5 text-slate-300 [color-scheme:dark]"
+                                    aria-label="Marca"
+                                >
+                                    <option value="">Todas las marcas</option>
+                                    {marcas.map((m) => (
+                                        <option key={m} value={m}>
+                                            {m}
+                                        </option>
+                                    ))}
+                                </select>
                                 <select
                                     value={orden}
                                     onChange={(e) => setOrden(e.target.value as typeof orden)}
