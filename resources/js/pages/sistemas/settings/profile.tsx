@@ -24,7 +24,9 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
     // Ruta detrás de `auth` (routes/settings.php): siempre hay sesión aquí.
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
-        name: auth.user!.name,
+        // Las cuentas creadas antes de separar el nombre traen todo en `nombres` hasta que lo editen.
+        nombres: auth.user!.nombres ?? auth.user!.name,
+        apellidos: auth.user!.apellidos ?? '',
         email: auth.user!.email,
     });
 
@@ -43,20 +45,34 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                     <HeadingSmall title="Profile information" description="Update your name and email address" />
 
                     <form onSubmit={submit} className="space-y-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
+                        <div className="grid gap-6 sm:grid-cols-2 sm:gap-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="nombres">Nombres</Label>
+                                <Input
+                                    id="nombres"
+                                    className="mt-1 block w-full"
+                                    value={data.nombres}
+                                    onChange={(e) => setData('nombres', e.target.value)}
+                                    required
+                                    autoComplete="given-name"
+                                    placeholder="Tus nombres"
+                                />
+                                <InputError className="mt-2" message={errors.nombres} />
+                            </div>
 
-                            <Input
-                                id="name"
-                                className="mt-1 block w-full"
-                                value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
-                                required
-                                autoComplete="name"
-                                placeholder="Full name"
-                            />
-
-                            <InputError className="mt-2" message={errors.name} />
+                            <div className="grid gap-2">
+                                <Label htmlFor="apellidos">Apellidos</Label>
+                                <Input
+                                    id="apellidos"
+                                    className="mt-1 block w-full"
+                                    value={data.apellidos}
+                                    onChange={(e) => setData('apellidos', e.target.value)}
+                                    required
+                                    autoComplete="family-name"
+                                    placeholder="Tus apellidos"
+                                />
+                                <InputError className="mt-2" message={errors.apellidos} />
+                            </div>
                         </div>
 
                         <div className="grid gap-2">

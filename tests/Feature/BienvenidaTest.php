@@ -32,7 +32,7 @@ class BienvenidaTest extends TestCase
     public function test_al_registrarse_va_primero_al_cuestionario()
     {
         $this->post('/register', [
-            'name' => 'Rosa Quispe', 'email' => 'rosa@correo.test', 'password' => 'password', 'password_confirmation' => 'password',
+            'nombres' => 'Rosa', 'apellidos' => 'Quispe', 'email' => 'rosa@correo.test', 'password' => 'password', 'password_confirmation' => 'password',
         ])->assertRedirect('/bienvenida');
     }
 

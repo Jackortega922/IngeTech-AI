@@ -51,6 +51,8 @@ return [
     // Nombres legibles de los campos, para que el mensaje diga "La RAM" y no "ram_gb".
     'attributes' => [
         'name' => 'el nombre',
+        'nombres' => 'el nombre',
+        'apellidos' => 'el apellido',
         'email' => 'el correo',
         'password' => 'la contraseña',
         'marca' => 'la marca',
