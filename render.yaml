@@ -57,3 +57,25 @@ services:
           # (~3,5 s ya en hardware rápido), no el cálculo en sí.
           - key: RECOMMENDER_TIMEOUT
             value: 60
+          # Cola de correos: la procesa docker/entrypoint.sh en segundo plano, en este mismo
+          # contenedor (el plan gratuito no tiene "worker" aparte). Tabla jobs en la propia BD.
+          - key: QUEUE_CONNECTION
+            value: database
+          # Correo por la API HTTPS de Brevo (ADR 0007): el plan gratuito bloquea SMTP.
+          - key: MAIL_MAILER
+            value: brevo
+          - key: BREVO_API_KEY
+            sync: false # Brevo → SMTP & API → API Keys
+          - key: MAIL_FROM_ADDRESS
+            sync: false # el correo verificado como remitente en Brevo (p. ej. tu Gmail)
+          - key: MAIL_FROM_NAME
+            value: IngeTech AI
+          # Chat (ADR 0005). Sin clave, el asistente responde igual por palabras clave.
+          - key: GEMINI_API_KEY
+            sync: false
+          # Único administrador que crea el seeder (DatabaseSeeder). Su contraseña la pone con
+          # "¿Olvidaste tu contraseña?", que necesita el correo funcionando.
+          - key: ADMIN_NAME
+            sync: false
+          - key: ADMIN_EMAIL
+            sync: false

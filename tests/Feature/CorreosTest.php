@@ -13,8 +13,10 @@ use App\Notifications\ReclamoRespondido;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
+use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoApiTransport;
 use Tests\TestCase;
 
 class CorreosTest extends TestCase
@@ -111,5 +113,16 @@ class CorreosTest extends TestCase
         $this->assertSame($rosa->id, $pedido->fresh()->personalizacion->user_id);
         $this->assertNull($otra->fresh()->user_id);
         $this->getJson('/api/mis-pedidos')->assertJsonCount(1)->assertJsonPath('0.codigo', $pedido->codigo);
+    }
+
+    public function test_en_produccion_el_correo_puede_salir_por_la_api_de_brevo()
+    {
+        // Render (plan gratuito) bloquea SMTP: MAIL_MAILER=brevo envía por HTTPS (ADR 0007).
+        config(['services.brevo.key' => 'xkeysib-prueba']);
+
+        $transporte = Mail::mailer('brevo')->getSymfonyTransport();
+
+        $this->assertInstanceOf(BrevoApiTransport::class, $transporte);
+        $this->assertSame('brevo+api://api.brevo.com', (string) $transporte);
     }
 }

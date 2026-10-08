@@ -31,6 +31,11 @@ return [
     // Asistente del chat (A13, ADR 0005): Gemini, plan gratuito de Google AI Studio, por su
     // endpoint compatible con OpenAI. Sin GEMINI_API_KEY el chat sigue funcionando con el
     // asistente por palabras clave de ChatbotController.
+    // Correo en producción (ADR 0007). La clave se crea en Brevo → SMTP & API → API Keys.
+    'brevo' => [
+        'key' => env('BREVO_API_KEY'),
+    ],
+
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
         'url' => env('GEMINI_URL', 'https://generativelanguage.googleapis.com/v1beta/openai'),

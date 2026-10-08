@@ -53,6 +53,13 @@ return [
             'transport' => 'ses',
         ],
 
+        // Brevo por su API HTTPS (ADR 0007): el plan gratuito de Render bloquea los puertos SMTP
+        // (25, 465, 587), así que en producción no se puede enviar por Gmail SMTP. El transporte
+        // se registra en AppServiceProvider con la clave services.brevo.key.
+        'brevo' => [
+            'transport' => 'brevo',
+        ],
+
         'postmark' => [
             'transport' => 'postmark',
             // 'message_stream_id' => env('POSTMARK_MESSAGE_STREAM_ID'),
