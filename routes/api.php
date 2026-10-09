@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AmbientalController;
 use App\Http\Controllers\Api\Admin\CarreraController;
 use App\Http\Controllers\Api\Admin\ClienteController;
 use App\Http\Controllers\Api\Admin\ContabilidadController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Api\Admin\HardwareController;
 use App\Http\Controllers\Api\Admin\InventarioController;
 use App\Http\Controllers\Api\Admin\MarketingController;
 use App\Http\Controllers\Api\Admin\PedidoController as AdminPedidoController;
+use App\Http\Controllers\Api\Admin\PsicologiaController;
 use App\Http\Controllers\Api\Admin\ReclamoController;
 use App\Http\Controllers\Api\Admin\SoftwareController;
 use App\Http\Controllers\Api\Admin\UsuarioController;
@@ -95,6 +97,13 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         Route::delete('/carreras/{carrera}', [CarreraController::class, 'destroy']);
     });
 
+    // Psicología: perfil de los clientes según el cuestionario (solo cifras de conjunto).
+    Route::get('/psicologia', [PsicologiaController::class, 'index'])->middleware('admin:psicologia');
+    // Ing. Ambiental: seguimiento del recojo RAEE.
+    Route::middleware('admin:ambiental')->group(function () {
+        Route::get('/ambiental', [AmbientalController::class, 'index']);
+        Route::patch('/ambiental/{pedido}', [AmbientalController::class, 'update']);
+    });
     Route::middleware('admin:usuarios')->group(function () {
         Route::get('/usuarios', [UsuarioController::class, 'index']);
         Route::post('/usuarios/rol', [UsuarioController::class, 'asignar']);

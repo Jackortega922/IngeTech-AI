@@ -54,6 +54,10 @@ class RolesTest extends TestCase
             'solo el admin gestiona usuarios' => ['ventas', '/api/admin/usuarios', 403],
             'el admin ve todo' => ['admin', '/api/admin/usuarios', 200],
             'un cliente no entra' => ['cliente', '/api/admin/dashboard', 403],
+            'ventas ve psicología' => ['ventas', '/api/admin/psicologia', 200],
+            'almacén no ve psicología' => ['almacen', '/api/admin/psicologia', 403],
+            'almacén ve ambiental' => ['almacen', '/api/admin/ambiental', 200],
+            'ventas no ve ambiental' => ['ventas', '/api/admin/ambiental', 403],
         ];
     }
 
@@ -85,7 +89,7 @@ class RolesTest extends TestCase
         $this->get('/admin')->assertInertia(fn (Assert $page) => $page
             ->where('auth.user.es_personal', true)
             ->where('auth.user.is_admin', false)
-            ->where('auth.permisos', ['dashboard', 'inventario', 'hardware']));
+            ->where('auth.permisos', ['dashboard', 'inventario', 'hardware', 'ambiental']));
     }
 
     public function test_el_admin_asigna_y_quita_roles_pero_no_el_suyo()

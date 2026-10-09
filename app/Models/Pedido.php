@@ -12,6 +12,9 @@ class Pedido extends Model
     // Orden del ciclo de vida; "cancelado" puede ocurrir en cualquier punto.
     public const ESTADOS = ['pagado', 'preparando', 'enviado', 'entregado', 'cancelado'];
 
+    // Recojo RAEE (Ing. Ambiental): qué pasó con el equipo viejo que el cliente pidió entregar.
+    public const ESTADOS_RAEE = ['pendiente', 'recogido', 'reciclado'];
+
     public const DEPARTAMENTOS = [
         'Amazonas', 'Áncash', 'Apurímac', 'Arequipa', 'Ayacucho', 'Cajamarca', 'Callao', 'Cusco',
         'Huancavelica', 'Huánuco', 'Ica', 'Junín', 'La Libertad', 'Lambayeque', 'Lima', 'Loreto',
@@ -52,6 +55,8 @@ class Pedido extends Model
             'subtotal' => 'decimal:2',
             'descuento' => 'decimal:2',
             'recojo_raee' => 'boolean',
+            'raee_recogido_at' => 'datetime',
+            'raee_reciclado_at' => 'datetime',
             'costo_envio' => 'decimal:2',
             'total' => 'decimal:2',
         ];
@@ -63,6 +68,11 @@ class Pedido extends Model
     // crearse el pedido y cada vez que el admin lo avanza.
     protected static function booted(): void
     {
+        // Si pidió el recojo de su equipo viejo, queda pendiente (no es asignable desde fuera: solo
+        // lo avanza Ambiental en el panel).
+        static::creating(function (Pedido $p) {
+            $p->raee_estado = $p->recojo_raee ? 'pendiente' : null;
+        });
         static::created(function (Pedido $p) {
             $p->eventos()->create(['estado' => $p->estado]);
             // Boleta (simulada): el correlativo es el id, que recién existe después de crear.

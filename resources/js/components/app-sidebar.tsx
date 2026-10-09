@@ -88,7 +88,7 @@ const navCliente: NavGrupo[] = [
 ];
 
 // Personal de la tienda: solo las secciones de su rol (el permiso es el nombre de la pestaña).
-// El flujo de recomendación es para los clientes. El recojo RAEE (Ing. Ambiental) se ve en Pedidos.
+// El flujo de recomendación es para los clientes.
 const navAdmin: { titulo: string; items: (NavItem & { permiso: string })[] }[] = [
     {
         titulo: 'Ing. Industrial',
@@ -121,6 +121,14 @@ const navAdmin: { titulo: string; items: (NavItem & { permiso: string })[] }[] =
             { title: 'Clientes', url: '/admin?tab=clientes', icon: Users, permiso: 'clientes' },
             { title: 'Marketing', url: '/admin?tab=marketing', icon: Megaphone, permiso: 'marketing' },
         ],
+    },
+    {
+        titulo: 'Psicología',
+        items: [{ title: 'Perfil de clientes', url: '/admin?tab=psicologia', icon: HeartHandshake, permiso: 'psicologia' }],
+    },
+    {
+        titulo: 'Ing. Ambiental',
+        items: [{ title: 'Recojo RAEE', url: '/admin?tab=ambiental', icon: Recycle, permiso: 'ambiental' }],
     },
     {
         titulo: 'Derecho',
