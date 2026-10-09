@@ -101,6 +101,9 @@ erDiagram
         decimal total
         string estado
         bool recojo_raee
+        string raee_estado
+        timestamp raee_recogido_at
+        timestamp raee_reciclado_at
     }
     pedido_eventos {
         bigint id PK

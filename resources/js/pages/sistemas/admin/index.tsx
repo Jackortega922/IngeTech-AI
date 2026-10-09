@@ -7,7 +7,9 @@ import { PanelUsuarios } from '@/pages/administracion/panel-usuarios';
 import { PanelContabilidad } from '@/pages/contabilidad/panel-contabilidad';
 import { PanelReclamos } from '@/pages/derecho/panel-reclamos';
 import { PanelDashboard } from '@/pages/industrial/panel-dashboard';
+import { PanelRecojo } from '@/pages/ing-ambiental/panel-recojo';
 import { PanelSegmentos } from '@/pages/marketing/panel-segmentos';
+import { PanelPsicologia } from '@/pages/psicologia/panel-psicologia';
 import { PanelPedidos } from '@/pages/sistemas/admin/panel-pedidos';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import type { Carrera, Catalogos, Cliente, ContabilidadAdmin, DashboardAdmin, Laptop, Pedido, Reclamo, Software } from '@/types/flujo';
@@ -21,11 +23,13 @@ import {
     Database,
     Edit3,
     GraduationCap,
+    HeartHandshake,
     Laptop as LaptopIcon,
     LayoutDashboard,
     Megaphone,
     Package,
     Plus,
+    Recycle,
     RefreshCw,
     Save,
     Search,
@@ -55,7 +59,9 @@ type Sub =
     | 'hardware'
     | 'software'
     | 'carreras'
-    | 'usuarios';
+    | 'usuarios'
+    | 'psicologia'
+    | 'ambiental';
 
 const TABS: { value: Sub; label: string; icon: typeof LayoutDashboard }[] = [
     { value: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -69,6 +75,8 @@ const TABS: { value: Sub; label: string; icon: typeof LayoutDashboard }[] = [
     { value: 'software', label: 'Software', icon: Package },
     { value: 'carreras', label: 'Carreras', icon: GraduationCap },
     { value: 'usuarios', label: 'Usuarios', icon: UserCog },
+    { value: 'psicologia', label: 'Perfil de clientes', icon: HeartHandshake },
+    { value: 'ambiental', label: 'Recojo RAEE', icon: Recycle },
 ];
 
 // La sección sale de la URL (/admin?tab=...), que es a donde llevan los enlaces del menú lateral.
@@ -249,6 +257,10 @@ export default function AdminIndex() {
                         <PanelSegmentos avisar={avisar} />
                     ) : sub === 'usuarios' ? (
                         <PanelUsuarios avisar={avisar} />
+                    ) : sub === 'psicologia' ? (
+                        <PanelPsicologia />
+                    ) : sub === 'ambiental' ? (
+                        <PanelRecojo avisar={avisar} />
                     ) : sub === 'hardware' ? (
                         <PanelEquipos equipos={catalogos.hardware} onCambio={cargar} avisar={avisar} />
                     ) : sub === 'software' ? (

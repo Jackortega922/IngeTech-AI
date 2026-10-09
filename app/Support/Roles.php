@@ -30,12 +30,13 @@ class Roles
 
     public const PERMISOS_ADMIN = [
         'dashboard', 'contabilidad', 'clientes', 'pedidos', 'pedidos.editar', 'inventario', 'reclamos',
-        'marketing', 'hardware', 'software', 'carreras', 'usuarios',
+        'marketing', 'hardware', 'software', 'carreras', 'usuarios', 'psicologia', 'ambiental',
     ];
 
     private const PERMISOS = [
-        'ventas' => ['dashboard', 'clientes', 'pedidos', 'pedidos.editar', 'reclamos', 'marketing'],
-        'almacen' => ['dashboard', 'inventario', 'hardware'],
+        // Psicología: quien atiende a los clientes. Ambiental: quien maneja físicamente los equipos.
+        'ventas' => ['dashboard', 'clientes', 'pedidos', 'pedidos.editar', 'reclamos', 'marketing', 'psicologia'],
+        'almacen' => ['dashboard', 'inventario', 'hardware', 'ambiental'],
         'contabilidad' => ['dashboard', 'contabilidad', 'pedidos'],
     ];
 
