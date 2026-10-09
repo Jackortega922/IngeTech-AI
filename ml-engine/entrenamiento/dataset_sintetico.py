@@ -42,13 +42,28 @@ CATEGORIA_POR_ACTIVIDAD = {
 }
 
 
+# Orden de desempate: si un perfil tiene tantas actividades de una categoría como de otra, gana la
+# que pide más hardware (lo conservador: nunca recomendar menos equipo del que necesita). Antes el
+# desempate dependía del orden de un set, que Python cambia en cada ejecución (hash aleatorio de
+# los textos): el dataset, y con él el modelo y sus métricas, salían distintos en cada corrida.
+PRIORIDAD_CATEGORIAS = (
+    "cientifico_datos_ia",
+    "disenador_creativo",
+    "desarrollador_software",
+    "estudiante_general",
+)
+
+
 def _categoria_oraculo(actividades: list[str]) -> str:
     """Regla determinística que asigna la categoría "verdadera" de un perfil sintético."""
-    puntajes = dict.fromkeys(set(CATEGORIA_POR_ACTIVIDAD.values()), 0)
+    puntajes = dict.fromkeys(PRIORIDAD_CATEGORIAS, 0)
     for actividad in actividades:
         categoria = CATEGORIA_POR_ACTIVIDAD.get(actividad)
         if categoria:
             puntajes[categoria] += 1
+    if not any(puntajes.values()):
+        return "estudiante_general"
+    # max() devuelve el primero entre los empatados: el de mayor prioridad.
     return max(puntajes, key=puntajes.get)
 
 
