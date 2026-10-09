@@ -53,8 +53,10 @@ que aplican a cualquier asistente de IA. Este archivo solo añade lo específico
     middleware `admin:<permiso>` y las pestañas del panel se llaman igual que el permiso.
   - El chat (`App\Services\Asistente\GeminiAsistente`) es un complemento, no el motor
     ([ADR 0005](docs/adr/0005-llm-complementario-no-motor.md)): solo recibe el catálogo y lo que
-    escribe la persona, nunca sus datos. Si cambian garantía o devoluciones en `/derecho`,
-    actualizar también su prompt. Las pruebas nunca llaman al Gemini real (`phpunit.xml`).
+    escribe la persona, nunca sus datos (al personal le llega además su rol, para explicarle su
+    panel con `App\Support\GuiaPanel`: si cambia una pestaña del panel, actualizar su guía). Si
+    cambian garantía o devoluciones en `/derecho`, actualizar también su prompt. Las pruebas nunca
+    llaman al Gemini real (`phpunit.xml`).
   - Tienda hipotética: razón social, RUC, contacto y redes quedan vacíos a propósito; no
     inventarlos.
 - **Histórico:** `PC_EXPERT/` es el prototipo Tkinter previo (arma PCs por piezas). No se portó:

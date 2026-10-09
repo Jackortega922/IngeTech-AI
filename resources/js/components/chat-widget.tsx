@@ -27,6 +27,12 @@ const SALUDO: Mensaje = {
     texto: 'Hola 👋 Soy el asistente de IngeTech AI. Cuéntame qué vas a hacer con tu laptop y tu presupuesto, o pregúntame por un modelo del catálogo.',
 };
 
+// Personal de la tienda (modo personal): el asistente explica cómo usar las secciones de su rol.
+const SALUDO_PERSONAL: Mensaje = {
+    autor: 'bot',
+    texto: 'Hola 👋 Soy el asistente del panel. Pregúntame cómo usar las secciones de tu rol, por ejemplo cómo registrar una entrada de stock, responder un reclamo o crear un cupón.',
+};
+
 // Avisos periódicos (Psicología, ver lib/avisos-asistente.ts): rotan en bucle para acompañar a
 // la persona todo el tiempo, sin agobiarla. Tiempos en milisegundos (1000 ms = 1 s).
 const PRIMER_AVISO_MS = 2500; // el primero, al entrar
@@ -72,7 +78,8 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
     const avisos = AVISOS[audiencia];
     const saludosDeRegreso = regresosDe(audiencia);
     const [abierto, setAbierto] = useState(false);
-    const [mensajes, setMensajes] = useState<Mensaje[]>([SALUDO]);
+    const esPersonal = Boolean(auth.user?.es_personal);
+    const [mensajes, setMensajes] = useState<Mensaje[]>([esPersonal ? SALUDO_PERSONAL : SALUDO]);
     const [entrada, setEntrada] = useState('');
     const [enviando, setEnviando] = useState(false);
     // Globo junto al botón con el aviso de turno (null = no hay globo).
@@ -260,7 +267,9 @@ export default function ChatWidget({ forzarAbierto, onCerrado }: ChatWidgetProps
                                     <span className="font-bold">Asistente IngeTech</span>
                                     <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,.9)]" />
                                 </div>
-                                <p className="mt-0.5 text-xs text-slate-300">Orientación inteligente sobre tecnología</p>
+                                <p className="mt-0.5 text-xs text-slate-300">
+                                    {esPersonal ? 'Ayuda para usar el panel' : 'Orientación inteligente sobre tecnología'}
+                                </p>
                             </div>
                             <button
                                 onClick={cerrar}

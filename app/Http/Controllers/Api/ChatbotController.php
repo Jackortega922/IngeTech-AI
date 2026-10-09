@@ -7,6 +7,8 @@ use App\Models\Carrera;
 use App\Models\Laptop;
 use App\Models\Software;
 use App\Services\Asistente\GeminiAsistente;
+use App\Support\GuiaPanel;
+use App\Support\Roles;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -49,15 +51,46 @@ class ChatbotController extends Controller
             'historial.*.texto' => ['required', 'string', 'max:2000'],
         ]);
 
+        // Personal de la tienda (modo personal): el asistente explica su panel. Solo viaja el rol.
+        $usuario = $request->user();
+        $rolPersonal = $usuario?->es_personal ? $usuario->rol : null;
+
         $mensaje = trim((string) ($datos['mensaje'] ?? ''));
         if ($mensaje !== '') {
-            $respuesta = $llm->responder($mensaje, $datos['historial'] ?? []);
+            $respuesta = $llm->responder($mensaje, $datos['historial'] ?? [], $rolPersonal);
             if ($respuesta !== null) {
                 return response()->json(['respuesta' => $respuesta, 'fuente' => 'gemini']);
             }
         }
 
-        return $this->responderPorReglas($request);
+        return $rolPersonal ? $this->responderAlPersonal($mensaje, $rolPersonal) : $this->responderPorReglas($request);
+    }
+
+    /**
+     * Respaldo del modo personal (sin Gemini): busca la sección del panel por palabras clave y
+     * devuelve su guía, solo si el rol puede verla.
+     */
+    private function responderAlPersonal(string $mensaje, string $rol)
+    {
+        $texto = $this->normalizar($mensaje);
+        $propias = GuiaPanel::paraRol($rol);
+        $nombreRol = Roles::NOMBRES[$rol] ?? $rol;
+        $coincide = fn (array $s) => collect($s['claves'])->contains(fn ($clave) => Str::contains($texto, $clave));
+
+        $encontradas = collect($propias)->filter($coincide)->take(2);
+        if ($encontradas->isNotEmpty()) {
+            return response()->json(['respuesta' => $encontradas->map(fn ($s) => "{$s['titulo']}: {$s['guia']}")->join("\n\n")]);
+        }
+
+        // Pregunta por una sección de otro rol.
+        $ajena = collect(GuiaPanel::SECCIONES)->diffKeys($propias)->first($coincide);
+        if ($ajena) {
+            return response()->json(['respuesta' => "La sección {$ajena['titulo']} no está disponible para tu rol ({$nombreRol}). Si la necesitas, consúltalo con un administrador."]);
+        }
+
+        $lista = collect($propias)->pluck('titulo')->unique()->join(', ');
+
+        return response()->json(['respuesta' => "¡Hola! Soy el asistente del panel. Con tu rol ({$nombreRol}) puedo explicarte cómo usar: {$lista}. Pregúntame, por ejemplo, cómo se hace algo en una de esas secciones."]);
     }
 
     private function responderPorReglas(Request $request)

@@ -60,3 +60,18 @@ el chat (`app/Services/Asistente/GeminiAsistente.php`).
 Consecuencia de Derecho: en el plan gratuito Google puede usar las conversaciones para mejorar
 sus productos. Por eso al LLM no se le envía nada del usuario (ni nombre, ni correo, ni perfil),
 solo lo que escribe en el chat, y la página "Cómo decide la IA" lo avisa.
+
+## Actualización (2026-10-09): modo personal
+
+El chat también ayuda al **personal de la tienda**. Si quien escribe tiene un rol del personal
+(Administrador, Ventas, Almacén o Contabilidad), Laravel le dice al LLM **solo ese rol**, y las
+instrucciones pasan de "asistente de ventas" a "asistente del panel": explica cómo usar las
+secciones que ese rol puede ver (`App\Support\GuiaPanel`, una guía por permiso de
+`App\Support\Roles`).
+
+- El rol no identifica a nadie: sigue sin enviarse nombre, correo ni perfil.
+- El LLM **no recibe datos de la tienda** (pedidos, clientes, ventas, stock). Si se los piden,
+  indica en qué sección del panel verlos. Darle esos datos expondría información personal.
+- Sin Gemini, el respaldo por palabras clave devuelve la guía de la sección, solo si el rol puede
+  verla.
+- Clientes y visitantes no cambian: siguen con el asistente de ventas.
