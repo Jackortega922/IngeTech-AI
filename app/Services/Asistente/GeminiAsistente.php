@@ -6,6 +6,8 @@ use App\Models\Accesorio;
 use App\Models\Actividad;
 use App\Models\Kit;
 use App\Models\Laptop;
+use App\Support\GuiaPanel;
+use App\Support\Roles;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -17,7 +19,8 @@ use Throwable;
  * - Se le pasa el catálogo real en el prompt y se le ordena recomendar solo de ahí, para que
  *   no invente modelos ni precios (grounding: la respuesta se apoya en datos propios).
  * - No se le manda el perfil del usuario ni su nombre (privacidad, RF-ET2): solo lo que la
- *   persona escribe en el chat.
+ *   persona escribe en el chat. Si escribe alguien del personal, se le dice además su rol (no
+ *   identifica a nadie) para cambiar a la guía del panel de ese rol (modo personal, GuiaPanel).
  * - Si no hay API key o Gemini falla/tarda, devuelve null y el controlador responde con el
  *   asistente por palabras clave. El chat nunca se queda sin respuesta.
  *
@@ -36,13 +39,15 @@ class GeminiAsistente
     /**
      * @param  array<int, array{autor: string, texto: string}>  $historial  mensajes previos del chat
      */
-    public function responder(string $mensaje, array $historial = []): ?string
+    public function responder(string $mensaje, array $historial = [], ?string $rolPersonal = null): ?string
     {
         if (! $this->disponible()) {
             return null;
         }
 
-        $mensajes = [['role' => 'system', 'content' => $this->instrucciones()]];
+        // Personal de la tienda: guía del panel de su rol. Clientes y visitantes: asistente de ventas.
+        $instrucciones = $rolPersonal ? $this->instruccionesPersonal($rolPersonal) : $this->instrucciones();
+        $mensajes = [['role' => 'system', 'content' => $instrucciones]];
         foreach ($historial as $m) {
             $mensajes[] = ['role' => $m['autor'] === 'usuario' ? 'user' : 'assistant', 'content' => $m['texto']];
         }
@@ -109,6 +114,30 @@ class GeminiAsistente
 
             return null;
         }
+    }
+
+    /**
+     * Modo personal: solo explica cómo usar las secciones del panel de su rol. No recibe datos de
+     * la tienda, así que no puede dar cifras de pedidos, clientes o ventas: indica dónde verlas.
+     */
+    private function instruccionesPersonal(string $rol): string
+    {
+        $nombreRol = Roles::NOMBRES[$rol] ?? $rol;
+        $guia = GuiaPanel::texto($rol);
+
+        return <<<PROMPT
+        Eres el asistente interno del panel de IngeTech AI, una tienda peruana de laptops con recomendación por IA. Hablas con una persona del personal de la tienda con el rol «{$nombreRol}». Respondes en español, con un tono cálido y claro.
+
+        Reglas:
+        - Solo explicas cómo usar las secciones del panel de su rol (lista de abajo), paso a paso si hace falta.
+        - Nunca menciones secciones, botones ni funciones que no estén en la lista de abajo.
+        - Tú no tienes acceso a los datos de la tienda (pedidos, clientes, ventas, stock ni cifras): nunca inventes cifras. Si te piden un dato, indica en qué sección de su lista puede verlo; si ninguna de sus secciones lo muestra, dile que esa información no está en las secciones de su rol y que la consulte con un administrador.
+        - No pidas ni repitas datos personales de clientes.
+        - Responde breve: máximo 120 palabras. Escribe en texto plano, sin asteriscos ni otros símbolos de formato. Para listas usa guiones. No uses tablas.
+
+        SECCIONES DEL PANEL DE SU ROL:
+        {$guia}
+        PROMPT;
     }
 
     private function instrucciones(): string

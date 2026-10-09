@@ -222,4 +222,61 @@ class ChatbotTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonValidationErrors('mensaje');
     }
+
+    public function test_al_personal_gemini_le_explica_su_panel_y_solo_recibe_el_rol()
+    {
+        $this->conGemini();
+        Laptop::create([
+            'marca' => 'Acer', 'modelo' => 'Aspire 5', 'tipo' => 'laptop', 'cpu' => 'Ryzen 5', 'ram_gb' => 16,
+            'almacenamiento_gb' => 512, 'almacenamiento_tipo' => 'SSD', 'gpu_dedicada' => false,
+            'precio_soles' => 2399, 'rendimiento_score' => 55,
+        ]);
+        Http::fake(['api.gemini.test/*' => Http::response(['choices' => [['message' => ['content' => 'Usa el botón Entrada.']]]])]);
+
+        $this->actingAs(User::factory()->create(['name' => 'Vera Quispe', 'email' => 'vera@correo.test', 'rol' => 'almacen']))
+            ->postJson('/api/chatbot', ['mensaje' => '¿Cómo registro una entrada de stock?'])
+            ->assertOk()
+            ->assertJson(['respuesta' => 'Usa el botón Entrada.', 'fuente' => 'gemini']);
+
+        Http::assertSent(function (HttpRequest $r) {
+            $prompt = $r['messages'][0]['content'];
+
+            return str_contains($prompt, 'asistente interno del panel')
+                && str_contains($prompt, '«Almacén»')
+                // Solo las secciones de su rol.
+                && str_contains($prompt, 'Inventario')
+                && str_contains($prompt, 'Recojo RAEE')
+                && ! str_contains($prompt, 'Contabilidad')
+                && ! str_contains($prompt, 'Usuarios y roles')
+                // Ni el catálogo de ventas ni datos de la persona.
+                && ! str_contains($prompt, 'Aspire 5')
+                && ! str_contains(json_encode($r->data()), 'Vera')
+                && ! str_contains(json_encode($r->data()), 'vera@correo.test');
+        });
+    }
+
+    public function test_un_cliente_sigue_con_el_asistente_de_ventas()
+    {
+        $this->conGemini();
+        Http::fake(['api.gemini.test/*' => Http::response(['choices' => [['message' => ['content' => 'ok']]]])]);
+
+        $this->actingAs(User::factory()->create(['rol' => 'cliente']))->postJson('/api/chatbot', ['mensaje' => 'hola']);
+
+        Http::assertSent(fn (HttpRequest $r) => str_contains($r['messages'][0]['content'], 'asistente de ventas')
+            && ! str_contains($r['messages'][0]['content'], 'asistente interno del panel'));
+    }
+
+    public function test_sin_ia_el_personal_recibe_la_guia_de_su_seccion_y_no_la_de_otros_roles()
+    {
+        $almacen = User::factory()->create(['rol' => 'almacen']);
+        $preguntar = fn (User $u, string $m) => $this->actingAs($u)->postJson('/api/chatbot', ['mensaje' => $m])->assertOk()->json('respuesta');
+
+        $this->assertStringContainsString('«Entrada»', $preguntar($almacen, '¿Cómo registro una entrada de stock?'));
+        $this->assertStringContainsString('no está disponible para tu rol (Almacén)', $preguntar($almacen, '¿Dónde veo el IGV?'));
+        $this->assertStringContainsString('no está disponible para tu rol (Almacén)', $preguntar($almacen, '¿Cómo funciona la contabilidad?'));
+        $this->assertStringContainsString('Inventario', $preguntar($almacen, 'hola'));
+
+        $ventas = User::factory()->create(['rol' => 'ventas']);
+        $this->assertStringContainsString('Cambiar el estado de un pedido', $preguntar($ventas, '¿Cómo cancelo un pedido?'));
+    }
 }
