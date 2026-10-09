@@ -295,18 +295,22 @@ Proceso realizado en Jupyter/Colab antes del despliegue en producción:
    ejecución (latencia aceptable para el volumen del proyecto; ver
    [ADR 0003](adr/0003-motor-python-subproceso.md)).
 
-**Ejemplo de resultado de entrenamiento:**
+**Resultado real del entrenamiento** (`cd ml-engine && python -m entrenamiento.entrenar_perfilado`,
+200 perfiles sintéticos, 75/25 estratificado, regresión logística):
 ```
-$ Entrenando clasificador de perfil...
-Accuracy: 0.89 | F1-score: 0.87
-
-$ Serializando modelo...
-modelo_ingetech.pkl guardado (2.3 MB)
-
-✓ Modelo listo para consumirse desde el motor
+Entrenando clasificador de perfil...
+Accuracy: 0.80 | F1-score: 0.85
+Serializando modelo...
+modelo_perfilado.joblib guardado (1.4 KB)
+Modelo listo para consumirse desde el motor
 ```
+El resultado es **reproducible**: el dataset sintético desempata las categorías con un orden fijo
+(antes dependía del orden de un `set`, que Python cambia en cada ejecución, y las métricas variaban
+entre corridas). Lo verifica `ml-engine/tests/test_entrenamiento.py`.
 
-**Cuándo reentrenar:** al agregar equipos nuevos al catálogo, si las métricas bajan en producción, o periódicamente con nuevos datos de usuarios reales.
+**Cuándo reentrenar:** al cambiar los pesos de `actividades.json` (la prueba
+`test_el_modelo_guardado_esta_al_dia_con_el_catalogo` falla si el modelo guardado quedó desfasado),
+si las métricas bajan en producción, o periódicamente con nuevos datos de usuarios reales.
 
 ## 9. Flujo de interacción en tiempo real (inferencia)
 
