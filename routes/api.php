@@ -82,6 +82,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         Route::get('/cupones', [AdminCuponController::class, 'index']);
         Route::post('/cupones', [AdminCuponController::class, 'store']);
         Route::patch('/cupones/{cupon}', [AdminCuponController::class, 'update']);
+        Route::get('/cupones/{cupon}/destinatarios', [AdminCuponController::class, 'destinatarios']);
+        Route::post('/cupones/{cupon}/enviar', [AdminCuponController::class, 'enviar'])->middleware('throttle:10,1');
     });
 
     Route::middleware('admin:hardware')->group(function () {

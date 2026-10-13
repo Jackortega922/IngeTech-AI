@@ -26,7 +26,7 @@ class ClienteController extends Controller
             ->withCount('perfiles')
             ->with(['preferencias:id,user_id,completado_at'])
             ->orderByDesc('created_at')
-            ->get(['id', 'name', 'email', 'email_verified_at', 'created_at']);
+            ->get(['id', 'name', 'email', 'email_verified_at', 'acepta_publicidad_at', 'created_at']);
 
         // La carrera/ocupación y el cargo son de su última consulta: alguien puede volver a
         // consultar con otra ocupación. Por id y no por created_at: dos perfiles del mismo
@@ -53,6 +53,7 @@ class ClienteController extends Controller
                 'ubicacion' => $this->ubicacion($ultimaCompra),
                 'registrado_at' => $u->created_at,
                 'verificado' => $u->email_verified_at !== null,
+                'acepta_ofertas' => $u->acepta_publicidad_at !== null,
                 'carrera' => $perfil?->carrera,
                 'cargo' => $perfil?->cargo,
                 'recomendaciones' => $u->perfiles_count,
@@ -128,6 +129,7 @@ class ClienteController extends Controller
             'email' => $user->email,
             'registrado_at' => $user->created_at,
             'verificado' => $user->email_verified_at !== null,
+            'acepta_ofertas' => $user->acepta_publicidad_at !== null,
             'cuestionario' => $user->preferencias?->completado_at !== null,
             'consultas' => $consultas,
             'pedidos' => $this->pedidos(Pedido::where('user_id', $user->id)),

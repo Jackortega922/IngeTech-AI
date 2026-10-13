@@ -4,13 +4,18 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cupon;
+use App\Notifications\CuponOfrecido;
+use App\Services\Marketing\DestinatariosCupon;
+use App\Services\Recommender\RecommenderException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 /**
  * Cupones para el panel de Marketing: crearlos (opcionalmente para un segmento de la
- * segmentación con IA), activarlos o pausarlos, y ver cuánto se usaron y cuánto descontaron.
+ * segmentación con IA), activarlos o pausarlos, ver cuánto se usaron y cuánto descontaron, y
+ * enviarlos por correo a su grupo (solo a quienes aceptaron recibir ofertas).
  */
 class CuponController extends Controller
 {
@@ -18,6 +23,7 @@ class CuponController extends Controller
     {
         return response()->json(
             Cupon::withSum(['pedidos as monto_descontado' => fn ($q) => $q->where('estado', '!=', 'cancelado')], 'descuento')
+                ->withCount('envios')
                 ->latest('id')
                 ->get()
         );
@@ -49,5 +55,46 @@ class CuponController extends Controller
         $cupon->update($request->validate(['activo' => ['required', 'boolean']]));
 
         return response()->json($cupon);
+    }
+
+    /** Cuántos del grupo lo recibirían, antes de enviarlo. */
+    public function destinatarios(Cupon $cupon, DestinatariosCupon $destinatarios)
+    {
+        try {
+            $d = $destinatarios->para($cupon);
+        } catch (RecommenderException) {
+            return response()->json(['message' => 'El motor de IA no responde: no se pudo calcular el grupo.'], 503);
+        }
+
+        return response()->json([...collect($d)->except('pendientes')->all(), 'por_enviar' => $d['pendientes']->count()]);
+    }
+
+    public function enviar(Cupon $cupon, DestinatariosCupon $destinatarios)
+    {
+        // Pausado, vencido o agotado: no se ofrece algo que no se puede usar.
+        if ($motivo = $cupon->motivoNoAplica(PHP_FLOAT_MAX)) {
+            return response()->json(['message' => $motivo], 422);
+        }
+
+        try {
+            $pendientes = $destinatarios->para($cupon)['pendientes'];
+        } catch (RecommenderException) {
+            return response()->json(['message' => 'El motor de IA no responde: no se pudo calcular el grupo.'], 503);
+        }
+
+        // El registro va primero (con su índice único): si dos personas del personal pulsan
+        // "Enviar" a la vez, a nadie le llega dos veces. El correo sale en cola.
+        $enviados = 0;
+        foreach ($pendientes as $cliente) {
+            $nuevo = DB::table('cupon_envios')->insertOrIgnore([
+                'cupon_id' => $cupon->id, 'user_id' => $cliente->id, 'created_at' => now(),
+            ]);
+            if ($nuevo) {
+                $cliente->notify(new CuponOfrecido($cupon));
+                $enviados++;
+            }
+        }
+
+        return response()->json(['enviados' => $enviados]);
     }
 }

@@ -62,6 +62,8 @@ export interface User {
     // Personal de la tienda (cualquier rol menos cliente): entra al panel /admin.
     es_personal: boolean;
     email_verified_at: string | null;
+    // Cuándo aceptó recibir ofertas por correo; null = no las recibe (Ley 29733).
+    acepta_publicidad_at: string | null;
     created_at: string;
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...

@@ -53,6 +53,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'acepta_publicidad_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -101,6 +102,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function puede(string $permiso): bool
     {
         return in_array($permiso, Roles::permisos($this->rol), true);
+    }
+
+    /**
+     * Acepta o retira el permiso para recibir ofertas por correo (Ley 29733). Guarda la fecha en que
+     * aceptó como prueba del consentimiento; volver a marcarlo no la cambia. No es asignable en masa:
+     * solo la persona lo decide (registro, perfil o el enlace para darse de baja del correo).
+     */
+    public function aceptarPublicidad(bool $acepta): void
+    {
+        $this->acepta_publicidad_at = $acepta ? ($this->acepta_publicidad_at ?? now()) : null;
     }
 
     public function perfiles(): HasMany

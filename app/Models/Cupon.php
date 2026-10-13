@@ -59,4 +59,10 @@ class Cupon extends Model
     {
         return $this->hasMany(Pedido::class);
     }
+
+    // A quiénes se les envió por correo (Marketing): uno por cliente, nunca dos veces.
+    public function envios(): HasMany
+    {
+        return $this->hasMany(CuponEnvio::class);
+    }
 }

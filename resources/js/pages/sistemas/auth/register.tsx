@@ -5,6 +5,7 @@ import { FormEventHandler } from 'react';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
@@ -15,6 +16,7 @@ type RegisterForm = {
     email: string;
     password: string;
     password_confirmation: string;
+    acepta_publicidad: boolean;
 };
 
 export default function Register() {
@@ -24,6 +26,8 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        // Desmarcada por defecto: las ofertas por correo solo con permiso expreso (Ley 29733).
+        acepta_publicidad: false,
     });
 
     const submit: FormEventHandler = (e) => {
@@ -120,6 +124,16 @@ export default function Register() {
                         />
                         <InputError message={errors.password_confirmation} />
                     </div>
+
+                    <label className="text-muted-foreground flex cursor-pointer items-start gap-3 text-sm">
+                        <Checkbox
+                            className="mt-0.5"
+                            checked={data.acepta_publicidad}
+                            onCheckedChange={(v) => setData('acepta_publicidad', v === true)}
+                            disabled={processing}
+                        />
+                        <span>Quiero recibir ofertas y cupones por correo (opcional). Puedo darme de baja cuando quiera.</span>
+                    </label>
 
                     <Button type="submit" className="mt-2 w-full" tabIndex={6} disabled={processing}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}

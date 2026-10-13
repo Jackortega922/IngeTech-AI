@@ -17,7 +17,7 @@ Imágenes listas para presentar: [antes](img/modelo-datos-antes.png) ·
 
 | | Antes (tienda sin IA) | Después (con IA) |
 |---|---|---|
-| Tablas del negocio | 12 | 20 (**+8**) |
+| Tablas del negocio | 13 | 21 (**+8**) |
 | Qué sabe del cliente | Lo que compra | Lo que hace, qué programas usa, su presupuesto y cómo es |
 | Cómo elige el cliente | Busca y compara solo | La IA le recomienda con % de compatibilidad y explica por qué |
 | Qué mide la tienda | Ventas | Ventas + calidad de la recomendación + conversión de la IA |
@@ -42,12 +42,20 @@ erDiagram
     pedidos ||--o{ pedido_eventos : "historial de estado"
     pedidos ||--o{ movimientos_inventario : "descuenta stock"
     cupones ||--o{ pedidos : "descuenta"
+    cupones ||--o{ cupon_envios : "se envía por correo"
+    users ||--o{ cupon_envios : "recibe"
 
     users {
         bigint id PK
         string name
         string email
         string rol "cliente, admin, ventas, almacen, contabilidad"
+        timestamp acepta_publicidad_at "permiso para ofertas (Ley 29733)"
+    }
+    cupon_envios {
+        bigint id PK
+        bigint cupon_id FK
+        bigint user_id FK "uno por cliente"
     }
     laptops {
         bigint id PK
@@ -278,6 +286,7 @@ erDiagram
 - `laptops.peso_kg`, `bateria_horas`, `pantalla_*`, `puertos`, `ram_ampliable_gb`: criterios de **afinidad** con el cuestionario.
 - `laptops.stock`: las agotadas se envían al motor en `opciones.excluir_ids` y **no se recomiendan**.
 - `pedidos` (cantidad y gasto por cliente) y `perfiles_usuario`: entrada de la **segmentación** de Marketing. El motor recibe solo números, sin nombre ni correo.
+- `cupon_envios` y `users.acepta_publicidad_at`: un cupón para un grupo se envía por correo a los clientes que **K-Means** puso en ese grupo, pero solo a quienes aceptaron recibir ofertas.
 
 ### Lo que la IA no guarda en la base de datos
 

@@ -7,6 +7,7 @@ import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
@@ -28,6 +29,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
         nombres: auth.user!.nombres ?? auth.user!.name,
         apellidos: auth.user!.apellidos ?? '',
         email: auth.user!.email,
+        acepta_publicidad: auth.user!.acepta_publicidad_at !== null,
     });
 
     const submit: FormEventHandler = (e) => {
@@ -112,6 +114,18 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                     </div>
                                 )}
                             </div>
+                        )}
+
+                        {/* Ofertas por correo: solo para clientes (el personal no las recibe). */}
+                        {!auth.user!.es_personal && (
+                            <label className="text-muted-foreground flex cursor-pointer items-start gap-3 text-sm">
+                                <Checkbox
+                                    className="mt-0.5"
+                                    checked={data.acepta_publicidad}
+                                    onCheckedChange={(v) => setData('acepta_publicidad', v === true)}
+                                />
+                                <span>Quiero recibir ofertas y cupones por correo. Si lo desmarcas, dejamos de enviártelas.</span>
+                            </label>
                         )}
 
                         <div className="flex items-center gap-4">

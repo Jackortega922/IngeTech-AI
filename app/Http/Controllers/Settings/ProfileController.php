@@ -29,7 +29,11 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $request->user()->fill($request->safe()->except('acepta_publicidad'));
+
+        if ($request->has('acepta_publicidad')) {
+            $request->user()->aceptarPublicidad($request->boolean('acepta_publicidad'));
+        }
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
