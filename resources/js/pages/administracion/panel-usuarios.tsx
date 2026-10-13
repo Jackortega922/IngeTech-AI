@@ -31,6 +31,8 @@ const NOMBRE_PERMISO: Record<string, string> = {
     software: 'Software',
     carreras: 'Carreras',
     usuarios: 'Usuarios y roles',
+    psicologia: 'Perfil de clientes',
+    ambiental: 'Recojo RAEE',
 };
 
 async function asignar(email: string, rol: string): Promise<Persona> {

@@ -38,9 +38,17 @@ class AmbientalTest extends TestCase
         $this->assertDatabaseHas('pedidos', ['codigo' => $codigo, 'recojo_raee' => true, 'raee_detalle' => 'Laptop HP 2016']);
         $this->assertSame(1, Pedido::whereNull('raee_detalle')->count());
 
-        Pedido::where('codigo', $codigo)->first()->update(['estado' => 'entregado']);
+        // Entregar la laptop nueva no basta: cuenta como recogido cuando el personal lo marca en
+        // el panel "Recojo RAEE" (la misma cifra que muestra ese panel).
+        $pedido = Pedido::where('codigo', $codigo)->first();
+        $pedido->update(['estado' => 'entregado']);
+        $usuario = User::factory()->create();
+        $this->actingAs($usuario)->get('/ing-ambiental')
+            ->assertInertia(fn (Assert $page) => $page->where('raee.recogidos', 0));
 
-        $this->actingAs(User::factory()->create())->get('/ing-ambiental')
+        $pedido->forceFill(['raee_estado' => 'recogido', 'raee_recogido_at' => now()])->save();
+
+        $this->actingAs($usuario)->get('/ing-ambiental')
             ->assertInertia(fn (Assert $page) => $page
                 ->where('raee.solicitados', 1)
                 ->where('raee.recogidos', 1)

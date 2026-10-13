@@ -98,10 +98,12 @@ Route::middleware(['auth'])->group(function () {
     // docs/contexto-proyecto.md §5.1 para el detalle de qué aporta cada una.
     Route::get('marketing', fn () => Inertia::render('marketing/index'))->name('marketing');
     // Ambiental: cifras reales del programa de reciclaje y de cuántas laptops se pueden ampliar.
+    // "Recogidos" sale del mismo seguimiento que el panel "Recojo RAEE" (raee_estado), no de que
+    // el pedido esté entregado: así la página y el panel nunca dan cifras distintas.
     Route::get('ing-ambiental', fn () => Inertia::render('ing-ambiental/index', [
         'raee' => [
             'solicitados' => Pedido::where('recojo_raee', true)->where('estado', '!=', 'cancelado')->count(),
-            'recogidos' => Pedido::where('recojo_raee', true)->where('estado', 'entregado')->count(),
+            'recogidos' => Pedido::where('recojo_raee', true)->whereIn('raee_estado', ['recogido', 'reciclado'])->count(),
         ],
         'ampliables' => [
             'ram' => Laptop::whereColumn('ram_ampliable_gb', '>', 'ram_gb')->count(),
