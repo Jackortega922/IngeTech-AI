@@ -36,6 +36,7 @@ class RegisteredUserController extends Controller
             'apellidos' => 'required|string|max:100',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'acepta_publicidad' => ['boolean'],
         ]);
 
         $user = User::create([
@@ -44,6 +45,11 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        // Ofertas por correo solo si marcó la casilla (Ley 29733); se guarda la fecha como prueba.
+        if ($request->boolean('acepta_publicidad')) {
+            $user->aceptarPublicidad(true);
+            $user->save();
+        }
 
         event(new Registered($user));
 

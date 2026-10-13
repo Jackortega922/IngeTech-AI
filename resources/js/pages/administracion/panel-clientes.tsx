@@ -26,6 +26,7 @@ interface Registrado {
     ubicacion: string | null;
     registrado_at: string;
     verificado: boolean;
+    acepta_ofertas: boolean;
     carrera: string | null;
     cargo: string | null;
     recomendaciones: number;
@@ -68,6 +69,7 @@ interface Ficha {
     email: string;
     registrado_at?: string;
     verificado?: boolean;
+    acepta_ofertas?: boolean;
     cuestionario?: boolean;
     consultas?: {
         fecha: string;
@@ -320,6 +322,9 @@ function FichaCliente({ url, nombre }: { url: string; nombre: string }) {
                             <Etiqueta>Compró sin cuenta</Etiqueta>
                         )}
                         {ficha.verificado !== undefined && <Etiqueta>{ficha.verificado ? 'Correo verificado' : 'Correo sin verificar'}</Etiqueta>}
+                        {ficha.acepta_ofertas !== undefined && (
+                            <Etiqueta>{ficha.acepta_ofertas ? 'Acepta ofertas por correo' : 'No recibe ofertas'}</Etiqueta>
+                        )}
                         {ficha.cuestionario !== undefined && (
                             <Etiqueta>{ficha.cuestionario ? 'Respondió el cuestionario' : 'Sin cuestionario'}</Etiqueta>
                         )}

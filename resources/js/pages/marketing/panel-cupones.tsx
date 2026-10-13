@@ -1,4 +1,5 @@
-import { Pause, Play, Plus, Tag } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import { Mail, Pause, Play, Plus, Tag } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 export type TipoSegmento = 'alto_valor' | 'compradores' | 'interesados' | 'exploradores' | 'inactivos';
@@ -16,6 +17,15 @@ interface Cupon {
     vence_el: string | null;
     activo: boolean;
     monto_descontado: string | null;
+    envios_count: number;
+}
+
+// Respuesta de /api/admin/cupones/{id}/destinatarios.
+interface Destinatarios {
+    en_grupo: number;
+    aceptaron: number;
+    ya_enviados: number;
+    por_enviar: number;
 }
 
 export const NOMBRE_SEGMENTO: Record<TipoSegmento, string> = {
@@ -71,6 +81,7 @@ export function PanelCupones({ pedido, avisar }: { pedido: { tipo: TipoSegmento 
     const [abierto, setAbierto] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [guardando, setGuardando] = useState(false);
+    const [porEnviar, setPorEnviar] = useState<Cupon | null>(null);
 
     const cargar = useCallback(async () => {
         const res = await fetch('/api/admin/cupones', { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
@@ -249,6 +260,7 @@ export function PanelCupones({ pedido, avisar }: { pedido: { tipo: TipoSegmento 
                                 <th className="py-2 pr-3 text-right">Usos</th>
                                 <th className="py-2 pr-3 text-right">Descontado</th>
                                 <th className="py-2 pr-3">Vence</th>
+                                <th className="py-2 pr-3 text-right">Correos</th>
                                 <th className="py-2" />
                             </tr>
                         </thead>
@@ -272,7 +284,16 @@ export function PanelCupones({ pedido, avisar }: { pedido: { tipo: TipoSegmento 
                                     </td>
                                     <td className="py-2 pr-3 text-right font-mono">S/ {Number(c.monto_descontado ?? 0).toLocaleString('es-PE')}</td>
                                     <td className="py-2 pr-3">{c.vence_el ?? '—'}</td>
-                                    <td className="py-2 text-right">
+                                    <td className="py-2 pr-3 text-right font-mono">{c.envios_count}</td>
+                                    <td className="space-x-2 py-2 text-right whitespace-nowrap">
+                                        {c.activo && (
+                                            <button
+                                                onClick={() => setPorEnviar(c)}
+                                                className="inline-flex items-center gap-1 rounded-lg border border-cyan-500/40 px-2.5 py-1 text-xs font-semibold text-cyan-700 hover:bg-cyan-500/10 dark:text-cyan-300"
+                                            >
+                                                <Mail className="h-3.5 w-3.5" /> Enviar por correo
+                                            </button>
+                                        )}
                                         <button
                                             onClick={() => void alternar(c)}
                                             className="hover:bg-muted inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-semibold"
@@ -287,6 +308,108 @@ export function PanelCupones({ pedido, avisar }: { pedido: { tipo: TipoSegmento 
                     </table>
                 </div>
             )}
+
+            <Dialog open={porEnviar !== null} onOpenChange={(v) => !v && setPorEnviar(null)}>
+                {porEnviar && (
+                    <EnviarCupon
+                        key={porEnviar.id}
+                        cupon={porEnviar}
+                        onCerrar={() => setPorEnviar(null)}
+                        onEnviado={(n) => {
+                            setPorEnviar(null);
+                            avisar(
+                                n === 0
+                                    ? 'No había a quién enviarlo.'
+                                    : `Cupón ${porEnviar.codigo} enviado a ${n} ${n === 1 ? 'cliente' : 'clientes'}.`,
+                            );
+                            void cargar();
+                        }}
+                    />
+                )}
+            </Dialog>
         </section>
+    );
+}
+
+// Antes de enviar muestra a cuántos llegará: del grupo, solo quienes aceptaron recibir ofertas
+// (Ley 29733) y a quienes todavía no se les envió este cupón.
+function EnviarCupon({ cupon, onCerrar, onEnviado }: { cupon: Cupon; onCerrar: () => void; onEnviado: (enviados: number) => void }) {
+    const [datos, setDatos] = useState<Destinatarios | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [enviando, setEnviando] = useState(false);
+
+    useEffect(() => {
+        fetch(`/api/admin/cupones/${cupon.id}/destinatarios`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+            .then(async (r) => {
+                const data = await r.json().catch(() => ({}));
+                if (!r.ok) throw new Error(data.message ?? 'No se pudo calcular a quiénes llegaría.');
+                setDatos(data);
+            })
+            .catch((e: Error) => setError(e.message));
+    }, [cupon.id]);
+
+    async function confirmar() {
+        setEnviando(true);
+        setError(null);
+        try {
+            const r = await enviar(`/api/admin/cupones/${cupon.id}/enviar`, 'POST', {});
+            onEnviado(r.enviados);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'No se pudo enviar.');
+            setEnviando(false);
+        }
+    }
+
+    const grupo = cupon.segmento ? `del grupo «${NOMBRE_SEGMENTO[cupon.segmento]}»` : 'registrados';
+
+    return (
+        <DialogContent>
+            <DialogTitle className="flex items-center gap-2 pr-8">
+                <Mail className="h-5 w-5 text-cyan-500" /> Enviar {cupon.codigo} por correo
+            </DialogTitle>
+            <DialogDescription>
+                Solo lo reciben los clientes que aceptaron recibir ofertas (Ley 29733), y nadie lo recibe dos veces. Cada correo trae un enlace para
+                darse de baja.
+            </DialogDescription>
+
+            {!datos && !error && <p className="text-muted-foreground text-sm">Calculando a quiénes llegaría…</p>}
+            {datos && (
+                <div className="grid grid-cols-3 gap-3 text-center">
+                    <Cifra valor={datos.en_grupo} texto={`clientes ${grupo}`} />
+                    <Cifra valor={datos.aceptaron} texto="aceptaron recibir ofertas" />
+                    <Cifra valor={datos.ya_enviados} texto="ya lo recibieron" />
+                </div>
+            )}
+            {datos && datos.por_enviar === 0 && (
+                <p className="text-muted-foreground text-sm">
+                    {datos.aceptaron === 0
+                        ? 'Nadie de este grupo aceptó recibir ofertas todavía: no hay a quién enviarlo.'
+                        : 'Todos los que aceptaron ya lo recibieron.'}
+                </p>
+            )}
+            {error && <p className="text-sm text-rose-600">{error}</p>}
+
+            <div className="flex justify-end gap-2">
+                <button onClick={onCerrar} className="hover:bg-muted rounded-xl border px-4 py-2 text-sm">
+                    Cancelar
+                </button>
+                <button
+                    onClick={() => void confirmar()}
+                    disabled={!datos || datos.por_enviar === 0 || enviando}
+                    className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                    {enviando ? 'Enviando…' : datos ? `Enviar a ${datos.por_enviar}` : 'Enviar'}
+                </button>
+            </div>
+        </DialogContent>
+    );
+}
+
+function Cifra({ valor, texto }: { valor: number; texto: string }) {
+    return (
+        <div className="bg-muted/40 rounded-xl p-3">
+            <p className="text-2xl font-black">{valor}</p>
+            <p className="text-muted-foreground text-xs">{texto}</p>
+        </div>
     );
 }

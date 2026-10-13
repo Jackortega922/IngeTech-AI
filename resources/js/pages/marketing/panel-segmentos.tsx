@@ -154,8 +154,8 @@ export function PanelSegmentos({ avisar }: { avisar: (msg: string) => void }) {
 
             <p className="text-muted-foreground flex items-start gap-2 text-xs leading-5">
                 <Info className="mt-0.5 h-4 w-4 shrink-0" />
-                Para enviar una campaña por correo a un grupo, cada cliente debe haber aceptado recibir publicidad (Ley 29733). Ese consentimiento y
-                el envío llegarán con los avisos por correo; por ahora el panel muestra los grupos y no la lista de personas.
+                «Enviar por correo» manda el cupón a su grupo, pero solo a quienes aceptaron recibir ofertas al registrarse o en su perfil (Ley
+                29733), una vez por persona y con un enlace para darse de baja. El panel muestra los grupos, no la lista de personas.
             </p>
         </div>
     );

@@ -4,6 +4,7 @@ use App\Http\Controllers\Tienda\BienvenidaController;
 use App\Http\Controllers\Tienda\BoletaController;
 use App\Http\Controllers\Tienda\LibroReclamacionesController;
 use App\Http\Controllers\Tienda\PedidoConfirmacionController;
+use App\Http\Controllers\Tienda\PublicidadController;
 use App\Http\Controllers\Tienda\SeguimientoController;
 use App\Models\Laptop;
 use App\Models\MovimientoInventario;
@@ -61,6 +62,13 @@ Route::get('pedido/{codigo}/boleta', BoletaController::class)->name('pedido.bole
 // adivinar códigos probando muchos seguidos.
 Route::get('seguimiento', [SeguimientoController::class, 'create'])->name('seguimiento');
 Route::post('seguimiento', [SeguimientoController::class, 'store'])->middleware('throttle:10,1');
+
+// Dejar de recibir ofertas por correo, desde el enlace firmado del correo (sin iniciar sesión).
+// Se confirma con un botón: abrir el enlace no da de baja (los antivirus del correo lo abren solos).
+Route::middleware('signed')->group(function () {
+    Route::get('publicidad/baja/{user}', [PublicidadController::class, 'mostrar'])->name('publicidad.baja');
+    Route::post('publicidad/baja/{user}', [PublicidadController::class, 'confirmar']);
+});
 
 Route::middleware(['auth'])->group(function () {
     // Los administradores no tienen un "dashboard de cliente": van directo

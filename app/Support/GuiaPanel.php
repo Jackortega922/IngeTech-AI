@@ -55,8 +55,8 @@ class GuiaPanel
         ],
         'marketing' => [
             'titulo' => 'Marketing',
-            'guia' => 'Segmentación de clientes con IA (K-Means): grupos de clientes parecidos, con su cliente promedio y una campaña sugerida; «Volver a calcular» la rehace. «Crear cupón para este grupo» abre el formulario: porcentaje (máximo 50 %) o monto fijo, y opcionalmente compra mínima, usos máximos y fecha de vencimiento.',
-            'claves' => ['marketing', 'segment', 'cupon', 'k-means', 'kmeans', 'campana', 'grupo', 'promoc', 'descuent'],
+            'guia' => 'Segmentación de clientes con IA (K-Means): grupos de clientes parecidos, con su cliente promedio y una campaña sugerida; «Volver a calcular» la rehace. «Crear cupón para este grupo» abre el formulario: porcentaje (máximo 50 %) o monto fijo, y opcionalmente compra mínima, usos máximos y fecha de vencimiento. «Enviar por correo» manda el cupón a su grupo: antes muestra cuántos clientes tiene el grupo, cuántos aceptaron recibir ofertas y cuántos ya lo recibieron; solo llega a quienes aceptaron, una vez por persona, con un enlace para darse de baja. La columna «Correos» dice a cuántos se envió.',
+            'claves' => ['marketing', 'segment', 'cupon', 'k-means', 'kmeans', 'campana', 'grupo', 'promoc', 'descuent', 'correo', 'ofertas'],
         ],
         'hardware' => [
             'titulo' => 'Equipos (catálogo)',
