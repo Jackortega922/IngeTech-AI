@@ -30,7 +30,7 @@ class GuiaPanel
         ],
         'clientes' => [
             'titulo' => 'Clientes',
-            'guia' => 'Lista de los clientes registrados: cuántas recomendaciones con IA pidió cada uno y la carrera u ocupación de su última consulta. Es de solo lectura.',
+            'guia' => 'Resumen (registrados, nuevos en 30 días, cuántos ya compraron, cuántos consultan sin comprar y quiénes compraron sin cuenta), filtros por esos grupos y un buscador por nombre, correo o teléfono. La tabla muestra consultas a la IA, compras, gasto, si respondió el cuestionario y su última actividad; al pulsar un cliente se abre su ficha con sus consultas a la IA, sus pedidos y sus reclamos. Es de solo lectura; lo que cada persona respondió en el cuestionario no se muestra (solo cifras de conjunto en «Perfil de clientes»).',
             'claves' => ['clientes', 'lista de clientes'],
         ],
         'pedidos' => [

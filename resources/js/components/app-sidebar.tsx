@@ -107,6 +107,7 @@ const navAdmin: { titulo: string; items: (NavItem & { permiso: string })[] }[] =
     {
         titulo: 'Administración',
         items: [
+            { title: 'Clientes', url: '/admin?tab=clientes', icon: Users, permiso: 'clientes' },
             { title: 'Inventario', url: '/admin?tab=inventario', icon: Boxes, permiso: 'inventario' },
             { title: 'Usuarios', url: '/admin?tab=usuarios', icon: UserCog, permiso: 'usuarios' },
         ],
@@ -117,10 +118,7 @@ const navAdmin: { titulo: string; items: (NavItem & { permiso: string })[] }[] =
     },
     {
         titulo: 'Marketing',
-        items: [
-            { title: 'Clientes', url: '/admin?tab=clientes', icon: Users, permiso: 'clientes' },
-            { title: 'Marketing', url: '/admin?tab=marketing', icon: Megaphone, permiso: 'marketing' },
-        ],
+        items: [{ title: 'Marketing', url: '/admin?tab=marketing', icon: Megaphone, permiso: 'marketing' }],
     },
     {
         titulo: 'Psicología',
