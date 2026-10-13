@@ -2,6 +2,7 @@ import LaptopImage from '@/components/laptop-image';
 import { LoadingPanel } from '@/components/loading-panel';
 import AppLayout from '@/layouts/app-layout';
 import { PUERTO_ETIQUETA } from '@/lib/guia-compra';
+import { PanelClientes } from '@/pages/administracion/panel-clientes';
 import { PanelInventario } from '@/pages/administracion/panel-inventario';
 import { PanelUsuarios } from '@/pages/administracion/panel-usuarios';
 import { PanelContabilidad } from '@/pages/contabilidad/panel-contabilidad';
@@ -12,7 +13,7 @@ import { PanelSegmentos } from '@/pages/marketing/panel-segmentos';
 import { PanelPsicologia } from '@/pages/psicologia/panel-psicologia';
 import { PanelPedidos } from '@/pages/sistemas/admin/panel-pedidos';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import type { Carrera, Catalogos, Cliente, ContabilidadAdmin, DashboardAdmin, Laptop, Pedido, Reclamo, Software } from '@/types/flujo';
+import type { Carrera, Catalogos, ContabilidadAdmin, DashboardAdmin, Laptop, Pedido, Reclamo, Software } from '@/types/flujo';
 import { Head, usePage } from '@inertiajs/react';
 import {
     AlertCircle,
@@ -92,7 +93,6 @@ function seccionDeUrl(url: string, permisos: string[]): Sub {
 const DATOS_POR_PERMISO = {
     dashboard: '/api/admin/dashboard',
     contabilidad: '/api/admin/contabilidad',
-    clientes: '/api/admin/clientes',
     pedidos: '/api/admin/pedidos',
     reclamos: '/api/admin/reclamos',
 } as const;
@@ -131,7 +131,6 @@ export default function AdminIndex() {
     const [catalogos, setCatalogos] = useState<Catalogos | null>(null);
     const [dashboard, setDashboard] = useState<DashboardAdmin | null>(null);
     const [contabilidad, setContabilidad] = useState<ContabilidadAdmin | null>(null);
-    const [clientes, setClientes] = useState<Cliente[] | null>(null);
     const [pedidos, setPedidos] = useState<Pedido[] | null>(null);
     const [reclamos, setReclamos] = useState<Reclamo[] | null>(null);
 
@@ -153,11 +152,10 @@ export default function AdminIndex() {
             permisos.includes(permiso) ? pedir(DATOS_POR_PERMISO[permiso]) : Promise.resolve(null);
 
         // Cada sección por separado (idea de Marco): si una falla, las demás se siguen viendo.
-        const [cat, dash, cont, cli, ped, rec] = await Promise.allSettled([
+        const [cat, dash, cont, ped, rec] = await Promise.allSettled([
             pedir('/api/catalogos'),
             opcional('dashboard'),
             opcional('contabilidad'),
-            opcional('clientes'),
             opcional('pedidos'),
             opcional('reclamos'),
         ]);
@@ -170,7 +168,6 @@ export default function AdminIndex() {
         tomar(cat, 'catálogo', setCatalogos);
         tomar(dash, 'dashboard', setDashboard);
         tomar(cont, 'contabilidad', setContabilidad);
-        tomar(cli, 'clientes', setClientes);
         tomar(ped, 'pedidos', setPedidos);
         tomar(rec, 'reclamos', setReclamos);
 
@@ -246,7 +243,7 @@ export default function AdminIndex() {
                     ) : sub === 'contabilidad' ? (
                         <PanelContabilidad datos={contabilidad} />
                     ) : sub === 'clientes' ? (
-                        <PanelClientes clientes={clientes} />
+                        <PanelClientes />
                     ) : sub === 'pedidos' ? (
                         <PanelPedidos pedidos={pedidos} avisar={avisar} soloLectura={!permisos.includes('pedidos.editar')} />
                     ) : sub === 'inventario' ? (
@@ -1118,63 +1115,3 @@ function PanelCarreras({
 /* ============================================================
    CLIENTES (solo lectura)
 ============================================================ */
-
-function PanelClientes({ clientes }: { clientes: Cliente[] | null }) {
-    const [query, setQuery] = useState('');
-
-    if (!clientes) return <LoadingPanel />;
-
-    const filtrados = clientes.filter((c) => `${c.name} ${c.email}`.toLowerCase().includes(query.trim().toLowerCase()));
-
-    return (
-        <section className="space-y-5">
-            <CatalogHeader
-                icon={<Users className="h-5 w-5" />}
-                title="Clientes"
-                subtitle={`${clientes.length} clientes registrados. Los roles del personal se asignan en Usuarios.`}
-                query={query}
-                setQuery={setQuery}
-            />
-            <div className="it-table-shell">
-                <div className="overflow-x-auto">
-                    <table className="it-table min-w-[900px]">
-                        <thead>
-                            <tr>
-                                <th>Cliente</th>
-                                <th>Correo</th>
-                                <th>Carrera u ocupación</th>
-                                <th>Registrado</th>
-                                <th className="text-right">Recomendaciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filtrados.map((c) => (
-                                <tr key={c.id} className="it-table-row">
-                                    <td className="p-3">
-                                        <div className="flex items-center gap-3">
-                                            <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--it-primary-soft)] font-bold text-[var(--it-primary)] dark:text-sky-300">
-                                                {c.name.charAt(0).toUpperCase()}
-                                            </span>
-                                            <span className="font-semibold">{c.name}</span>
-                                        </div>
-                                    </td>
-                                    <td className="p-3 text-sm text-slate-500">{c.email}</td>
-                                    <td className="p-3 text-sm text-slate-500">{[c.carrera, c.cargo].filter(Boolean).join(' · ') || '—'}</td>
-                                    <td className="p-3 text-sm text-slate-500">
-                                        {new Date(c.created_at).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                    </td>
-                                    <td className="p-3 text-right">
-                                        <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
-                                            {c.perfiles_count}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                {filtrados.length === 0 && <Vacio texto={clientes.length === 0 ? 'Todavía no hay clientes.' : 'No se encontraron clientes.'} />}
-            </div>
-        </section>
-    );
-}

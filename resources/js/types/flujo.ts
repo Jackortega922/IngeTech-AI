@@ -193,16 +193,6 @@ export interface ContabilidadAdmin {
     ultimas: { codigo: string; comprobante: string | null; fecha: string; cliente: string; laptop: string; total: number; estado: EstadoPedido }[];
 }
 
-export interface Cliente {
-    id: number;
-    name: string;
-    email: string;
-    created_at: string;
-    perfiles_count: number;
-    carrera: string | null;
-    cargo: string | null;
-}
-
 export interface HistorialItem {
     id: number;
     carrera: string | null;

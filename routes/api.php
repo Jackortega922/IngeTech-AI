@@ -57,7 +57,12 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         Route::get('/contabilidad/registro-ventas.csv', [ContabilidadController::class, 'exportar']);
     });
 
-    Route::get('/clientes', [ClienteController::class, 'index'])->middleware('admin:clientes');
+    Route::middleware('admin:clientes')->group(function () {
+        Route::get('/clientes', [ClienteController::class, 'index']);
+        Route::get('/clientes/invitado', [ClienteController::class, 'invitado']);
+        Route::get('/clientes/{user}', [ClienteController::class, 'show']);
+    });
+
     Route::get('/pedidos', [AdminPedidoController::class, 'index'])->middleware('admin:pedidos');
     Route::patch('/pedidos/{pedido}', [AdminPedidoController::class, 'update'])->middleware('admin:pedidos.editar');
 
