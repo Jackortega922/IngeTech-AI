@@ -93,7 +93,7 @@ export default function PersonalizarIndex() {
 
     return (
         <>
-            <Head title={`Personalizar ${laptop.modelo} — IngeTech AI`} />
+            <Head title={`Personalizar ${laptop.modelo}`} />
             <div className="min-h-screen bg-slate-50 text-[#0c2340] dark:bg-slate-950 dark:text-white">
                 <FlowHeader pasoActual={3} flujo={flujo} />
 

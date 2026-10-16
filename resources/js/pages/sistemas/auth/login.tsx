@@ -33,7 +33,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
     return (
         <AuthLayout title="Bienvenido de nuevo" description="Accede a tu espacio y continúa con tu recomendación personalizada.">
-            <Head title="Ingresar · IngeTech AI" />
+            <Head title="Ingresar" />
             <div className="mb-7 rounded-2xl border border-sky-100 bg-sky-50/70 p-4 dark:border-sky-900/40 dark:bg-sky-950/20">
                 <div className="flex items-center gap-3">
                     <div className="relative flex -space-x-2">

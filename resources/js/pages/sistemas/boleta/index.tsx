@@ -43,7 +43,7 @@ export default function BoletaIndex({
 
     return (
         <>
-            <Head title={`Boleta ${pedido.comprobante} — IngeTech AI`} />
+            <Head title={`Boleta ${pedido.comprobante}`} />
             <div className="min-h-screen bg-slate-100 py-8 text-slate-900 print:bg-white print:py-0">
                 {/* Acciones: no salen al imprimir */}
                 <div className="mx-auto mb-4 flex max-w-3xl items-center justify-between px-4 print:hidden">

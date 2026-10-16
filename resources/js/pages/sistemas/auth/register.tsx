@@ -39,7 +39,7 @@ export default function Register() {
 
     return (
         <AuthLayout title="Crea tu cuenta" description="Completa tus datos para comenzar">
-            <Head title="Register" />
+            <Head title="Crear cuenta" />
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
                     <div className="grid gap-6 sm:grid-cols-2 sm:gap-4">
@@ -88,7 +88,7 @@ export default function Register() {
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             disabled={processing}
-                            placeholder="email@example.com"
+                            placeholder="correo@ejemplo.com"
                         />
                         <InputError message={errors.email} />
                     </div>

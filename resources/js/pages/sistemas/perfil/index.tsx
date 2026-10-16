@@ -191,7 +191,7 @@ export default function PerfilIndex({ preferencias }: { preferencias: Preferenci
 
     return (
         <>
-            <Head title="Arma tu perfil — IngeTech AI" />
+            <Head title="Arma tu perfil" />
             <div className="min-h-screen bg-slate-50 text-[#0c2340] dark:bg-slate-950 dark:text-white">
                 <FlowHeader pasoActual={1} />
 

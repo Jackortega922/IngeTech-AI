@@ -189,7 +189,7 @@ export default function AdminIndex() {
 
     return (
         <AppLayout breadcrumbs={[...breadcrumbs, { title: seccion.label, href: `/admin?tab=${seccion.value}` }]}>
-            <Head title="Administración — IngeTech AI" />
+            <Head title="Administración" />
             <div className="min-h-full bg-slate-50/70 dark:bg-slate-950">
                 <div className="mx-auto max-w-[1600px] space-y-6 p-4 md:p-7">
                     <header className="relative overflow-hidden rounded-[2rem] bg-[#0c2340] p-6 text-white shadow-xl sm:p-8">

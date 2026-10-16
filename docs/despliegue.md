@@ -70,6 +70,7 @@ nuevas se agregan a mano en **Environment → Add Environment Variable**:
 | `MAIL_FROM_ADDRESS` | El remitente verificado en Brevo |
 | `GEMINI_API_KEY` | Google AI Studio (opcional: sin ella el chat responde por palabras clave) |
 | `ADMIN_NAME` / `ADMIN_EMAIL` | Tu nombre y el correo del administrador |
+| `TARIFA_KWH` / `TARIFA_KWH_FUENTE` | Opcional: precio por kWh de un recibo de luz (con IGV) y su fuente, p. ej. `0.85` y `Recibo Electrocentro, oct. 2026`. Sin ella, el consumo eléctrico se muestra solo en kWh |
 
 Las claves se pegan solo en el panel de Render y en tu `.env`, nunca en el código ni en chats.
 

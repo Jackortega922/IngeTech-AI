@@ -14,7 +14,7 @@ export default function SeguimientoIndex() {
 
     return (
         <>
-            <Head title="Seguimiento de pedido — IngeTech AI" />
+            <Head title="Seguimiento de pedido" />
             <div className="min-h-screen bg-slate-50 text-[#0c2340] dark:bg-slate-950 dark:text-white">
                 <header className="border-b border-slate-200 dark:border-white/10">
                     <div className="mx-auto flex max-w-3xl items-center px-6 py-5">

@@ -122,7 +122,7 @@ export default function ResultadoIndex({ preferencias }: { preferencias: Prefere
 
     return (
         <>
-            <Head title="Tu recomendación — IngeTech AI" />
+            <Head title="Tu recomendación" />
             <div className="min-h-screen bg-slate-50 text-[#0c2340] dark:bg-slate-950 dark:text-white">
                 <FlowHeader pasoActual={2} />
 

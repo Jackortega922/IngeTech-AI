@@ -7,7 +7,7 @@ import { PackageCheck } from 'lucide-react';
 export default function EncuestaPagina({ codigo, laptop, encuesta }: { codigo: string; laptop: string | null; encuesta: DatosEncuesta | null }) {
     return (
         <>
-            <Head title="¿Qué tal te fue? — IngeTech AI" />
+            <Head title="¿Qué tal te fue?" />
             <div className="min-h-screen bg-slate-50 text-[#0c2340] dark:bg-slate-950 dark:text-white">
                 <header className="border-b border-slate-200 dark:border-white/10">
                     <div className="mx-auto flex max-w-2xl items-center px-6 py-5">
