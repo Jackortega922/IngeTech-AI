@@ -28,7 +28,7 @@ export default function PublicidadBaja({ correo, recibe, hecho, url }: { correo:
                             <p className="mt-3 text-slate-600 dark:text-slate-300">
                                 {correo} ya no recibirá cupones ni promociones. Los correos de tus pedidos y reclamos te seguirán llegando.
                             </p>
-                            <p className="mt-3 text-sm text-slate-500">Si cambias de idea, puedes volver a aceptarlas en Ajustes → Perfil.</p>
+                            <p className="mt-3 text-sm text-slate-500">Si cambias de idea, puedes volver a aceptarlas en Configuración → Perfil.</p>
                         </>
                     ) : (
                         <>

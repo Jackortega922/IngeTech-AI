@@ -1,6 +1,7 @@
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Download } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 import DeleteUser from '@/components/delete-user';
@@ -144,8 +145,44 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                     </form>
                 </div>
 
+                <MisDatos esCliente={!auth.user!.es_personal} />
+
                 <DeleteUser />
             </SettingsLayout>
         </AppLayout>
+    );
+}
+
+// Derechos ARCO (Ley 29733): dónde ejercer cada uno, y la descarga de todos sus datos (acceso).
+function MisDatos({ esCliente }: { esCliente: boolean }) {
+    return (
+        <div className="space-y-4">
+            <HeadingSmall title="Tus datos personales" description="Tus derechos de acceso, rectificación, cancelación y oposición (Ley N.° 29733)" />
+            <ul className="text-muted-foreground space-y-1.5 text-sm">
+                <li>
+                    <b className="text-foreground">Acceso:</b> descarga en un archivo todo lo que guardamos de ti: cuenta, consultas a la IA, pedidos,
+                    reclamos{esCliente ? ', cuestionario y cupones recibidos' : ''}.
+                </li>
+                <li>
+                    <b className="text-foreground">Rectificación:</b> corrige tu nombre o correo en el formulario de arriba.
+                </li>
+                {esCliente && (
+                    <li>
+                        <b className="text-foreground">Oposición:</b> desmarca las ofertas por correo arriba, y borra o vuelve a responder el
+                        cuestionario desde tu panel.
+                    </li>
+                )}
+                <li>
+                    <b className="text-foreground">Cancelación:</b> elimina tu cuenta más abajo.
+                </li>
+            </ul>
+            <a
+                href={route('profile.datos')}
+                download
+                className="hover:bg-muted inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium"
+            >
+                <Download className="h-4 w-4" /> Descargar mis datos
+            </a>
+        </div>
     );
 }
