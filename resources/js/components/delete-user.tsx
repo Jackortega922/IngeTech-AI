@@ -47,7 +47,8 @@ export default function DeleteUser() {
                     <DialogContent>
                         <DialogTitle>¿Seguro que quieres eliminar tu cuenta?</DialogTitle>
                         <DialogDescription>
-                            Tu cuenta se borrará para siempre y no podrás recuperarla. Escribe tu contraseña para confirmar.
+                            Tu cuenta se borrará para siempre y no podrás recuperarla. Tus pedidos y boletas se conservan, porque la ley obliga a
+                            guardar los comprobantes. Escribe tu contraseña para confirmar.
                         </DialogDescription>
                         <form className="space-y-6" onSubmit={deleteUser}>
                             <div className="grid gap-2">
