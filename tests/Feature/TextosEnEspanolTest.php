@@ -33,6 +33,15 @@ class TextosEnEspanolTest extends TestCase
             ->assertSessionHas('status', fn (string $s) => str_starts_with($s, 'Si hay una cuenta con ese correo'));
     }
 
+    public function test_la_recomendacion_tiene_limite_de_uso()
+    {
+        // El límite cuenta cada petición, válida o no: un perfil vacío basta para medirlo sin el motor.
+        for ($i = 0; $i < 10; $i++) {
+            $this->postJson('/api/recomendaciones', [])->assertStatus(422);
+        }
+        $this->postJson('/api/recomendaciones', [])->assertStatus(429);
+    }
+
     public function test_el_asunto_del_correo_dice_el_estado_en_palabras()
     {
         $pedido = new Pedido(['codigo' => 'IT-ABC123', 'nombre' => 'Rosa', 'estado' => 'enviado']);
