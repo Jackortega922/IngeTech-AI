@@ -28,6 +28,7 @@ class HardwareController extends Controller
             'gpu' => ['nullable', 'string', 'max:150'],
             'gpu_dedicada' => ['required', 'boolean'],
             'bateria_horas' => ['nullable', 'integer', 'min:0'],
+            'consumo_w' => ['nullable', 'integer', 'between:3,400'],
             'pantalla_pulgadas' => ['nullable', 'numeric', 'between:10,20'],
             'pantalla_resolucion' => ['nullable', 'regex:/^\d{3,4}x\d{3,4}$/'],
             'pantalla_hz' => ['nullable', 'integer', 'between:30,500'],
