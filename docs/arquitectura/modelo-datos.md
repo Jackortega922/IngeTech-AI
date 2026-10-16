@@ -143,6 +143,13 @@ erDiagram
     }
 ```
 
+**Los pedidos no se borran en cadena.** Un pedido es una venta con su boleta, y la ley tributaria
+obliga a conservar los comprobantes. Por eso, al eliminar una cuenta, `pedidos.user_id` y
+`personalizaciones.user_id` quedan en NULL; al borrar una recomendación,
+`personalizaciones.recomendacion_id` queda en NULL; y la base **impide** borrar una laptop que
+alguien armó o compró (`personalizaciones.laptop_id`) o una personalización con pedido
+(`pedidos.personalizacion_id`).
+
 ## 2. Después: la misma tienda con IA
 
 Este diagrama muestra las **8 tablas nuevas** que existen por la IA y cómo se enganchan con la

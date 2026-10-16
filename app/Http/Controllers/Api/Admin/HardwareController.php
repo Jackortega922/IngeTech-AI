@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Laptop;
+use App\Models\Personalizacion;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -55,6 +56,14 @@ class HardwareController extends Controller
 
     public function destroy(Laptop $laptop)
     {
+        // Con recomendaciones, armados o ventas, borrarla rompería el historial (pedidos, boletas,
+        // Dashboard): la base lo impide y aquí se explica qué hacer en su lugar.
+        if ($laptop->recomendaciones()->exists() || Personalizacion::where('laptop_id', $laptop->id)->exists()) {
+            return response()->json([
+                'message' => 'Esta laptop ya tiene recomendaciones o ventas registradas: no se puede eliminar sin perder ese historial. Si ya no la vendes, deja su stock en 0 desde Inventario y no se ofrecerá más.',
+            ], 409);
+        }
+
         $laptop->delete();
 
         return response()->noContent();

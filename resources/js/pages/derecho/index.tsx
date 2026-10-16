@@ -33,10 +33,11 @@ const SECCIONES = [
         texto: 'Si no estás conforme con un producto o con la atención, puedes presentar una hoja en el Libro de Reclamaciones virtual, con o sin cuenta. La tienda debe responderte en un plazo máximo de 15 días hábiles. Presentar un reclamo no te impide acudir a otras vías ni denunciar ante el INDECOPI.',
     },
     {
-        // Describe lo que el sistema hace de verdad: al eliminar la cuenta, perfiles_usuario.user_id
-        // pasa a NULL (nullOnDelete) — el perfil se conserva, pero ya sin nada que identifique a la persona.
+        // Describe lo que el sistema hace de verdad: al eliminar la cuenta, perfiles_usuario.user_id,
+        // personalizaciones.user_id y pedidos.user_id pasan a NULL (nullOnDelete): perfiles y pedidos se
+        // conservan, desvinculados de la cuenta.
         titulo: 'Tus derechos: acceso, rectificación, cancelación y oposición (ARCO)',
-        texto: 'Puedes ver en cualquier momento las recomendaciones generadas con tus datos en «Mis recomendaciones», y corregir tu nombre o correo desde Ajustes → Perfil. Si eliminas tu cuenta (Ajustes → Perfil), tus perfiles dejan de estar vinculados a ti y se conservan solo como datos estadísticos anónimos, sin nombre ni correo. Si no aceptas el tratamiento de tus datos, puedes seguir consultando el catálogo y las promociones, pero no generar una recomendación.',
+        texto: 'Puedes ver en cualquier momento las recomendaciones generadas con tus datos en «Mis recomendaciones», y corregir tu nombre o correo desde Ajustes → Perfil. Si eliminas tu cuenta (Ajustes → Perfil), tus perfiles dejan de estar vinculados a ti y se conservan solo como datos estadísticos anónimos, sin nombre ni correo. Tus pedidos y boletas se conservan con los datos de la compra, porque la ley tributaria obliga a guardar los comprobantes de pago, pero dejan de estar vinculados a tu cuenta. Si no aceptas el tratamiento de tus datos, puedes seguir consultando el catálogo y las promociones, pero no generar una recomendación.',
     },
 ];
 
