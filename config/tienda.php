@@ -48,6 +48,9 @@ return [
         'ventana_demanda_dias' => 30, // ventas recientes con las que se estima la demanda
         'dias_reposicion' => 7, // cuánto tarda el proveedor en entregar
         'dias_cobertura' => 30, // para cuántos días alcanza un pedido de reposición
+        // Demanda que ve la IA: con menos consultas en la ventana, que la IA no recomiende una laptop no
+        // dice nada (no hubo a quién recomendársela), así que no se marcan "capital quieto" ni "no convence".
+        'min_consultas_demanda' => 20,
     ],
 
     /*

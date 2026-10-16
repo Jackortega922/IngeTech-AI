@@ -45,8 +45,8 @@ class GuiaPanel
         ],
         'inventario' => [
             'titulo' => 'Inventario (Administración)',
-            'guia' => 'Stock de cada laptop con su kardex (cada movimiento queda registrado). Botón «Entrada»: unidades que llegan del proveedor. Botón «Ajuste»: las unidades contadas en el almacén, con un motivo obligatorio (conteo físico, unidad dañada). El stock mínimo se edita en la tabla. El estado indica agotada (la IA ya no la recomienda), por reponer (llegó al punto de reorden, con la cantidad sugerida a pedir) u OK.',
-            'claves' => ['inventario', 'stock', 'entrada', 'ajust', 'kardex', 'reorden', 'repon', 'agotad', 'almacen', 'conteo', 'contad'],
+            'guia' => 'Stock de cada laptop con su kardex (cada movimiento queda registrado). Botón «Entrada»: unidades que llegan del proveedor. Botón «Ajuste»: las unidades contadas en el almacén, con un motivo obligatorio (conteo físico, unidad dañada). El stock mínimo se edita en la tabla. El estado indica agotada (la IA ya no la recomienda), por reponer (llegó al punto de reorden, con la cantidad sugerida a pedir) u OK. «Demanda que ve la IA» cruza cuántas veces el motor recomendó cada laptop (últimos 30 días) con su stock y sus ventas: «Reponer primero» si le falta stock y la IA la recomienda, «La recomienda, no se vende» si nadie la compra pese a recomendarla (revisar precio o ficha) y «Capital quieto» si hay stock que la IA no recomienda y no se vende.',
+            'claves' => ['inventario', 'stock', 'entrada', 'ajust', 'kardex', 'reorden', 'repon', 'agotad', 'almacen', 'conteo', 'contad', 'demanda', 'capital'],
         ],
         'reclamos' => [
             'titulo' => 'Reclamos (Derecho)',

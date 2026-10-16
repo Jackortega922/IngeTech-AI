@@ -68,6 +68,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     Route::middleware('admin:inventario')->group(function () {
         Route::get('/inventario', [InventarioController::class, 'index']);
+        Route::get('/inventario/demanda-ia', [InventarioController::class, 'demandaIa']);
         Route::post('/inventario/{laptop}/movimientos', [InventarioController::class, 'movimiento']);
         Route::patch('/inventario/{laptop}', [InventarioController::class, 'update']);
     });
