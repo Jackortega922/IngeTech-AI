@@ -80,6 +80,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::middleware('admin:marketing')->group(function () {
         Route::get('/marketing/segmentos', [MarketingController::class, 'segmentos']);
         Route::get('/cupones', [AdminCuponController::class, 'index']);
+        Route::get('/cupones/efectividad', [AdminCuponController::class, 'efectividad']);
         Route::post('/cupones', [AdminCuponController::class, 'store']);
         Route::patch('/cupones/{cupon}', [AdminCuponController::class, 'update']);
         Route::get('/cupones/{cupon}/destinatarios', [AdminCuponController::class, 'destinatarios']);

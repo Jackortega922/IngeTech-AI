@@ -55,8 +55,8 @@ class GuiaPanel
         ],
         'marketing' => [
             'titulo' => 'Marketing',
-            'guia' => 'Segmentación de clientes con IA (K-Means): grupos de clientes parecidos, con su cliente promedio y una campaña sugerida; «Volver a calcular» la rehace. «Crear cupón para este grupo» abre el formulario: porcentaje (máximo 50 %) o monto fijo, y opcionalmente compra mínima, usos máximos y fecha de vencimiento. «Enviar por correo» manda el cupón a su grupo: antes muestra cuántos clientes tiene el grupo, cuántos aceptaron recibir ofertas y cuántos ya lo recibieron; solo llega a quienes aceptaron, una vez por persona, con un enlace para darse de baja. La columna «Correos» dice a cuántos se envió.',
-            'claves' => ['marketing', 'segment', 'cupon', 'k-means', 'kmeans', 'campana', 'grupo', 'promoc', 'descuent', 'correo', 'ofertas'],
+            'guia' => 'Segmentación de clientes con IA (K-Means): grupos de clientes parecidos, con su cliente promedio y una campaña sugerida; «Volver a calcular» la rehace. «Crear cupón para este grupo» abre el formulario: porcentaje (máximo 50 %) o monto fijo, y opcionalmente compra mínima, usos máximos y fecha de vencimiento. «Enviar por correo» manda el cupón a su grupo: antes muestra cuántos clientes tiene el grupo, cuántos aceptaron recibir ofertas y cuántos ya lo recibieron; solo llega a quienes aceptaron, una vez por persona, con un enlace para darse de baja. La columna «Correos» dice a cuántos se envió. «Efectividad de las campañas» mide si funcionaron, por grupo y por cupón: a cuántos se envió, cuántos compraron con el cupón después de recibirlo (conversión), cuánto se vendió y cuántos soles se vendieron por cada sol descontado (retorno).',
+            'claves' => ['marketing', 'segment', 'cupon', 'k-means', 'kmeans', 'campana', 'grupo', 'promoc', 'descuent', 'correo', 'ofertas', 'efectiv', 'conversion', 'retorno'],
         ],
         'hardware' => [
             'titulo' => 'Equipos (catálogo)',
