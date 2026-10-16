@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\MovimientoInventario;
 use App\Models\Pedido;
-use App\Models\PreferenciaCliente;
 use App\Models\User;
 use App\Services\Marketing\DatosSegmentacion;
 use App\Services\Recommender\MockRecommenderClient;
@@ -43,38 +42,5 @@ class ClientesDemoSeederTest extends TestCase
 
         $this->seed(ClientesDemoSeeder::class);
         $this->assertSame(26, User::where('email', 'like', '%@'.ClientesDemoSeeder::DOMINIO)->count());
-    }
-
-    public function test_la_mayoria_responde_el_cuestionario_y_sus_respuestas_llegan_al_motor()
-    {
-        // Guarda lo que recibe el motor para revisar que el cuestionario va en perfil.preferencias.
-        $motor = new class extends MockRecommenderClient
-        {
-            public array $payloads = [];
-
-            public function recomendar(array $payload): array
-            {
-                $this->payloads[] = $payload;
-
-                return parent::recomendar($payload);
-            }
-        };
-        $this->app->instance(RecommenderClient::class, $motor);
-        $this->seed([SoftwareSeeder::class, ActividadSeeder::class, LaptopSeeder::class, ClientesDemoSeeder::class]);
-
-        $completaron = PreferenciaCliente::whereNotNull('completado_at')->count();
-        $omitieron = PreferenciaCliente::whereNotNull('omitido_at')->count();
-        $this->assertSame(26, $completaron + $omitieron);
-        $this->assertGreaterThanOrEqual(18, $completaron);
-        $this->assertGreaterThan(0, $omitieron);
-
-        $conPreferencias = collect($motor->payloads)->filter(fn ($p) => isset($p['perfil']['preferencias']['prioridades']));
-        $this->assertNotEmpty($conPreferencias);
-        $this->assertLessThan(count($motor->payloads), $conPreferencias->count()); // los que omitieron no mandan nada
-
-        // El panel de Psicología ya tiene con qué trabajar.
-        $this->actingAs(User::factory()->create(['is_admin' => true]))->getJson('/api/admin/psicologia')
-            ->assertOk()
-            ->assertJsonPath('completaron', $completaron);
     }
 }

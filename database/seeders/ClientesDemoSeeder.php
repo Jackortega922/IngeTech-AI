@@ -9,7 +9,6 @@ use App\Models\MovimientoInventario;
 use App\Models\Pedido;
 use App\Models\PerfilUsuario;
 use App\Models\Personalizacion;
-use App\Models\PreferenciaCliente;
 use App\Models\Recomendacion;
 use App\Models\User;
 use App\Services\Recommender\MockRecommenderClient;
@@ -18,8 +17,6 @@ use App\Services\Tienda\Inventario;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Random\Engine\Mt19937;
-use Random\Randomizer;
 use Throwable;
 
 /**
@@ -31,10 +28,7 @@ use Throwable;
  *
  * Todo es ficticio y se reconoce por el correo @demo.ingetech.test. Lo que no es inventado:
  * - las recomendaciones las calcula el motor de IA real (o el mock, si el motor no está corriendo);
- * - las compras pasan por el inventario, así que descuentan stock y quedan en el kardex;
- * - las respuestas al cuestionario de bienvenida entran al motor igual que las de un cliente real
- *   (30% de afinidad). Son coherentes con lo que busca cada grupo, pero inventadas: lo que muestre
- *   el panel "Perfil de clientes" con ellas ilustra cómo se lee, no es evidencia sobre clientes reales.
+ * - las compras pasan por el inventario, así que descuentan stock y quedan en el kardex.
  *
  * OJO: las compras de demostración suman ventas en Contabilidad. Para volver a una base sin ellas:
  * `php artisan migrate:fresh --seed`.
@@ -66,54 +60,6 @@ class ClientesDemoSeeder extends Seeder
         ['n' => 4, 'necesidades' => ['oficina', 'juegos'], 'presupuesto' => [2000, 4500], 'consultas' => [1, 2], 'compras' => 0, 'dias' => [100, 160]],
     ];
 
-    /**
-     * Cuestionario de bienvenida por grupo (mismo orden que GRUPOS): de cada lista se elige una
-     * opción al azar, así dentro de un grupo no todos responden igual. 'omiten' = cada cuántos
-     * clientes uno se salta el cuestionario (como pasa con clientes reales).
-     */
-    private const CUESTIONARIO = [
-        [ // gastan más: diseño, CAD y programación
-            'movilidad' => ['fija', 'a_veces'], 'lejos_enchufe' => ['casi_nunca', 'a_veces'], 'anios_uso' => ['3_4', '5_mas'],
-            'nivel_tecnologia' => ['avanzado', 'intermedio'], 'estilo_decision' => ['comparar', 'ver_todo'],
-            'molestias' => [['se_congela', 'se_calienta'], ['lenta_al_encender', 'pantalla_pequena'], ['se_congela']],
-            'prioridades' => [['rendimiento', 'durabilidad', 'diseno', 'precio', 'portabilidad'], ['rendimiento', 'diseno', 'durabilidad', 'portabilidad', 'precio']],
-            'perifericos' => [['monitor', 'tableta_grafica'], ['monitor', 'muchas_usb']], 'marcas_preferidas' => [['ASUS'], ['Lenovo'], []],
-            'omiten' => 0,
-        ],
-        [ // compran una vez: oficina, datos, programación
-            'movilidad' => ['a_veces', 'diario'], 'lejos_enchufe' => ['a_veces'], 'anios_uso' => ['3_4'],
-            'nivel_tecnologia' => ['intermedio'], 'estilo_decision' => ['la_mejor', 'comparar'],
-            'molestias' => [['lenta_al_encender'], ['bateria_corta', 'lenta_al_encender'], ['se_congela']],
-            'prioridades' => [['precio', 'rendimiento', 'durabilidad', 'portabilidad', 'diseno'], ['rendimiento', 'precio', 'durabilidad', 'portabilidad', 'diseno']],
-            'perifericos' => [['monitor'], ['muchas_usb'], ['proyector']], 'marcas_preferidas' => [['Lenovo'], ['HP'], []],
-            'omiten' => 3,
-        ],
-        [ // consultan mucho y aún no compran: estudiantes de programación, diseño, juegos
-            'movilidad' => ['diario'], 'lejos_enchufe' => ['a_veces', 'muchas_horas'], 'anios_uso' => ['3_4', '5_mas'],
-            'nivel_tecnologia' => ['intermedio', 'avanzado'], 'estilo_decision' => ['comparar', 'ver_todo'],
-            'molestias' => [['bateria_corta', 'pesada'], ['se_congela', 'bateria_corta'], ['no_tengo']],
-            'prioridades' => [['rendimiento', 'precio', 'portabilidad', 'durabilidad', 'diseno'], ['precio', 'rendimiento', 'portabilidad', 'durabilidad', 'diseno']],
-            'perifericos' => [['muchas_usb'], ['monitor'], ['ninguno']], 'marcas_preferidas' => [['ASUS'], ['Acer'], []],
-            'omiten' => 3,
-        ],
-        [ // presupuesto bajo, una consulta: oficina y datos
-            'movilidad' => ['fija', 'a_veces'], 'lejos_enchufe' => ['casi_nunca'], 'anios_uso' => ['5_mas', '3_4'],
-            'nivel_tecnologia' => ['principiante', 'intermedio'], 'estilo_decision' => ['la_mejor'],
-            'molestias' => [['lenta_al_encender'], ['no_tengo'], ['pantalla_pequena']],
-            'prioridades' => [['precio', 'durabilidad', 'rendimiento', 'diseno', 'portabilidad'], ['durabilidad', 'precio', 'rendimiento', 'portabilidad', 'diseno']],
-            'perifericos' => [['ninguno'], ['muchas_usb']], 'marcas_preferidas' => [['HP'], []],
-            'omiten' => 3,
-        ],
-        [ // no vuelven hace meses
-            'movilidad' => ['a_veces'], 'lejos_enchufe' => ['casi_nunca', 'a_veces'], 'anios_uso' => ['2', '3_4'],
-            'nivel_tecnologia' => ['principiante', 'intermedio'], 'estilo_decision' => ['la_mejor', 'ver_todo'],
-            'molestias' => [['se_calienta'], ['lenta_al_encender', 'se_congela']],
-            'prioridades' => [['precio', 'rendimiento', 'diseno', 'durabilidad', 'portabilidad']],
-            'perifericos' => [['ninguno'], ['proyector']], 'marcas_preferidas' => [[]],
-            'omiten' => 3,
-        ],
-    ];
-
     private const NOMBRES = [
         'Lucía Ramos', 'Diego Huamán', 'Valeria Soto', 'Jorge Quispe', 'Camila Torres', 'Renzo Villanueva', 'Ana Flores',
         'Kevin Rojas', 'Milagros Cárdenas', 'Bruno Espinoza', 'Daniela Paredes', 'Luis Mendoza', 'Fiorella Chávez',
@@ -130,13 +76,10 @@ class ClientesDemoSeeder extends Seeder
         }
 
         mt_srand(42); // mismos clientes cada vez que se cargue la demostración
-        // El cuestionario usa su propio generador: así no cambian las fechas, presupuestos y compras
-        // que ya salían con la semilla 42.
-        $azar = new Randomizer(new Mt19937(7));
         $usoMock = false;
         $indice = 0;
 
-        foreach (self::GRUPOS as $g => $grupo) {
+        foreach (self::GRUPOS as $grupo) {
             for ($i = 0; $i < $grupo['n']; $i++, $indice++) {
                 $nombre = self::NOMBRES[$indice];
                 $ultimaActividad = now()->subDays(mt_rand(...$grupo['dias']))->setTime(mt_rand(9, 20), mt_rand(0, 59));
@@ -148,14 +91,12 @@ class ClientesDemoSeeder extends Seeder
                     'email' => 'cliente'.($indice + 1).'@'.self::DOMINIO,
                     'created_at' => $inicio->copy()->subDay(),
                 ]);
-                // El cuestionario se responde (u omite) al crear la cuenta.
-                $preferencias = $this->cuestionario($cliente, self::CUESTIONARIO[$g], $i, $azar);
 
                 $ultima = null;
                 for ($c = 0; $c < $consultas; $c++) {
                     $necesidad = $grupo['necesidades'][mt_rand(0, count($grupo['necesidades']) - 1)];
                     $presupuesto = mt_rand(intdiv($grupo['presupuesto'][0], 100), intdiv($grupo['presupuesto'][1], 100)) * 100;
-                    $ultima = $this->consultar($cliente, $necesidad, $presupuesto, $inicio->copy()->addDays($c * 2), $preferencias, $motor, $usoMock);
+                    $ultima = $this->consultar($cliente, $necesidad, $presupuesto, $inicio->copy()->addDays($c * 2), $motor, $usoMock);
                 }
 
                 for ($p = 0; $p < $grupo['compras'] && $ultima; $p++) {
@@ -167,38 +108,14 @@ class ClientesDemoSeeder extends Seeder
         $this->command?->info("Listo: {$indice} clientes de demostración (@".self::DOMINIO.').'.($usoMock ? ' El motor no respondió: se usó el mock.' : ''));
     }
 
-    /**
-     * Respuestas al cuestionario de bienvenida, o la omisión (uno de cada 'omiten' clientes del grupo).
-     * Devuelve lo que se le envía al motor en perfil.preferencias (vacío si lo omitió).
-     */
-    private function cuestionario(User $cliente, array $opciones, int $posicion, Randomizer $azar): array
-    {
-        $omite = $opciones['omiten'] > 0 && ($posicion + 1) % $opciones['omiten'] === 0;
-        $elegir = fn (string $clave) => $opciones[$clave][$azar->getInt(0, count($opciones[$clave]) - 1)];
-
-        $preferencia = PreferenciaCliente::create(['user_id' => $cliente->id, ...($omite
-            ? ['omitido_at' => $cliente->created_at]
-            : [
-                'para_quien' => $azar->getInt(1, 6) === 1 ? 'otra_persona' : 'yo',
-                ...collect(['movilidad', 'lejos_enchufe', 'anios_uso', 'nivel_tecnologia', 'estilo_decision', 'molestias', 'prioridades', 'perifericos', 'marcas_preferidas'])
-                    ->mapWithKeys(fn ($clave) => [$clave => $elegir($clave)])->all(),
-                'completado_at' => $cliente->created_at,
-            ])]);
-        $this->fechar($preferencia, $cliente->created_at);
-
-        return $preferencia->paraMotor();
-    }
-
     /** Una consulta a la IA, guardada igual que la guarda RecomendacionController. */
-    private function consultar(User $cliente, string $necesidad, int $presupuesto, Carbon $fecha, array $preferencias, RecommenderClient $motor, bool &$usoMock): ?Recomendacion
+    private function consultar(User $cliente, string $necesidad, int $presupuesto, Carbon $fecha, RecommenderClient $motor, bool &$usoMock): ?Recomendacion
     {
         $n = self::NECESIDADES[$necesidad];
         $payload = [
             'perfil' => [
                 'carrera' => '', 'nivel_experiencia' => 'intermedio', 'actividades' => $n['actividades'],
                 'software' => $n['software'], 'presupuesto_soles' => $presupuesto,
-                // Como RecomendacionController: el cuestionario pesa 30% en el % final.
-                ...($preferencias ? ['preferencias' => $preferencias] : []),
             ],
             'opciones' => ['top_n' => 3, 'excluir_ids' => Laptop::where('stock', 0)->pluck('id')->all()],
         ];
