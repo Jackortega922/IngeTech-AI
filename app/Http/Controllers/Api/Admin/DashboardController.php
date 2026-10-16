@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Carrera;
+use App\Models\EncuestaSatisfaccion;
 use App\Models\EventoAnalitica;
 use App\Models\Laptop;
 use App\Models\Pedido;
@@ -47,7 +48,57 @@ class DashboardController extends Controller
             'por_presupuesto' => $buckets,
             'calidad' => $this->calidadDeLaRecomendacion($eventos),
             'sistema' => $this->indicadoresDelSistema($eventos),
+            'satisfaccion' => $this->satisfaccion(),
         ]);
+    }
+
+    /**
+     * ¿La laptop le sirvió de verdad? Encuesta después de la entrega. Lo más importante para la IA:
+     * comparar la satisfacción de las compras que recomendó con las que no, y ver si un % de
+     * compatibilidad más alto termina en clientes más satisfechos (si no, el cálculo está fallando).
+     */
+    private function satisfaccion(): array
+    {
+        $encuestas = EncuestaSatisfaccion::with(['pedido.personalizacion.recomendacion', 'pedido.personalizacion.laptop'])->latest('id')->get();
+        $entregados = Pedido::where('estado', 'entregado')->count();
+        $recomendacion = fn (EncuestaSatisfaccion $e) => $e->pedido?->personalizacion?->recomendacion;
+
+        $resumen = fn (Collection $g) => [
+            'respuestas' => $g->count(),
+            'promedio' => $g->isEmpty() ? null : round((float) $g->avg('satisfaccion'), 1),
+            'volveria_pct' => $g->isEmpty() ? null : round($g->where('volveria_elegirla', 'si')->count() / $g->count() * 100, 1),
+        ];
+
+        $rangos = ['85 % o más' => [85, 101], 'De 70 a 84 %' => [70, 85], 'Menos de 70 %' => [0, 70]];
+        $porCompatibilidad = collect($rangos)->map(fn (array $r, string $rango) => ['rango' => $rango, ...$resumen($encuestas->filter(function (EncuestaSatisfaccion $e) use ($recomendacion, $r) {
+            $pct = $recomendacion($e)?->compatibilidad_pct;
+
+            return $pct !== null && (float) $pct >= $r[0] && (float) $pct < $r[1];
+        }))])->values();
+
+        return [
+            'entregados' => $entregados,
+            'tasa_respuesta_pct' => $entregados === 0 ? null : round($encuestas->count() / $entregados * 100, 1),
+            ...$resumen($encuestas),
+            'por_origen' => [
+                ['origen' => 'Recomendada por la IA', ...$resumen($encuestas->filter(fn ($e) => $recomendacion($e) !== null))],
+                ['origen' => 'Elegida sin la IA', ...$resumen($encuestas->filter(fn ($e) => $recomendacion($e) === null))],
+            ],
+            'por_compatibilidad' => $porCompatibilidad,
+            'aspectos' => collect(EncuestaSatisfaccion::ASPECTOS)->map(fn (string $etiqueta, string $clave) => [
+                'clave' => $clave,
+                'etiqueta' => $etiqueta,
+                'cantidad' => $encuestas->filter(fn ($e) => in_array($clave, $e->aspectos ?? [], true))->count(),
+            ])->sortByDesc('cantidad')->values(),
+            // Lo que escribieron, sin nombre: el código del pedido basta para buscarlo si hace falta.
+            'comentarios' => $encuestas->whereNotNull('comentario')->take(6)->map(fn (EncuestaSatisfaccion $e) => [
+                'fecha' => $e->created_at,
+                'satisfaccion' => $e->satisfaccion,
+                'pedido' => $e->pedido?->codigo,
+                'laptop' => ($l = $e->pedido?->personalizacion?->laptop) ? "{$l->marca} {$l->modelo}" : null,
+                'texto' => $e->comentario,
+            ])->values(),
+        ];
     }
 
     /**

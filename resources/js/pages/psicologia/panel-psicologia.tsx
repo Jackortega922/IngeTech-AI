@@ -1,5 +1,5 @@
 import { LoadingPanel } from '@/components/loading-panel';
-import { CheckCircle2, ClipboardList, HeartHandshake, ShieldCheck, UserX, type LucideIcon } from 'lucide-react';
+import { CheckCircle2, ClipboardList, HeartHandshake, PackageCheck, ShieldCheck, UserX, type LucideIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 // Respuesta de /api/admin/psicologia (App\Http\Controllers\Api\Admin\PsicologiaController).
@@ -30,12 +30,20 @@ interface FilaConfianza {
     posicion_promedio: number | null;
 }
 
+// Encuesta después de la entrega: ¿volvería a elegir su laptop?
+interface Postcompra {
+    respuestas: number;
+    volveria: Opcion[];
+    dudan_pct: number | null;
+}
+
 interface Datos {
     clientes: number;
     completaron: number;
     omitieron: number;
     preguntas: Pregunta[];
     confianza: { por_estilo: FilaConfianza[]; por_nivel: FilaConfianza[] };
+    despues_de_la_compra: Postcompra & { por_estilo: (Postcompra & { valor: string; etiqueta: string })[] };
 }
 
 // Con menos elecciones que esto, un porcentaje dice poco: se avisa en vez de sacar conclusiones.
@@ -111,7 +119,70 @@ export function PanelPsicologia() {
                     </section>
                 </>
             )}
+
+            <DespuesDeLaCompra d={datos.despues_de_la_compra} />
         </div>
+    );
+}
+
+// Disonancia cognitiva: después de comprar, quien no está seguro de volver a elegir su laptop no
+// termina de convencerse de su decisión. Por estilo de decisión, para saber a quién acompañar más.
+function DespuesDeLaCompra({ d }: { d: Datos['despues_de_la_compra'] }) {
+    return (
+        <section>
+            <Titulo
+                icon={PackageCheck}
+                titulo="Después de la compra: ¿quedaron convencidos?"
+                subtitulo="Encuesta al recibir la laptop. Quien duda de si la volvería a elegir vive disonancia cognitiva: no termina de convencerse de su decisión."
+            />
+            {d.respuestas === 0 ? (
+                <p className="bg-card mt-4 rounded-2xl border p-8 text-center text-sm text-slate-500">
+                    Todavía nadie respondió la encuesta de satisfacción (llega con el correo de «entregado»).
+                </p>
+            ) : (
+                <div className="mt-4 grid gap-4 xl:grid-cols-[1fr_2fr]">
+                    <article className="bg-card rounded-2xl border p-5">
+                        <h3 className="text-sm font-bold">¿La volverías a elegir?</h3>
+                        <p className="text-muted-foreground mt-0.5 mb-4 text-xs">
+                            {d.respuestas} {d.respuestas === 1 ? 'respuesta' : 'respuestas'} · {d.dudan_pct}% duda o no la volvería a elegir
+                        </p>
+                        <Barras opciones={d.volveria} total={d.respuestas} color="bg-violet-500" />
+                    </article>
+                    <div className="bg-card overflow-x-auto rounded-2xl border">
+                        <p className="border-b px-4 py-3 text-sm font-bold">Según cómo dijeron que prefieren decidir</p>
+                        <table className="w-full min-w-[460px] text-sm">
+                            <thead className="bg-muted/50 text-muted-foreground text-left text-xs">
+                                <tr>
+                                    <th className="px-4 py-2.5">Grupo</th>
+                                    <th className="px-4 py-2.5 text-right">Respuestas</th>
+                                    <th className="px-4 py-2.5 text-right">Dudan o no la volverían a elegir</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {d.por_estilo.map((f) => (
+                                    <tr key={f.valor} className="border-t">
+                                        <td className="px-4 py-2.5">{f.etiqueta}</td>
+                                        <td className="px-4 py-2.5 text-right font-mono">{f.respuestas}</td>
+                                        <td className="px-4 py-2.5 text-right font-mono">
+                                            {f.dudan_pct === null ? '—' : `${f.dudan_pct}%`}
+                                            {f.respuestas > 0 && f.respuestas < MUESTRA_MINIMA && (
+                                                <span className="ml-1 text-[10px] text-amber-600 dark:text-amber-400" title="Muestra pequeña">
+                                                    *
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        <p className="text-muted-foreground border-t px-4 py-2 text-[11px]">
+                            Solo cuenta a quienes respondieron el cuestionario de bienvenida. * Menos de {MUESTRA_MINIMA} respuestas: tómalo como una
+                            pista. Si quienes comparan dudan más, conviene mostrarles por qué la opción elegida les convenía.
+                        </p>
+                    </div>
+                </div>
+            )}
+        </section>
     );
 }
 

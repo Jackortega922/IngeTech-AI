@@ -1,4 +1,5 @@
 import { LoadingPanel } from '@/components/loading-panel';
+import { PanelSatisfaccion } from '@/pages/industrial/panel-satisfaccion';
 import type { CalidadRecomendacion, Carrera, DashboardAdmin, IndicadoresSistema } from '@/types/flujo';
 import { BarChart3, Gauge, GraduationCap, Laptop as LaptopIcon, ListChecks, Package, Target, Timer, Users } from 'lucide-react';
 
@@ -171,6 +172,8 @@ export function PanelDashboard({ dashboard, carreras }: { dashboard: DashboardAd
             <PanelCalidad calidad={dashboard.calidad} />
 
             <PanelSistema sistema={dashboard.sistema} />
+
+            <PanelSatisfaccion s={dashboard.satisfaccion} />
         </div>
     );
 }

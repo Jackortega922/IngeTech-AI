@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Tienda\BienvenidaController;
 use App\Http\Controllers\Tienda\BoletaController;
+use App\Http\Controllers\Tienda\EncuestaController;
 use App\Http\Controllers\Tienda\LibroReclamacionesController;
 use App\Http\Controllers\Tienda\PedidoConfirmacionController;
 use App\Http\Controllers\Tienda\PublicidadController;
@@ -58,6 +59,10 @@ Route::get('checkout', fn () => Inertia::render('sistemas/checkout/index', [
 Route::get('pedido/{codigo}', PedidoConfirmacionController::class)->name('pedido');
 // Boleta de venta (simulada) del pedido: mismo acceso que la confirmación.
 Route::get('pedido/{codigo}/boleta', BoletaController::class)->name('pedido.boleta');
+// Encuesta de satisfacción después de la entrega: desde la página del pedido o desde el enlace
+// firmado del correo de "entregado" (sin iniciar sesión, también para quien compró sin cuenta).
+Route::get('pedido/{codigo}/encuesta', [EncuestaController::class, 'mostrar'])->middleware('signed')->name('pedido.encuesta');
+Route::post('pedido/{codigo}/encuesta', [EncuestaController::class, 'guardar'])->middleware('throttle:10,1')->name('pedido.encuesta.guardar');
 // Seguimiento para quien compró sin cuenta: código + correo. El límite frena a quien intente
 // adivinar códigos probando muchos seguidos.
 Route::get('seguimiento', [SeguimientoController::class, 'create'])->name('seguimiento');

@@ -20,8 +20,8 @@ class GuiaPanel
     public const SECCIONES = [
         'dashboard' => [
             'titulo' => 'Dashboard (Ing. Industrial)',
-            'guia' => 'Muestra la calidad de la recomendación con IA (tasa de elección, tiempo de decisión, compatibilidad promedio y cobertura del catálogo) y un indicador por disciplina con su meta. Si todavía no hay datos, el indicador aparece como «—» en vez de 0 %.',
-            'claves' => ['dashboard', 'kpi', 'indicador', 'metrica', 'meta'],
+            'guia' => 'Muestra la calidad de la recomendación con IA (tasa de elección, tiempo de decisión, compatibilidad promedio y cobertura del catálogo) y un indicador por disciplina con su meta. Si todavía no hay datos, el indicador aparece como «—» en vez de 0 %. «Satisfacción después de la compra» muestra la encuesta que el cliente responde al recibir su laptop: estrellas promedio, cuántos la volverían a elegir, la comparación entre lo que recomendó la IA y lo que no (y por % de compatibilidad), qué no salió como esperaban y los comentarios.',
+            'claves' => ['dashboard', 'kpi', 'indicador', 'metrica', 'meta', 'satisfac', 'encuesta', 'estrella', 'comentario'],
         ],
         'contabilidad' => [
             'titulo' => 'Contabilidad',
@@ -80,8 +80,8 @@ class GuiaPanel
         ],
         'psicologia' => [
             'titulo' => 'Perfil de clientes (Psicología)',
-            'guia' => 'Resumen, sin nombres, de las respuestas del cuestionario de bienvenida (movilidad, molestias, prioridades, cómo prefieren decidir) y si la recomendación genera confianza: qué tanto eligen la primera laptop recomendada según cómo deciden.',
-            'claves' => ['psicolog', 'cuestionario', 'perfil de cliente', 'confianza'],
+            'guia' => 'Resumen, sin nombres, de las respuestas del cuestionario de bienvenida (movilidad, molestias, prioridades, cómo prefieren decidir) y si la recomendación genera confianza: qué tanto eligen la primera laptop recomendada según cómo deciden. «Después de la compra» muestra cuántos dudan de si volverían a elegir su laptop (disonancia cognitiva), en total y según cómo prefieren decidir.',
+            'claves' => ['psicolog', 'cuestionario', 'perfil de cliente', 'confianza', 'disonancia', 'despues de la compra'],
         ],
         'ambiental' => [
             'titulo' => 'Recojo RAEE (Ing. Ambiental)',

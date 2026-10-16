@@ -152,6 +152,23 @@ export interface DashboardAdmin {
     por_presupuesto: Record<string, number>;
     calidad: CalidadRecomendacion;
     sistema: IndicadoresSistema;
+    satisfaccion: SatisfaccionClientes;
+}
+
+// Encuesta de satisfacción después de la entrega (DashboardController::satisfaccion).
+export interface GrupoSatisfaccion {
+    respuestas: number;
+    promedio: number | null;
+    volveria_pct: number | null;
+}
+
+export interface SatisfaccionClientes extends GrupoSatisfaccion {
+    entregados: number;
+    tasa_respuesta_pct: number | null;
+    por_origen: (GrupoSatisfaccion & { origen: string })[];
+    por_compatibilidad: (GrupoSatisfaccion & { rango: string })[];
+    aspectos: { clave: string; etiqueta: string; cantidad: number }[];
+    comentarios: { fecha: string; satisfaccion: number; pedido: string | null; laptop: string | null; texto: string }[];
 }
 
 // KPIs de Ingeniería Industrial (docs/gestion/kpis.md). Las tasas llegan en null cuando todavía
@@ -253,6 +270,8 @@ export interface Pedido {
     // Boleta de venta (simulada): serie + correlativo, ej. B001-00000012.
     comprobante: string | null;
     created_at: string;
+    // Encuesta de satisfacción después de la entrega (solo en "Mis pedidos").
+    encuesta?: { id: number; satisfaccion: number } | null;
     // Recorrido del pedido: cuándo pasó a cada estado (tabla pedido_eventos).
     eventos: { id: number; estado: EstadoPedido; created_at: string }[];
     personalizacion: {

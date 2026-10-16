@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 class Pedido extends Model
@@ -114,5 +116,34 @@ class Pedido extends Model
     public function cupon(): BelongsTo
     {
         return $this->belongsTo(Cupon::class);
+    }
+
+    public function encuesta(): HasOne
+    {
+        return $this->hasOne(EncuestaSatisfaccion::class);
+    }
+
+    /** Enlace del correo de "entregado" para responder la encuesta sin iniciar sesión. */
+    public function urlEncuesta(): string
+    {
+        return URL::signedRoute('pedido.encuesta', ['codigo' => $this->codigo]);
+    }
+
+    /**
+     * Lo que la pantalla necesita para la encuesta: null si todavía no se entregó. $url es adónde
+     * se envían las respuestas (con la firma del correo, o sin ella desde la página del pedido).
+     */
+    public function datosEncuesta(string $url): ?array
+    {
+        if ($this->estado !== 'entregado') {
+            return null;
+        }
+
+        return [
+            'url' => $url,
+            'respondida' => $this->encuesta !== null,
+            'satisfaccion' => $this->encuesta?->satisfaccion,
+            'opciones' => EncuestaSatisfaccion::opciones(),
+        ];
     }
 }
