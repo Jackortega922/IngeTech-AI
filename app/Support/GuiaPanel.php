@@ -60,7 +60,7 @@ class GuiaPanel
         ],
         'hardware' => [
             'titulo' => 'Equipos (catálogo)',
-            'guia' => 'Crear, editar o eliminar laptops del catálogo (specs, precio, foto). Después de cambiar laptops, el equipo técnico debe ejecutar «php artisan motor:exportar-catalogo» para que la IA use los datos nuevos.',
+            'guia' => 'Crear, editar o eliminar laptops del catálogo (specs, precio, foto). «Consumo en uso (W)» es opcional: con el dato del fabricante, la tienda muestra el consumo eléctrico al año exacto; vacío, lo estima por el tipo de procesador. Después de cambiar laptops, el equipo técnico debe ejecutar «php artisan motor:exportar-catalogo» para que la IA use los datos nuevos.',
             'claves' => ['equipo', 'laptop', 'catalogo', 'hardware', 'agregar laptop', 'precio'],
         ],
         'software' => [

@@ -340,6 +340,13 @@ function TarjetaLaptop({
                             <small className="block text-[11px] text-slate-500 dark:text-slate-400">
                                 ≈ {soles(costoAnual(l.precio_soles))} por año de uso
                             </small>
+                            {/* Ambiental: energía al año (y su costo en el recibo, si hay tarifa configurada). */}
+                            {l.consumo && (
+                                <small className="block text-[11px] text-slate-500 dark:text-slate-400" title={textoConsumo(l.consumo)}>
+                                    ⚡ ≈ {l.consumo.kwh_anio} kWh de luz al año
+                                    {l.consumo.soles_anio !== null && ` (${soles(l.consumo.soles_anio)})`}
+                                </small>
+                            )}
                         </div>
                         <button
                             onClick={onComparar}
@@ -387,6 +394,11 @@ function TarjetaSimple({ l, onDetalle }: { l: Laptop; onDetalle: () => void }) {
 }
 
 // Ventana con todas las specs (diseño de Marco), con los datos que el catálogo ya tiene.
+// Consumo al año en palabras: los W, los kWh (6 h al día, 300 días) y si el dato es una estimación.
+function textoConsumo(c: NonNullable<Laptop['consumo']>): string {
+    return `≈ ${c.watts} W en uso · ${c.kwh_anio} kWh al año${c.soles_anio !== null ? ` · ${soles(c.soles_anio)} de luz` : ''} (usándola 6 h al día${c.estimado ? '; potencia estimada por el tipo de procesador' : ''})`;
+}
+
 function VentanaDetalle({ l, onCerrar }: { l: Laptop | null; onCerrar: () => void }) {
     if (!l) return null;
     const datos: [string, string][] = [
@@ -400,6 +412,7 @@ function VentanaDetalle({ l, onCerrar }: { l: Laptop | null; onCerrar: () => voi
         ['Peso', l.peso_kg ? `${l.peso_kg} kg` : '—'],
         ['Precio', soles(l.precio_soles)],
         ['Costo por año de uso', `${soles(costoAnual(l.precio_soles))} (en ${VIDA_UTIL_ANIOS} años)`],
+        ...(l.consumo ? ([['Consumo eléctrico', textoConsumo(l.consumo)]] as [string, string][]) : []),
     ];
 
     return (

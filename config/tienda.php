@@ -14,6 +14,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Consumo eléctrico (Ingeniería Ambiental + Contabilidad)
+    |--------------------------------------------------------------------------
+    | kWh al año = potencia promedio en uso (W) × horas al día × días al año ÷ 1000.
+    | La potencia sale de laptops.consumo_w o se estima (App\Support\ConsumoEnergetico).
+    | La tarifa es el precio por kWh del recibo de luz (con IGV): mientras no se configure con un
+    | dato verificado (TARIFA_KWH en .env, con su fuente), se muestran solo los kWh, no los soles.
+    */
+    'energia' => [
+        'horas_por_dia' => 6,
+        'dias_por_anio' => 300,
+        'tarifa_soles_kwh' => env('TARIFA_KWH'),
+        'tarifa_fuente' => env('TARIFA_KWH_FUENTE'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Contabilidad
     |--------------------------------------------------------------------------
     | Los precios del catálogo INCLUYEN IGV (como en cualquier tienda peruana: el precio que se

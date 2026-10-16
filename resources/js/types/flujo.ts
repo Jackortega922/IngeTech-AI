@@ -69,6 +69,10 @@ export interface Laptop {
     gpu: string | null;
     gpu_dedicada: boolean;
     bateria_horas: number | null;
+    // Potencia promedio en uso según el fabricante; null = el sistema la estima.
+    consumo_w?: number | null;
+    // Consumo eléctrico al año (App\Support\ConsumoEnergetico). soles_anio es null sin tarifa configurada.
+    consumo?: { watts: number; estimado: boolean; kwh_anio: number; soles_anio: number | null };
     // Guía de compra del comparador (valores de referencia, por verificar: tarea C2).
     pantalla_pulgadas: number | null;
     pantalla_resolucion: string | null;

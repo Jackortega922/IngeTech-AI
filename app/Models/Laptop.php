@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\ConsumoEnergetico;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -27,6 +29,7 @@ class Laptop extends Model
         'gpu',
         'gpu_dedicada',
         'bateria_horas',
+        'consumo_w',
         'pantalla_pulgadas',
         'pantalla_resolucion',
         'pantalla_hz',
@@ -39,10 +42,14 @@ class Laptop extends Model
         'stock_minimo',
     ];
 
+    // Consumo eléctrico al año (Ambiental + Contabilidad): lo ven el resultado de la IA y la tienda.
+    protected $appends = ['consumo'];
+
     protected function casts(): array
     {
         return [
             'precio_soles' => 'decimal:2',
+            'consumo_w' => 'integer',
             'gpu_dedicada' => 'boolean',
             'pantalla_pulgadas' => 'float',
             'peso_kg' => 'float',
@@ -50,6 +57,11 @@ class Laptop extends Model
             'stock' => 'integer',
             'stock_minimo' => 'integer',
         ];
+    }
+
+    protected function consumo(): Attribute
+    {
+        return Attribute::get(fn () => ConsumoEnergetico::de($this));
     }
 
     public function movimientos(): HasMany

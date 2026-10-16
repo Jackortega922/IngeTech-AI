@@ -482,6 +482,7 @@ interface BorradorEquipo {
     gpu: string;
     gpu_dedicada: boolean;
     bateria_horas: string;
+    consumo_w: string;
     pantalla_pulgadas: string;
     pantalla_resolucion: string;
     pantalla_hz: string;
@@ -507,6 +508,7 @@ const equipoVacio = (): BorradorEquipo => ({
     gpu: '',
     gpu_dedicada: false,
     bateria_horas: '',
+    consumo_w: '',
     pantalla_pulgadas: '',
     pantalla_resolucion: '',
     pantalla_hz: '',
@@ -532,6 +534,7 @@ const equipoABorrador = (l: Laptop): BorradorEquipo => ({
     gpu: l.gpu ?? '',
     gpu_dedicada: l.gpu_dedicada,
     bateria_horas: str(l.bateria_horas),
+    consumo_w: str(l.consumo_w),
     pantalla_pulgadas: str(l.pantalla_pulgadas),
     pantalla_resolucion: l.pantalla_resolucion ?? '',
     pantalla_hz: str(l.pantalla_hz),
@@ -558,6 +561,7 @@ async function guardarEquipo(b: BorradorEquipo): Promise<string> {
         gpu: txt(b.gpu),
         gpu_dedicada: b.gpu_dedicada,
         bateria_horas: num(b.bateria_horas),
+        consumo_w: num(b.consumo_w),
         pantalla_pulgadas: num(b.pantalla_pulgadas),
         pantalla_resolucion: txt(b.pantalla_resolucion),
         pantalla_hz: num(b.pantalla_hz),
@@ -708,6 +712,9 @@ function FormEquipo({ value, onChange }: { value: BorradorEquipo; onChange: (v: 
                 <Campo label="Tipo de almacenamiento">{input('almacenamiento_tipo', { placeholder: 'SSD' })}</Campo>
                 <Campo label="GPU">{input('gpu', { placeholder: 'RTX 4050 / Radeon integrada' })}</Campo>
                 <Campo label="Batería (horas)">{input('bateria_horas', { type: 'number', min: 0 })}</Campo>
+                <Campo label="Consumo en uso (W)">
+                    {input('consumo_w', { type: 'number', min: 3, placeholder: 'Vacío = se estima por el procesador' })}
+                </Campo>
                 <Campo label="Precio (S/)">{input('precio_soles', { type: 'number', min: 0 })}</Campo>
                 <Campo label="Tienda de referencia">{input('tienda')}</Campo>
             </div>
