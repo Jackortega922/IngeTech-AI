@@ -3,6 +3,7 @@ import { LoadingPanel } from '@/components/loading-panel';
 import AppLayout from '@/layouts/app-layout';
 import { PUERTO_ETIQUETA } from '@/lib/guia-compra';
 import { PanelClientes } from '@/pages/administracion/panel-clientes';
+import { PanelDemandaIa } from '@/pages/administracion/panel-demanda-ia';
 import { PanelInventario } from '@/pages/administracion/panel-inventario';
 import { PanelUsuarios } from '@/pages/administracion/panel-usuarios';
 import { PanelContabilidad } from '@/pages/contabilidad/panel-contabilidad';
@@ -247,7 +248,10 @@ export default function AdminIndex() {
                     ) : sub === 'pedidos' ? (
                         <PanelPedidos pedidos={pedidos} avisar={avisar} soloLectura={!permisos.includes('pedidos.editar')} />
                     ) : sub === 'inventario' ? (
-                        <PanelInventario avisar={avisar} />
+                        <>
+                            <PanelInventario avisar={avisar} />
+                            <PanelDemandaIa />
+                        </>
                     ) : sub === 'reclamos' ? (
                         <PanelReclamos reclamos={reclamos} avisar={avisar} />
                     ) : sub === 'marketing' ? (
