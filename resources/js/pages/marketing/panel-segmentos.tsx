@@ -1,5 +1,6 @@
 import { LoadingPanel } from '@/components/loading-panel';
 import { PanelCupones, type TipoSegmento } from '@/pages/marketing/panel-cupones';
+import { PanelEfectividad } from '@/pages/marketing/panel-efectividad';
 import { Brain, Info, Megaphone, RefreshCw, Tag, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -151,6 +152,8 @@ export function PanelSegmentos({ avisar }: { avisar: (msg: string) => void }) {
             <div id="cupones">
                 <PanelCupones pedido={pedidoCupon} avisar={avisar} />
             </div>
+
+            <PanelEfectividad />
 
             <p className="text-muted-foreground flex items-start gap-2 text-xs leading-5">
                 <Info className="mt-0.5 h-4 w-4 shrink-0" />
