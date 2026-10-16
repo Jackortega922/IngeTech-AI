@@ -1,4 +1,5 @@
 import { LoadingPanel } from '@/components/loading-panel';
+import { Estrellas } from '@/components/tienda/encuesta-satisfaccion';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { estadoPedido, soles } from '@/lib/pedidos';
 import type { EstadoPedido } from '@/types/flujo';
@@ -60,6 +61,8 @@ interface PedidoFicha {
     total: number;
     descuento: number;
     estado: EstadoPedido;
+    // Encuesta después de la entrega (1 a 5), si la respondió.
+    satisfaccion: number | null;
     telefono: string | null;
     ubicacion: string | null;
 }
@@ -363,6 +366,7 @@ function FichaCliente({ url, nombre }: { url: string; nombre: string }) {
                                         detalle={`${p.codigo}${p.comprobante ? ` · ${p.comprobante}` : ''} · ${fecha(p.fecha)}${p.descuento > 0 ? ` · descuento ${soles(p.descuento)}` : ''}`}
                                         derecha={
                                             <span className="flex items-center gap-2">
+                                                {p.satisfaccion !== null && <Estrellas valor={p.satisfaccion} chica />}
                                                 <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${estado.clase}`}>
                                                     {estado.label}
                                                 </span>

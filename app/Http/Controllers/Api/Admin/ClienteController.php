@@ -153,7 +153,7 @@ class ClienteController extends Controller
 
     private function pedidos($consulta): Collection
     {
-        return $consulta->with('personalizacion.laptop:id,marca,modelo')->latest('id')->get()->map(fn (Pedido $p) => [
+        return $consulta->with(['personalizacion.laptop:id,marca,modelo', 'encuesta:id,pedido_id,satisfaccion'])->latest('id')->get()->map(fn (Pedido $p) => [
             'codigo' => $p->codigo,
             'comprobante' => $p->comprobante,
             'fecha' => $p->created_at,
@@ -161,6 +161,7 @@ class ClienteController extends Controller
             'total' => (float) $p->total,
             'descuento' => (float) $p->descuento,
             'estado' => $p->estado,
+            'satisfaccion' => $p->encuesta?->satisfaccion,
             'telefono' => $p->telefono,
             'ubicacion' => $this->ubicacion($p),
         ]);

@@ -17,10 +17,10 @@ Imágenes listas para presentar: [antes](img/modelo-datos-antes.png) ·
 
 | | Antes (tienda sin IA) | Después (con IA) |
 |---|---|---|
-| Tablas del negocio | 13 | 21 (**+8**) |
+| Tablas del negocio | 13 | 22 (**+9**) |
 | Qué sabe del cliente | Lo que compra | Lo que hace, qué programas usa, su presupuesto y cómo es |
 | Cómo elige el cliente | Busca y compara solo | La IA le recomienda con % de compatibilidad y explica por qué |
-| Qué mide la tienda | Ventas | Ventas + calidad de la recomendación + conversión de la IA |
+| Qué mide la tienda | Ventas | Ventas + calidad de la recomendación + conversión de la IA + satisfacción real con lo recomendado |
 
 ## 1. Antes: tienda de laptops convencional
 
@@ -145,7 +145,7 @@ erDiagram
 
 ## 2. Después: la misma tienda con IA
 
-Este diagrama muestra las **8 tablas nuevas** que existen por la IA y cómo se enganchan con la
+Este diagrama muestra las **9 tablas nuevas** que existen por la IA y cómo se enganchan con la
 tienda. Las tablas de la tienda siguen iguales (aquí se dibujan resumidas); solo ganan algunas
 columnas que la IA necesita (ver la tabla de abajo).
 
@@ -164,6 +164,7 @@ erDiagram
     personalizaciones ||--|| pedidos : "se paga en"
     laptops ||--o{ personalizaciones : "se configura en"
     cupones ||--o{ pedidos : "descuenta"
+    pedidos ||--o| encuestas_satisfaccion : "se califica al entregar"
 
     carreras {
         bigint id PK
@@ -251,6 +252,13 @@ erDiagram
         string codigo
         string segmento "nueva: grupo hallado por K-Means"
     }
+    encuestas_satisfaccion {
+        bigint id PK
+        bigint pedido_id FK "una por pedido"
+        tinyint satisfaccion "1 a 5"
+        string volveria_elegirla "si, no_seguro, no"
+        json aspectos "lo que no salió como esperaba"
+    }
     users {
         bigint id PK
         string rol
@@ -259,7 +267,7 @@ erDiagram
 
 ## Qué agrega la IA, tabla por tabla
 
-### Tablas nuevas (8)
+### Tablas nuevas (9)
 
 | Tabla | Para qué la usa la IA |
 |---|---|
@@ -271,6 +279,7 @@ erDiagram
 | `preferencias_cliente` | Cuestionario de bienvenida (Psicología): mueve el 30% de **afinidad** del puntaje. |
 | `recomendaciones` | Salida del motor: laptop, **% de compatibilidad** y **explicación** (factores y advertencias). |
 | `eventos_analitica` | Consultas y elecciones: de aquí salen los **KPIs** de la IA (tasa de elección, tiempo de decisión, cobertura). |
+| `encuestas_satisfaccion` | Encuesta al entregar el pedido: la prueba final de si la recomendación acertó. Compara la satisfacción de lo que recomendó la IA con lo que no, y por rango de **% de compatibilidad**; son datos reales para revisar el motor. |
 
 ### Columnas nuevas en tablas que ya existían
 

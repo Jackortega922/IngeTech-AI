@@ -1,12 +1,13 @@
 import ChatWidget from '@/components/chat-widget';
 import LaptopImage from '@/components/laptop-image';
+import EncuestaSatisfaccion, { type DatosEncuesta } from '@/components/tienda/encuesta-satisfaccion';
 import { ESTADOS_PEDIDO, estadoPedido, lugarDeEnvio, soles } from '@/lib/pedidos';
 import { type SharedData } from '@/types';
 import type { Pedido } from '@/types/flujo';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { BookOpenText, CheckCircle2, CreditCard, FileText, MapPin } from 'lucide-react';
 
-export default function PedidoIndex({ pedido }: { pedido: Pedido }) {
+export default function PedidoIndex({ pedido, encuesta }: { pedido: Pedido; encuesta: DatosEncuesta | null }) {
     const { auth } = usePage<SharedData>().props;
     const p = pedido.personalizacion;
     const estado = estadoPedido(pedido.estado);
@@ -79,6 +80,16 @@ export default function PedidoIndex({ pedido }: { pedido: Pedido }) {
                             </p>
                         )}
                     </section>
+
+                    {/* Encuesta de satisfacción: se abre cuando el pedido ya fue entregado. */}
+                    {encuesta && (
+                        <section
+                            id="encuesta"
+                            className="mt-6 scroll-mt-6 rounded-2xl border border-cyan-400/40 bg-white p-6 dark:border-cyan-400/30 dark:bg-white/[0.04]"
+                        >
+                            <EncuestaSatisfaccion datos={encuesta} />
+                        </section>
+                    )}
 
                     {/* Resumen */}
                     <section className="mt-6 grid gap-6 sm:grid-cols-2">

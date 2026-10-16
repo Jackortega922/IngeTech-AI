@@ -88,6 +88,25 @@ centro. Se calculan en `DashboardController::indicadoresDelSistema()` y se ven e
 | Marketing | Ventas con cupón | ventas con descuento ÷ ventas válidas | descriptivo |
 | Ambiental | Compras con recojo RAEE | ventas con recojo del equipo anterior ÷ ventas válidas | ≥ 20 % |
 
+### Satisfacción después de la compra (Industrial + Psicología)
+
+Encuesta que el cliente responde al recibir su laptop (enlace en el correo de "entregado" o desde
+su pedido): estrellas de 1 a 5, si la volvería a elegir y, opcional, qué no salió como esperaba y
+un comentario. Es la única medida de si la recomendación **acertó de verdad**, no solo de si se
+eligió.
+
+| KPI | Fórmula | Meta (propuesta) |
+|---|---|---|
+| Satisfacción promedio | promedio de estrellas de las encuestas | ≥ 4 / 5 |
+| Volverían a elegirla | respuestas "sí" ÷ respuestas | ≥ 80 % |
+| Tasa de respuesta | encuestas ÷ pedidos entregados | descriptivo |
+
+Además, el Dashboard compara la satisfacción **de lo que recomendó la IA contra lo que no** y
+**por rango de % de compatibilidad** (85 % o más, de 70 a 84 %, menos de 70 %). Si un % más alto
+no termina en clientes más satisfechos, el cálculo del motor necesita ajuste. Psicología mira
+cuántos **dudan** de su compra ("no estoy seguro" o "no": disonancia cognitiva) según cómo dijeron
+que prefieren decidir. Con menos de 5 respuestas por fila, el panel lo marca como muestra pequeña.
+
 "Venta válida" = pedido no cancelado. Contabilidad no tiene un KPI aquí porque su panel ya es
 el reporte de ventas, IGV y descuentos.
 
@@ -106,7 +125,9 @@ el reporte de ventas, IGV y descuentos.
 ## Limitaciones actuales
 
 - Los datos acumulados hasta ahora vienen de pruebas locales del equipo, no de usuarios reales.
-- La tasa de elección mide si la persona **eligió** una opción, no si después la **compró**:
-  el sistema no tiene todavía registro de compras.
+- La tasa de elección mide si la persona **eligió** una opción; si después la **compró** lo
+  miden "Ventas que vienen de la IA" y "Conversión de la IA", y si **le sirvió**, la encuesta de
+  satisfacción.
+- La encuesta es opcional: quien responde no representa necesariamente a todos los clientes.
 - El tiempo de decisión empieza a contar al recibir la recomendación, no al abrir el
   formulario; el tiempo que toma llenar el perfil no se mide.

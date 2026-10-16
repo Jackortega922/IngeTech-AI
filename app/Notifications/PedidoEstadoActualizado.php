@@ -34,11 +34,22 @@ class PedidoEstadoActualizado extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $p = $this->pedido;
-
-        return (new MailMessage)
+        $correo = (new MailMessage)
             ->subject("Tu pedido {$p->codigo}: {$p->estado}")
             ->greeting("Hola, {$p->nombre}")
-            ->line(self::MENSAJES[$p->estado] ?? "Tu pedido ahora está: {$p->estado}.")
+            ->line(self::MENSAJES[$p->estado] ?? "Tu pedido ahora está: {$p->estado}.");
+
+        // Al entregarlo se invita a la encuesta de satisfacción: es lo único que dice si la laptop
+        // que recomendó la IA le sirvió de verdad.
+        if ($p->estado === 'entregado') {
+            return $correo
+                ->line('Cuando la hayas usado unos días, cuéntanos qué tal te fue: son 2 preguntas y nos ayudan a recomendar mejor.')
+                ->action('Contar qué tal me fue', $p->urlEncuesta())
+                ->line("Código: {$p->codigo}")
+                ->salutation('Equipo IngeTech AI');
+        }
+
+        return $correo
             ->action('Seguir mi pedido', url('/seguimiento'))
             ->line("Código: {$p->codigo}")
             ->salutation('Equipo IngeTech AI');

@@ -18,12 +18,15 @@ class PedidoConfirmacionController extends Controller
 {
     public function __invoke(Request $request, string $codigo)
     {
-        $pedido = Pedido::with(['personalizacion.laptop', 'personalizacion.items.item', 'eventos'])
+        $pedido = Pedido::with(['personalizacion.laptop', 'personalizacion.items.item', 'eventos', 'encuesta'])
             ->where('codigo', $codigo)
             ->firstOrFail();
 
         abort_unless(AccesoPedido::puedeVer($request, $pedido), 404);
 
-        return Inertia::render('sistemas/pedido/index', ['pedido' => $pedido]);
+        return Inertia::render('sistemas/pedido/index', [
+            'pedido' => $pedido,
+            'encuesta' => $pedido->datosEncuesta(route('pedido.encuesta.guardar', $pedido->codigo)),
+        ]);
     }
 }

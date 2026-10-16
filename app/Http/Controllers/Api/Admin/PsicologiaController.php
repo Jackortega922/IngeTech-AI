@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\EncuestaSatisfaccion;
 use App\Models\EventoAnalitica;
 use App\Models\PerfilUsuario;
 use App\Models\PreferenciaCliente;
@@ -33,7 +34,39 @@ class PsicologiaController extends Controller
             'omitieron' => $preferencias->whereNull('completado_at')->whereNotNull('omitido_at')->count(),
             'preguntas' => collect(CuestionarioBienvenida::PREGUNTAS)->map(fn (array $p) => $this->resumen($p, $completas))->values(),
             'confianza' => $this->confianza($completas),
+            'despues_de_la_compra' => $this->despuesDeLaCompra($completas),
         ]);
+    }
+
+    /**
+     * Disonancia cognitiva después de comprar: quien duda de si volvería a elegir su laptop ("no
+     * estoy seguro" o "no") no termina de convencerse de su decisión. Se agrupa por cómo dice decidir
+     * cada persona en el cuestionario, para saber a quién conviene acompañar más al recomendar.
+     */
+    private function despuesDeLaCompra(Collection $completas): array
+    {
+        $encuestas = EncuestaSatisfaccion::with('pedido:id,user_id')->get();
+        $estiloDe = $completas->pluck('estilo_decision', 'user_id');
+        $resumen = fn (Collection $g) => [
+            'respuestas' => $g->count(),
+            'volveria' => collect(EncuestaSatisfaccion::VOLVERIA)->map(fn ($etiqueta, $valor) => [
+                'valor' => $valor,
+                'etiqueta' => $etiqueta,
+                'cantidad' => $g->where('volveria_elegirla', $valor)->count(),
+            ])->values(),
+            'dudan_pct' => $g->isEmpty() ? null : round($g->where('volveria_elegirla', '!=', 'si')->count() / $g->count() * 100, 1),
+        ];
+
+        $pregunta = collect(CuestionarioBienvenida::PREGUNTAS)->firstWhere('clave', 'estilo_decision');
+
+        return [
+            ...$resumen($encuestas),
+            'por_estilo' => collect($pregunta['opciones'])->map(fn ($etiqueta, $valor) => [
+                'valor' => $valor,
+                'etiqueta' => $etiqueta,
+                ...$resumen($encuestas->filter(fn (EncuestaSatisfaccion $e) => $e->pedido?->user_id !== null && $estiloDe->get($e->pedido->user_id) === $valor)),
+            ])->values(),
+        ];
     }
 
     /** Cuántos eligieron cada opción de una pregunta. */

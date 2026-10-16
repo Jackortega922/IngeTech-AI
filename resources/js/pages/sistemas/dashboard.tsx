@@ -1,4 +1,5 @@
 import LaptopImage from '@/components/laptop-image';
+import { Estrellas } from '@/components/tienda/encuesta-satisfaccion';
 import AppLayout from '@/layouts/app-layout';
 import { estadoPedido, soles } from '@/lib/pedidos';
 import { type BreadcrumbItem, type SharedData } from '@/types';
@@ -192,7 +193,7 @@ function MisPedidos({ pedidos }: { pedidos: Pedido[] | null }) {
                         return (
                             <Link
                                 key={p.id}
-                                href={`/pedido/${p.codigo}`}
+                                href={`/pedido/${p.codigo}${p.estado === 'entregado' && !p.encuesta ? '#encuesta' : ''}`}
                                 className="flex gap-4 rounded-xl border p-4 transition hover:border-cyan-500/50"
                             >
                                 <LaptopImage imagenUrl={l.imagen_url} marca={l.marca} tipo={l.tipo} className="h-16 w-16 shrink-0 rounded-lg" />
@@ -211,6 +212,14 @@ function MisPedidos({ pedidos }: { pedidos: Pedido[] | null }) {
                                         <span className="text-muted-foreground">
                                             {new Date(p.created_at).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
                                         </span>
+                                        {p.estado === 'entregado' &&
+                                            (p.encuesta ? (
+                                                <Estrellas valor={p.encuesta.satisfaccion} chica />
+                                            ) : (
+                                                <span className="rounded-full bg-amber-400/15 px-2.5 py-0.5 font-semibold text-amber-700 dark:text-amber-300">
+                                                    ★ Cuéntanos qué tal te fue
+                                                </span>
+                                            ))}
                                     </div>
                                 </div>
                             </Link>
