@@ -79,3 +79,9 @@ services:
             sync: false
           - key: ADMIN_EMAIL
             sync: false
+          # Consumo eléctrico de las laptops (opcional): precio por kWh del recibo de luz, con IGV, y
+          # de dónde salió. Vacío = la tienda muestra solo los kWh al año, no los soles.
+          - key: TARIFA_KWH
+            sync: false
+          - key: TARIFA_KWH_FUENTE
+            sync: false

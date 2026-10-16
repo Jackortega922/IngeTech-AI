@@ -187,7 +187,7 @@ export default function CheckoutIndex({ departamentos, provinciasHuanuco }: { de
 
     return (
         <>
-            <Head title="Finalizar compra — IngeTech AI" />
+            <Head title="Finalizar compra" />
             <div className="min-h-screen bg-slate-50 text-[#0c2340] dark:bg-slate-950 dark:text-white">
                 <FlowHeader pasoActual={4} flujo={flujo} />
 

@@ -21,6 +21,15 @@ class PedidoEstadoActualizado extends Notification implements ShouldQueue
         'cancelado' => 'Tu pedido fue cancelado. Si no lo pediste tú o tienes dudas, puedes dejar constancia en el Libro de Reclamaciones del sitio.',
     ];
 
+    // Cómo se lee cada estado en el asunto del correo.
+    private const ASUNTOS = [
+        'pagado' => 'pago confirmado',
+        'preparando' => 'lo estamos preparando',
+        'enviado' => 'va en camino',
+        'entregado' => 'fue entregado',
+        'cancelado' => 'fue cancelado',
+    ];
+
     public function __construct(public Pedido $pedido)
     {
         $this->afterCommit();
@@ -35,7 +44,7 @@ class PedidoEstadoActualizado extends Notification implements ShouldQueue
     {
         $p = $this->pedido;
         $correo = (new MailMessage)
-            ->subject("Tu pedido {$p->codigo}: {$p->estado}")
+            ->subject("Tu pedido {$p->codigo}: ".(self::ASUNTOS[$p->estado] ?? $p->estado))
             ->greeting("Hola, {$p->nombre}")
             ->line(self::MENSAJES[$p->estado] ?? "Tu pedido ahora está: {$p->estado}.");
 

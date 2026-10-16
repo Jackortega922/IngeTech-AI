@@ -51,7 +51,7 @@ export default function Dashboard({ preferencias, mensaje }: { preferencias: Pre
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Inicio — IngeTech AI" />
+            <Head title="Inicio" />
             <main className="it-container space-y-7 py-7 sm:py-9">
                 {mensaje && (
                     <p className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">

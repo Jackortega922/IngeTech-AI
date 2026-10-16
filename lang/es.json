@@ -11,5 +11,6 @@
     "You are receiving this email because we received a password reset request for your account.": "Recibes este correo porque se pidió restablecer la contraseña de tu cuenta.",
     "Reset Password": "Restablecer contraseña",
     "This password reset link will expire in :count minutes.": "Este enlace vence en :count minutos.",
-    "If you did not request a password reset, no further action is required.": "Si no lo pediste tú, ignora este mensaje: tu contraseña no cambia."
+    "If you did not request a password reset, no further action is required.": "Si no lo pediste tú, ignora este mensaje: tu contraseña no cambia.",
+    "A reset link will be sent if the account exists.": "Si hay una cuenta con ese correo, te enviamos un enlace para crear una nueva contraseña. Revisa también tu carpeta de spam."
 }

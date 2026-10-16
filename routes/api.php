@@ -29,7 +29,9 @@ Route::get('/health', function () {
 });
 
 Route::get('/catalogos', [CatalogoController::class, 'index']);
-Route::post('/recomendaciones', [RecomendacionController::class, 'store']);
+// Cada recomendación ejecuta el motor (en producción, un proceso de Python que tarda unos segundos
+// en el plan gratuito) y guarda un perfil: el límite evita que un script sature el servidor.
+Route::post('/recomendaciones', [RecomendacionController::class, 'store'])->middleware('throttle:10,1');
 // Comparador "Para ti": abierto (sin sesión responde disponible: false), con límite porque llama al motor.
 Route::post('/comparador/afinidad', [ComparadorController::class, 'afinidad'])->middleware('throttle:30,1');
 // Límite por minuto: con Gemini configurado, cada mensaje es una llamada a la API (el plan
